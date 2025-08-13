@@ -158,7 +158,12 @@
                 }
                 
                 if (modelsResponse.ok && modelsResponse.data) {
-                    MODEL_PRESETS = modelsResponse.data;
+                    // Clear any existing models first
+                    MODEL_PRESETS = {};
+                    
+                    // Copy all models from the response
+                    Object.assign(MODEL_PRESETS, modelsResponse.data);
+                    
                     console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
                     console.log('✅ Found', Object.keys(MODEL_PRESETS).length, 'models');
                     
