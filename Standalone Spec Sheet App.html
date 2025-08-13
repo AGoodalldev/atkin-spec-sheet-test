@@ -4,602 +4,343 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atkin Custom Spec Sheet</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
             @page { size: A4 portrait; margin: 12mm; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body { background: white; }
-            .print\:w-\[794px\] { width: 794px !important; }
-            .print\:mx-auto { margin-left: auto !important; margin-right: auto !important; }
-            .print\:border-0 { border-width: 0 !important; }
-            .print\:hidden { display: none !important; }
+            .print-hidden { display: none !important; }
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .highlight-changed {
+            ring: 2px;
+            ring-color: #f97316;
+            ring-offset: 1px;
+            border-radius: 14px;
         }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="rounded-2xl shadow-xl border border-gray-200 bg-white max-w-4xl mx-auto">
+            <div class="p-6 space-y-4">
+                <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet</h1>
+                
+                <!-- Status Messages -->
+                <div id="statusMessage" class="hidden"></div>
+                
+                <!-- Main Form -->
+                <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
+                            <input id="serial" type="text" 
+                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
+                                   value="ATK-2025-00123" placeholder="e.g. ATK-2025-00123">
+                        </div>
+                        
+                        <div>
+                            <label for="customer" class="text-sm font-medium text-gray-700 mb-1 block">Customer Name</label>
+                            <input id="customer" type="text" 
+                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
+                                   placeholder="Customer Name">
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="text-sm font-medium text-gray-700 mb-1 block">Contact Email</label>
+                            <input id="email" type="email" 
+                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
+                                   placeholder="name@example.com">
+                        </div>
+                        
+                        <div>
+                            <label for="model" class="text-sm font-medium text-gray-700 mb-1 block">Model</label>
+                            <select id="model" 
+                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
+                                <option value="">Choose a model</option>
+                                <!-- Models will be populated dynamically from Google Sheets -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="rightLeft" class="text-sm font-medium text-gray-700 mb-1 block">RIGHT / LEFT</label>
+                            <select id="rightLeft" 
+                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
+                                <option value="">Select...</option>
+                                <option value="RIGHT">RIGHT</option>
+                                <option value="LEFT">LEFT</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-    <script type="text/babel">
-        const { useState, useCallback, useEffect, useMemo, useRef } = React;
-        const { ChevronDown, AlertCircle, Loader2, RefreshCw } = LucideReact;
+                <!-- Specifications Section -->
+                <div id="specsSection" class="space-y-4 hidden">
+                    <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
+                    <div id="specsGrid" class="grid md:grid-cols-2 gap-4">
+                        <!-- Dynamic specs will be added here -->
+                    </div>
+                </div>
 
-        /** ================== CONFIG ================== **/
-        const SHEET_UI_URL = "https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116";
+                <!-- Notes Section -->
+                <div>
+                    <label for="notes" class="text-sm font-medium text-gray-700 mb-1 block">Additional Notes</label>
+                    <textarea id="notes" 
+                              class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all resize-y"
+                              placeholder="Anything extra to capture..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
+                    <button onclick="printPdf()" 
+                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
+                        Download PDF
+                    </button>
+                    
+                    <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116" 
+                       target="_blank" rel="noreferrer"
+                       class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 no-underline">
+                        Edit spec sheet (Google Sheets)
+                    </a>
+                    
+                    <button onclick="softReset()" 
+                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
+                        Soft reset
+                    </button>
+                    
+                    <button onclick="hardReset()" id="hardResetBtn"
+                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200"
+                            title="Reload OPTIONS & MODELS from Google Sheets (cache-busted)">
+                        Hard reset (reload options)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
         const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
-        const OPTIONS_API_URL = `${GAS_BASE}?kind=options`;
-        const MODELS_API_URL = `${GAS_BASE}?kind=models`;
+        
+        // Will be populated from your Google Sheets
+        let GUITAR_SPECS = {};
+        let MODEL_PRESETS = {};
+        let AVAILABLE_MODELS = [];
 
-        // Field constants
-        const RL_KEY = "RIGHT / LEFT";
-        const MODEL_KEY = "MODEL";
+        let currentSpecs = {};
+        let baseline = {};
+        let dirtyFields = new Set();
 
-        // CSS class constants
-        const HIGHLIGHT_CLASSES = "ring-2 ring-orange-500 ring-offset-1 rounded-[14px]";
-        const INPUT_BASE_CLASSES = "w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all";
-        const BUTTON_BASE_CLASSES = "inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors";
-
-        // Mock data for fallback
-        const MOCK_OPTIONS = {
-            [MODEL_KEY]: ["J43", "L36", "R25", "M18"],
-            "FINISH": ["AGED", "LIGHT RELIC", "HEAVY RELIC", "Natural", "Gloss", "Satin"],
-            "TOP": ["STIKA SPRUCE", "MAHOGANY", "FLAME MAPLE", "Cedar", "Redwood"],
-            "BACK / SIDES": ["MAHOGANY", "FLAME MAPLE", "Rosewood", "Walnut", "Maple"],
-            "BACKSTRIP": ["CHECKER", "ZIPPER", "Herringbone", "Simple", "None"],
-            "ROSETTE": ["B / W / B", "CREAM", "Abalone", "Wood", "Custom"],
-            "BRACING": ["7MM / 15MM", "8MM / 20MM", "Standard", "Heavy", "Light"],
-            "END WEDGE": ["IN RW", "BW IVORID BW", "Ebony", "Maple", "None"],
-            "BINDINGS": ["CREAM", "TORT", "IVOROID", "Wood", "Plastic"],
-            "PURFLING F/B": ["W BWB / -", "HERRING / BW", "Abalone", "Wood", "None"],
-            "FRETBOARD": ["SANTOS", "EBONY", "Rosewood", "Maple", "Pau Ferro"],
-            "NUT WIDTH": ["43", "45", "42", "44", "46"],
-            "F/BOARD INLAYS": ["6MM DOTS", "DIAMOND", "Blocks", "None", "Custom"],
-            "SCALE": ["SHORT 24.9", "LONG 25.4", "Standard", "Custom"],
-            "NECK SHAPE": ["VINTAGE V", "PRE WAR", "Modern C", "Thin C", "Custom"],
-            "HEADSTOCK VENEER": ["EBONY", "MAPLE", "Rosewood", "Matching Body"],
-            "HEADSTOCK INLAY": ["LOGO", "LOGO HESDSTOCK", "Name", "Custom", "None"],
-            "HS DECAL": ["LOGO BANNER", "LOGO", "Name", "Custom", "None"],
-            "BODY JOIN": ["14", "13", "12", "15"],
-            "M/HEADS": ["NICKEL KLUSON", "NICKEL GOTOH", "Gold", "Chrome", "Vintage"],
-            "FRETS": ["G STYLE", "M STYLE", "Jumbo", "Medium", "Small"],
-            "BRIDGE STYLE": ["SANTOS", "EBONY", "Rosewood", "Maple"],
-            "BRIDGE WOOD": ["SANTOS", "EBONY", "Rosewood", "Maple"],
-            "PICKGUARD": ["TORT", "FIRE STRIPE", "Black", "White", "None"],
-            "BRIDGE PINS": ["CREAM", "EBONY", "Bone", "Plastic"],
-            "END PIN": ["CREAM", "BLACK", "Ebony", "Bone"],
-            "STRINGS": ["12's", "11's", "13's", "10's"],
-            "PICKUP": ["None", "Magnetic", "Piezo", "Both"]
-        };
-
-        const MOCK_MODELS = {
-            "J43": {
-                "FINISH": "AGED",
-                "TOP": "STIKA SPRUCE",
-                "BACK / SIDES": "MAHOGANY",
-                "BACKSTRIP": "CHECKER",
-                "ROSETTE": "B / W / B",
-                "BRACING": "7MM / 15MM",
-                "END WEDGE": "IN RW",
-                "BINDINGS": "CREAM",
-                "PURFLING F/B": "W BWB / -",
-                "FRETBOARD": "SANTOS",
-                "NUT WIDTH": "43",
-                "F/BOARD INLAYS": "6MM DOTS",
-                "SCALE": "SHORT 24.9",
-                "NECK SHAPE": "VINTAGE V",
-                "HEADSTOCK VENEER": "EBONY",
-                "HEADSTOCK INLAY": "LOGO",
-                "HS DECAL": "LOGO BANNER",
-                "BODY JOIN": "14",
-                "M/HEADS": "NICKEL KLUSON",
-                "FRETS": "G STYLE",
-                "BRIDGE STYLE": "SANTOS",
-                "BRIDGE WOOD": "SANTOS",
-                "PICKGUARD": "TORT",
-                "BRIDGE PINS": "CREAM",
-                "END PIN": "CREAM",
-                "STRINGS": "12's"
-            },
-            "L36": {
-                "FINISH": "LIGHT RELIC",
-                "TOP": "MAHOGANY",
-                "BACK / SIDES": "FLAME MAPLE",
-                "BACKSTRIP": "ZIPPER",
-                "ROSETTE": "CREAM",
-                "BRACING": "8MM / 20MM",
-                "END WEDGE": "BW IVORID BW",
-                "BINDINGS": "TORT",
-                "PURFLING F/B": "HERRING / BW",
-                "FRETBOARD": "EBONY",
-                "NUT WIDTH": "45",
-                "F/BOARD INLAYS": "DIAMOND",
-                "SCALE": "LONG 25.4",
-                "NECK SHAPE": "PRE WAR",
-                "HEADSTOCK VENEER": "MAPLE",
-                "HEADSTOCK INLAY": "LOGO HESDSTOCK",
-                "HS DECAL": "LOGO",
-                "BODY JOIN": "13",
-                "M/HEADS": "NICKEL GOTOH",
-                "FRETS": "M STYLE",
-                "BRIDGE STYLE": "EBONY",
-                "BRIDGE WOOD": "EBONY",
-                "PICKGUARD": "FIRE STRIPE",
-                "BRIDGE PINS": "EBONY",
-                "END PIN": "BLACK",
-                "STRINGS": "11's"
-            }
-        };
-
-        /** ================== UI HELPERS ================== **/
-        function Label({ children, htmlFor }) {
-            return React.createElement('label', {
-                htmlFor: htmlFor,
-                className: "text-sm font-medium text-gray-700 mb-1 block"
-            }, children);
+        // Initialize the application
+        function init() {
+            setupEventListeners();
+            loadInitialData();
         }
 
-        function LoadingSpinner({ size = 16 }) {
-            return React.createElement(Loader2, { className: "animate-spin", size: size });
+        function setupEventListeners() {
+            document.getElementById('model').addEventListener('change', handleModelChange);
         }
 
-        function ErrorMessage({ message, onRetry }) {
-            const isOfflineMode = message.includes('Using offline data') || message.includes('demo data');
-            const bgColor = isOfflineMode ? 'bg-amber-50' : 'bg-red-50';
-            const borderColor = isOfflineMode ? 'border-amber-200' : 'border-red-200';
-            const textColor = isOfflineMode ? 'text-amber-800' : 'text-red-700';
-            const iconColor = isOfflineMode ? 'text-amber-600' : 'text-red-500';
-
-            return React.createElement('div', {
-                className: `flex items-center gap-2 p-3 ${bgColor} border ${borderColor} rounded-xl ${textColor}`
-            }, [
-                React.createElement(AlertCircle, { key: "icon", size: 18, className: iconColor }),
-                React.createElement('span', { key: "message", className: "flex-1" }, message),
-                onRetry && React.createElement('button', {
-                    key: "retry",
-                    onClick: onRetry,
-                    className: `${isOfflineMode ? 'text-amber-700 hover:text-amber-900' : 'text-red-600 hover:text-red-800'} font-medium text-sm flex items-center gap-1`
-                }, [
-                    React.createElement(RefreshCw, { key: "refresh-icon", size: 14 }),
-                    "Retry Live Data"
-                ])
-            ]);
-        }
-
-        function Select({ value, onChange, options = [], placeholder, className, disabled = false, id, "aria-label": ariaLabel }) {
-            const list = Array.isArray(options) ? options : [];
-            return React.createElement('div', {
-                className: `relative ${className || ""}`
-            }, [
-                React.createElement('select', {
-                    key: "select",
-                    id: id,
-                    className: `${INPUT_BASE_CLASSES} appearance-none pr-10 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`,
-                    value: value ?? "",
-                    onChange: (e) => onChange(e.target.value),
-                    disabled: disabled,
-                    "aria-label": ariaLabel || placeholder
-                }, [
-                    React.createElement('option', { key: "placeholder", value: "", disabled: true }, placeholder || "Select..."),
-                    ...list.map((opt) => React.createElement('option', {
-                        key: String(opt),
-                        value: String(opt)
-                    }, String(opt)))
-                ]),
-                React.createElement(ChevronDown, {
-                    key: "chevron",
-                    className: `absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${disabled ? 'opacity-30' : ''}`,
-                    size: 18
-                })
-            ]);
-        }
-
-        /** ================== NORMALIZATION ================== **/
-        const normHeader = (s) => String(s ?? "").replace(/\s*\/\s*/g, " / ").replace(/\s+/g, " ").trim();
-
-        function coerceList(v) {
-            if (!v) return [];
-            if (Array.isArray(v)) return v.map(String).map((s) => s.trim()).filter(Boolean);
-            if (typeof v === "object") {
-                const o = v;
-                if (Array.isArray(o.values)) return o.values.map(String).map((s) => s.trim()).filter(Boolean);
-                if (Array.isArray(o.items)) return o.items.map(String).map((s) => s.trim()).filter(Boolean);
-            }
-            if (typeof v === "string") {
-                return v.split(/[\n\r,;|]+/).map((s) => s.trim()).filter(Boolean);
-            }
-            return [];
-        }
-
-        function normalizeOptions(raw) {
-            try {
-                const body = raw && typeof raw === "object" ? (raw.data ?? raw) : {};
-                const out = {};
-                for (const [k, v] of Object.entries(body || {})) {
-                    const nk = normHeader(k);
-                    const arr = coerceList(v);
-                    if (nk && arr.length) out[nk] = Array.from(new Set(arr));
+        function loadInitialData() {
+            showStatus('Loading live data from Google Sheets...', 'info');
+            
+            Promise.all([
+                fetchData(`${GAS_BASE}?kind=options`),
+                fetchData(`${GAS_BASE}?kind=models`)
+            ]).then(([optionsResponse, modelsResponse]) => {
+                // Process options data
+                if (optionsResponse && optionsResponse.data) {
+                    GUITAR_SPECS = optionsResponse.data;
+                    console.log('✅ Options loaded:', Object.keys(GUITAR_SPECS));
                 }
-                return out;
-            } catch {
-                return {};
+                
+                // Process models data  
+                if (modelsResponse && modelsResponse.data) {
+                    MODEL_PRESETS = modelsResponse.data;
+                    AVAILABLE_MODELS = Object.keys(MODEL_PRESETS);
+                    console.log('✅ Models loaded:', AVAILABLE_MODELS);
+                }
+                
+                // Populate model dropdown
+                populateModelDropdown();
+                
+                showStatus('✅ Live data loaded successfully from Google Sheets', 'success');
+                console.log('✅ Successfully loaded live data from Google Sheets');
+                
+            }).catch(error => {
+                console.log('❌ Failed to load live data:', error);
+                showStatus('⚠️ Could not connect to Google Sheets. Please check your internet connection and try "Hard reset".', 'warning');
+                
+                // Still populate empty dropdown so form works
+                populateModelDropdown();
+            });
+        }
+
+        function populateModelDropdown() {
+            const modelSelect = document.getElementById('model');
+            
+            // Clear existing options except the first one
+            while (modelSelect.children.length > 1) {
+                modelSelect.removeChild(modelSelect.lastChild);
+            }
+            
+            // Add models from Google Sheets
+            AVAILABLE_MODELS.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+            
+            console.log('Model dropdown populated with:', AVAILABLE_MODELS);
+        }
+
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+                           type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                           type === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
+                           'bg-blue-50 border-blue-200 text-blue-800';
+            
+            statusDiv.className = `flex items-center gap-2 p-3 border rounded-xl ${bgColor}`;
+            statusDiv.innerHTML = `<span>${message}</span>`;
+            statusDiv.classList.remove('hidden');
+            
+            if (type === 'info') {
+                setTimeout(() => statusDiv.classList.add('hidden'), 3000);
             }
         }
 
-        function normalizeModels(raw) {
-            const candidate = raw && typeof raw === "object" ? (raw.models ?? raw.data ?? raw) : {};
-            if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return {};
-
-            const out = {};
-            for (const [modelName, fields] of Object.entries(candidate)) {
-                const rec = fields && typeof fields === "object" ? fields : {};
-                const normalized = {};
-                for (const [fk, fv] of Object.entries(rec)) {
-                    normalized[normHeader(fk)] = String(fv ?? "");
-                }
-                out[String(modelName)] = normalized;
+        function handleModelChange(event) {
+            const selectedModel = event.target.value;
+            if (!selectedModel) {
+                hideSpecs();
+                return;
             }
-            return out;
+            
+            const preset = MODEL_PRESETS[selectedModel] || {};
+            baseline = { ...preset };
+            currentSpecs = { ...preset };
+            dirtyFields.clear();
+            
+            showSpecs();
+            populateSpecs(preset);
         }
 
-        /** ================== MAIN APP ================== **/
-        function App() {
-            // Form fields
-            const [serial, setSerial] = useState("ATK-2025-00123");
-            const [customer, setCustomer] = useState("");
-            const [email, setEmail] = useState("");
-            const [notes, setNotes] = useState("");
+        function showSpecs() {
+            document.getElementById('specsSection').classList.remove('hidden');
+        }
 
-            // Data state
-            const [options, setOptions] = useState({});
-            const [models, setModels] = useState({});
-            const [specs, setSpecs] = useState({});
+        function hideSpecs() {
+            document.getElementById('specsSection').classList.add('hidden');
+        }
 
-            // UI state
-            const [loadingState, setLoadingState] = useState({ isLoading: false, error: null });
+        function populateSpecs(preset) {
+            const specsGrid = document.getElementById('specsGrid');
+            specsGrid.innerHTML = '';
+            
+            // Use the fields from your Google Sheets data
+            Object.keys(GUITAR_SPECS).forEach(field => {
+                // Skip MODEL and RIGHT/LEFT fields as they're handled separately
+                if (field === 'MODEL' || field === 'RIGHT / LEFT') return;
+                
+                const fieldDiv = document.createElement('div');
+                const options = GUITAR_SPECS[field] || [];
+                
+                fieldDiv.innerHTML = `
+                    <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${field}</label>
+                    <div id="container-${field}">
+                        <select id="spec-${field}" 
+                                class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
+                                onchange="handleSpecChange('${field}', this.value)">
+                            <option value="">Select...</option>
+                            ${options.map(option => 
+                                `<option value="${option}" ${preset[field] === option ? 'selected' : ''}>${option}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                `;
+                specsGrid.appendChild(fieldDiv);
+            });
+        }
 
-            // Highlighting
-            const [baseline, setBaseline] = useState({});
-            const [dirty, setDirty] = useState(new Set());
+        function handleSpecChange(field, value) {
+            currentSpecs[field] = value;
+            
+            const baseValue = baseline[field] || '';
+            const container = document.getElementById(`container-${field}`);
+            
+            if (value !== baseValue) {
+                dirtyFields.add(field);
+                container.classList.add('highlight-changed');
+            } else {
+                dirtyFields.delete(field);
+                container.classList.remove('highlight-changed');
+            }
+        }
 
-            /** ------ Fetch function ------ **/
-            const fetchAll = useCallback(async (cacheBust = false) => {
-                setLoadingState({ isLoading: true, error: null });
+        function printPdf() {
+            window.print();
+        }
 
-                try {
-                    const optUrl = cacheBust ? `${OPTIONS_API_URL}&t=${Date.now()}` : OPTIONS_API_URL;
-                    const modUrl = cacheBust ? `${MODELS_API_URL}&t=${Date.now()}` : MODELS_API_URL;
+        function softReset() {
+            document.getElementById('customer').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('model').value = '';
+            document.getElementById('rightLeft').value = '';
+            
+            currentSpecs = {};
+            baseline = {};
+            dirtyFields.clear();
+            hideSpecs();
+            
+            showStatus('Form reset successfully', 'success');
+        }
 
-                    console.log('🔍 Fetching from:', { optUrl, modUrl });
+        function hardReset() {
+            const btn = document.getElementById('hardResetBtn');
+            btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
+            btn.disabled = true;
+            
+            // Clear current data
+            GUITAR_SPECS = {};
+            MODEL_PRESETS = {};
+            AVAILABLE_MODELS = [];
+            
+            // Reload from Google Sheets
+            setTimeout(() => {
+                loadInitialData();
+                btn.innerHTML = 'Hard reset (reload options)';
+                btn.disabled = false;
+            }, 1000);
+        }
 
-                    const [optRes, modRes] = await Promise.all([
-                        fetch(optUrl).catch(e => ({ ok: false, error: e.message })),
-                        fetch(modUrl).catch(e => ({ ok: false, error: e.message }))
-                    ]);
-
-                    let optRaw = {};
-                    let modRaw = {};
-
-                    if (optRes.ok) {
-                        const text = await optRes.text();
-                        optRaw = JSON.parse(text);
-                        console.log('✅ Options loaded successfully');
-                    }
-
-                    if (modRes.ok) {
-                        const text = await modRes.text();
-                        modRaw = JSON.parse(text);
-                        console.log('✅ Models loaded successfully');
-                    }
-
-                    if (optRes.ok || modRes.ok) {
-                        const optionsCanon = normalizeOptions(optRaw);
-                        const modelsCanon = normalizeModels(modRaw);
-
-                        const finalOptions = Object.keys(optionsCanon).length > 0 ? optionsCanon : { ...MOCK_OPTIONS };
-                        const finalModels = Object.keys(modelsCanon).length > 0 ? modelsCanon : { ...MOCK_MODELS };
-
-                        if (!Array.isArray(finalOptions[MODEL_KEY]) || finalOptions[MODEL_KEY].length === 0) {
-                            finalOptions[MODEL_KEY] = Object.keys(finalModels);
-                        }
-
-                        setOptions(finalOptions);
-                        setModels(finalModels);
-                        setLoadingState({ isLoading: false, error: null });
-                    } else {
-                        throw new Error('Both APIs failed');
-                    }
-
-                } catch (error) {
-                    console.error('❌ Using fallback data:', error);
-                    setOptions({ ...MOCK_OPTIONS });
-                    setModels({ ...MOCK_MODELS });
-                    setLoadingState({ 
-                        isLoading: false, 
-                        error: `API connection failed. Using demo data based on your guitar specifications.`
-                    });
-                }
-            }, []);
-
-            // Initial load
-            useEffect(() => {
-                fetchAll();
-            }, [fetchAll]);
-
-            /** ------ Memoized options getter ------ **/
-            const getOptionsFor = useMemo(() => {
-                return (field) => {
-                    if (field === RL_KEY) return ["RIGHT", "LEFT"];
-                    const live = Array.isArray(options[field]) ? options[field] : [];
-                    const fromModels = new Set();
-                    Object.values(models).forEach((rec) => {
-                        const v = rec[field];
-                        if (v) fromModels.add(String(v));
-                    });
-                    return Array.from(new Set([...live, ...fromModels])).filter(Boolean);
-                };
-            }, [options, models]);
-
-            /** ------ Field order ------ **/
-            const FIELD_ORDER = useMemo(() => {
-                const chosen = specs[MODEL_KEY];
-                const presetFields = chosen && models[chosen] ? Object.keys(models[chosen]) : [];
-                const optionFields = Object.keys(options).filter((k) => k !== MODEL_KEY && k !== RL_KEY && Array.isArray(options[k]) && options[k].length > 0);
-                const merged = Array.from(new Set([...presetFields, ...optionFields]));
-                return merged.filter((k) => k !== MODEL_KEY && k !== RL_KEY);
-            }, [options, models, specs]);
-
-            /** ------ Model preset application ------ **/
-            const applyModelPreset = useCallback((modelName) => {
-                const preset = models[modelName] || {};
-                setBaseline(preset);
-                setDirty(new Set());
-                setSpecs((curr) => ({ ...preset, [MODEL_KEY]: modelName, [RL_KEY]: curr[RL_KEY] ?? "" }));
-            }, [models]);
-
-            /** ------ Field change handler ------ **/
-            const onChangeField = useCallback((field, value) => {
-                setSpecs((curr) => ({ ...curr, [field]: value }));
-
-                if (field === MODEL_KEY || field === RL_KEY) return;
-
-                setDirty((prev) => {
-                    const next = new Set(prev);
-                    const base = baseline[field] ?? "";
-                    if (value === "" && base === "") {
-                        next.delete(field);
-                    } else if (value !== base) {
-                        next.add(field);
-                    } else {
-                        next.delete(field);
-                    }
-                    return next;
-                });
-            }, [baseline]);
-
-            /** ------ Action handlers ------ **/
-            const softReset = useCallback(() => {
-                setCustomer("");
-                setEmail("");
-                setNotes("");
-                setSpecs({});
-                setBaseline({});
-                setDirty(new Set());
-            }, []);
-
-            const hardReset = useCallback(async () => {
-                try {
-                    await fetchAll(true);
-                    setDirty(new Set());
-                } catch (error) {
-                    // Error handled in fetchAll
-                }
-            }, [fetchAll]);
-
-            const printPdf = useCallback(() => {
-                window.print();
-            }, []);
-
-            /** ------ Styling helper ------ **/
-            const getFieldClassName = useCallback((field) => {
-                return dirty.has(field) ? HIGHLIGHT_CLASSES : "";
-            }, [dirty]);
-
-            /** ------ Render data ------ **/
-            const modelList = Array.isArray(options[MODEL_KEY]) ? options[MODEL_KEY] : Object.keys(models || {});
-            const rlList = getOptionsFor(RL_KEY);
-            const isDataLoading = loadingState.isLoading && Object.keys(options).length === 0;
-
-            return React.createElement('div', { className: "p-6" }, [
-                React.createElement('div', {
-                    key: "main-container",
-                    className: "rounded-2xl shadow-xl border border-gray-200 bg-white print:w-[794px] print:mx-auto print:border-0"
-                }, [
-                    React.createElement('div', {
-                        key: "content",
-                        className: "p-6 space-y-4"
-                    }, [
-                        React.createElement('h1', {
-                            key: "title",
-                            className: "text-2xl font-bold mb-2"
-                        }, "Atkin Custom Spec Sheet"),
-
-                        // Loading state
-                        isDataLoading && React.createElement('div', {
-                            key: "loading",
-                            className: "flex items-center justify-center gap-3 p-8 text-gray-600"
-                        }, [
-                            React.createElement(LoadingSpinner, { key: "spinner", size: 20 }),
-                            React.createElement('span', { key: "text" }, "Loading spec sheet options...")
-                        ]),
-
-                        // Error state
-                        loadingState.error && React.createElement(ErrorMessage, {
-                            key: "error",
-                            message: loadingState.error,
-                            onRetry: () => fetchAll(true)
-                        }),
-
-                        // Main form
-                        !isDataLoading && React.createElement('div', {
-                            key: "form-container",
-                            className: "space-y-4"
-                        }, [
-                            // Header form
-                            React.createElement('div', {
-                                key: "header-form",
-                                className: "bg-gray-50 p-4 rounded-xl shadow-inner space-y-4"
-                            }, [
-                                React.createElement('div', {
-                                    key: "header-grid",
-                                    className: "grid md:grid-cols-4 gap-4"
-                                }, [
-                                    React.createElement('div', { key: "serial" }, [
-                                        React.createElement(Label, { key: "serial-label", htmlFor: "serial" }, "Serial Number"),
-                                        React.createElement('input', {
-                                            key: "serial-input",
-                                            id: "serial",
-                                            className: INPUT_BASE_CLASSES,
-                                            value: serial,
-                                            onChange: (e) => setSerial(e.target.value),
-                                            placeholder: "e.g. ATK-2025-00123"
-                                        })
-                                    ]),
-                                    React.createElement('div', { key: "customer" }, [
-                                        React.createElement(Label, { key: "customer-label", htmlFor: "customer" }, "Customer Name"),
-                                        React.createElement('input', {
-                                            key: "customer-input",
-                                            id: "customer",
-                                            className: INPUT_BASE_CLASSES,
-                                            value: customer,
-                                            onChange: (e) => setCustomer(e.target.value),
-                                            placeholder: "Customer Name"
-                                        })
-                                    ]),
-                                    React.createElement('div', { key: "email" }, [
-                                        React.createElement(Label, { key: "email-label", htmlFor: "email" }, "Contact Email"),
-                                        React.createElement('input', {
-                                            key: "email-input",
-                                            id: "email",
-                                            type: "email",
-                                            className: INPUT_BASE_CLASSES,
-                                            value: email,
-                                            onChange: (e) => setEmail(e.target.value),
-                                            placeholder: "name@example.com"
-                                        })
-                                    ]),
-                                    React.createElement('div', { key: "model" }, [
-                                        React.createElement(Label, { key: "model-label", htmlFor: "model" }, "Model"),
-                                        React.createElement(Select, {
-                                            key: "model-select",
-                                            id: "model",
-                                            value: specs[MODEL_KEY],
-                                            onChange: (v) => {
-                                                if (!v) return;
-                                                onChangeField(MODEL_KEY, v);
-                                                applyModelPreset(v);
-                                            },
-                                            options: modelList,
-                                            placeholder: "Choose a model",
-                                            disabled: modelList.length === 0,
-                                            "aria-label": "Select model"
-                                        })
-                                    ])
-                                ]),
-                                React.createElement('div', {
-                                    key: "rl-grid",
-                                    className: "grid md:grid-cols-4 gap-4"
-                                }, [
-                                    React.createElement('div', { key: "rl" }, [
-                                        React.createElement(Label, { key: "rl-label", htmlFor: "right-left" }, RL_KEY),
-                                        React.createElement(Select, {
-                                            key: "rl-select",
-                                            id: "right-left",
-                                            value: specs[RL_KEY],
-                                            onChange: (v) => onChangeField(RL_KEY, v),
-                                            options: rlList,
-                                            placeholder: "Select...",
-                                            "aria-label": "Select right or left orientation"
-                                        })
-                                    ])
-                                ])
-                            ]),
-
-                            // Specs grid
-                            specs[MODEL_KEY] && React.createElement('div', {
-                                key: "specs-section",
-                                className: "space-y-4"
-                            }, [
-                                React.createElement('h2', {
-                                    key: "specs-title",
-                                    className: "text-lg font-semibold text-gray-800"
-                                }, "Specifications"),
-                                React.createElement('div', {
-                                    key: "specs-grid",
-                                    className: "grid md:grid-cols-2 gap-4"
-                                }, FIELD_ORDER.map((field) => React.createElement('div', { key: field }, [
-                                    React.createElement(Label, {
-                                        key: `${field}-label`,
-                                        htmlFor: `spec-${field}`
-                                    }, field),
-                                    React.createElement('div', {
-                                        key: `${field}-container`,
-                                        className: getFieldClassName(field)
-                                    }, [
-                                        React.createElement(Select, {
-                                            key: `${field}-select`,
-                                            id: `spec-${field}`,
-                                            value: specs[field],
-                                            onChange: (v) => onChangeField(field, v),
-                                            options: getOptionsFor(field),
-                                            placeholder: "Select...",
-                                            className: "w-full",
-                                            "aria-label": `Select ${field}`
-                                        })
-                                    ])
-                                ])))
-                            ]),
-
-                            // Notes
-                            React.createElement('div', { key: "notes" }, [
-                                React.createElement(Label, { key: "notes-label", htmlFor: "notes" }, "Additional Notes"),
-                                React.createElement('textarea', {
-                                    key: "notes-textarea",
-                                    id: "notes",
-                                    className: `${INPUT_BASE_CLASSES} min-h-[140px] resize-y`,
-                                    value: notes,
-                                    onChange: (e) => setNotes(e.target.value),
-                                    placeholder: "Anything extra to capture..."
-                                })
-                            ]),
-
-                            // Action buttons
-                            React.createElement('div', {
-                                key: "buttons",
-                                className: "flex flex-wrap items-center gap-3 pt-2 print:hidden"
-                            }, [
-                                React.createElement('button', {
-                                    key: "print",
-                                    onClick: printPdf,
-                                    className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50`
-                                }, "Download PDF"),
-                                React.createElement('a', {
-                                    key: "sheets-link",
-                                    href: SHEET_UI_URL,
-                                    target: "_blank",
-                                    rel: "noreferrer",
-                                    className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50 no-underline`
-                                }, "Edit spec sheet (Google Sheets)"),
-                                React.createElement('button', {
-                                    key: "soft-reset",
-                                    onClick: softReset,
-                                    className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50`
-                                }, "Soft reset"),
-                                React.createElement('button', {
-                                    key: "hard-reset",
-                                    onClick: hardReset,
-                                    disabled: loadingState.isLoading,
-                                    className: `${
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
