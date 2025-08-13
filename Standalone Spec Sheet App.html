@@ -165,24 +165,45 @@
                 fetchData(`${GAS_BASE}?kind=options`),
                 fetchData(`${GAS_BASE}?kind=models`)
             ]).then(([optionsResponse, modelsResponse]) => {
-                // Process options data
-                if (optionsResponse && optionsResponse.data) {
-                    GUITAR_SPECS = optionsResponse.data;
-                    console.log('✅ Options loaded:', Object.keys(GUITAR_SPECS));
+                console.log('Raw options response:', optionsResponse);
+                console.log('Raw models response:', modelsResponse);
+                
+                // Process options data - handle multiple possible formats
+                if (optionsResponse) {
+                    if (optionsResponse.data) {
+                        GUITAR_SPECS = optionsResponse.data;
+                    } else if (optionsResponse.ok && optionsResponse.kind === 'options') {
+                        GUITAR_SPECS = optionsResponse.data || {};
+                    } else {
+                        // Direct format (no wrapper)
+                        GUITAR_SPECS = optionsResponse;
+                    }
+                    console.log('✅ Options processed:', Object.keys(GUITAR_SPECS));
                 }
                 
-                // Process models data  
-                if (modelsResponse && modelsResponse.data) {
-                    MODEL_PRESETS = modelsResponse.data;
+                // Process models data - handle multiple possible formats
+                if (modelsResponse) {
+                    if (modelsResponse.data) {
+                        MODEL_PRESETS = modelsResponse.data;
+                    } else if (modelsResponse.ok && modelsResponse.kind === 'models') {
+                        MODEL_PRESETS = modelsResponse.data || {};
+                    } else {
+                        // Direct format (no wrapper)
+                        MODEL_PRESETS = modelsResponse;
+                    }
                     AVAILABLE_MODELS = Object.keys(MODEL_PRESETS);
-                    console.log('✅ Models loaded:', AVAILABLE_MODELS);
+                    console.log('✅ Models processed:', AVAILABLE_MODELS);
                 }
                 
                 // Populate model dropdown
                 populateModelDropdown();
                 
-                showStatus('✅ Live data loaded successfully from Google Sheets', 'success');
-                console.log('✅ Successfully loaded live data from Google Sheets');
+                if (AVAILABLE_MODELS.length > 0) {
+                    showStatus('✅ Live data loaded successfully from Google Sheets', 'success');
+                    console.log('✅ Successfully loaded live data from Google Sheets');
+                } else {
+                    showStatus('⚠️ Connected to Google Sheets but no models found. Check your MODELS tab.', 'warning');
+                }
                 
             }).catch(error => {
                 console.log('❌ Failed to load live data:', error);
@@ -201,15 +222,27 @@
                 modelSelect.removeChild(modelSelect.lastChild);
             }
             
-            // Add models from Google Sheets
-            AVAILABLE_MODELS.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
-                modelSelect.appendChild(option);
-            });
+            console.log('Available models to populate:', AVAILABLE_MODELS);
             
-            console.log('Model dropdown populated with:', AVAILABLE_MODELS);
+            // Add models from Google Sheets
+            if (AVAILABLE_MODELS && AVAILABLE_MODELS.length > 0) {
+                AVAILABLE_MODELS.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                    console.log('Added model option:', model);
+                });
+                console.log('✅ Model dropdown populated with:', AVAILABLE_MODELS);
+            } else {
+                console.log('⚠️ No models available to populate dropdown');
+                // Add a message option to show there's an issue
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No models found - check Google Sheets';
+                option.disabled = true;
+                modelSelect.appendChild(option);
+            }
         }
 
         async function fetchData(url) {
