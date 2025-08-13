@@ -51,21 +51,21 @@
                             <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
                             <input id="serial" type="text" 
                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   value=" " placeholder=" ">
+                                   value="ATK-2025-00123" placeholder="e.g. ATK-2025-00123">
                         </div>
                         
                         <div>
                             <label for="customer" class="text-sm font-medium text-gray-700 mb-1 block">Customer Name</label>
                             <input id="customer" type="text" 
                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   placeholder=" ">
+                                   placeholder="Customer Name">
                         </div>
                         
                         <div>
                             <label for="email" class="text-sm font-medium text-gray-700 mb-1 block">Contact Email</label>
                             <input id="email" type="email" 
                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   placeholder=" ">
+                                   placeholder="name@example.com">
                         </div>
                         
                         <div>
@@ -165,8 +165,8 @@
                 fetchData(`${GAS_BASE}?kind=options`),
                 fetchData(`${GAS_BASE}?kind=models`)
             ]).then(([optionsResponse, modelsResponse]) => {
-                console.log('🔍 Raw options response:', optionsResponse);
-        console.log('🔍 Raw models response:', modelsResponse);
+                console.log('Raw options response:', optionsResponse);
+                console.log('Raw models response:', modelsResponse);
                 
                 // Process options data - handle multiple possible formats
                 if (optionsResponse) {
@@ -197,6 +197,9 @@
                 
                 // Populate model dropdown
                 populateModelDropdown();
+                
+                // Force populate as backup
+                setTimeout(() => forcePopulateModels(), 1000);
                 
                 if (AVAILABLE_MODELS.length > 0) {
                     showStatus('✅ Live data loaded successfully from Google Sheets', 'success');
@@ -243,6 +246,32 @@
                 option.disabled = true;
                 modelSelect.appendChild(option);
             }
+        }
+
+        function forcePopulateModels() {
+            console.log('🔧 Forcing model population...');
+            console.log('Available models:', AVAILABLE_MODELS);
+            console.log('Model presets keys:', Object.keys(MODEL_PRESETS));
+            
+            const modelSelect = document.getElementById('model');
+            
+            // Clear existing options except the first one
+            while (modelSelect.children.length > 1) {
+                modelSelect.removeChild(modelSelect.lastChild);
+            }
+            
+            // Get models from the actual loaded data
+            const realModels = Object.keys(MODEL_PRESETS);
+            console.log('Real models from data:', realModels);
+            
+            // Add first 10 models as a test
+            realModels.slice(0, 10).forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+                console.log('Added model:', model);
+            });
         }
 
         async function fetchData(url) {
