@@ -65,7 +65,7 @@
                         <div>
                             <label for="model" class="text-sm font-medium text-gray-700 mb-1 block">Model</label>
                             <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
-                                <option value="">Loading models...</option>
+                                <option value="">🔄 Loading models...</option>
                             </select>
                         </div>
                     </div>
@@ -122,8 +122,7 @@
         // Configuration
         const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
         
-        // Global data storage
-        let GUITAR_SPECS = {};
+        // Global data storage - start completely fresh
         let MODEL_PRESETS = {};
         let currentSpecs = {};
         let baseline = {};
@@ -132,203 +131,116 @@
 
         // Initialize the application
         function init() {
+            console.log("🚀 Starting Atkin Spec Sheet...");
             setupEventListeners();
-            loadInitialData();
+            loadModelsData();
         }
 
         function setupEventListeners() {
-            document.getElementById('model').addEventListener('change', handleModelChange);
+            const modelSelect = document.getElementById('model');
+            if (modelSelect) {
+                modelSelect.addEventListener('change', handleModelChange);
+            }
         }
 
-        function loadInitialData() {
-            showStatus('Loading live data from Google Sheets...', 'info');
+        function loadModelsData() {
+            console.log("📡 Loading models from Google Sheets...");
+            showStatus('Loading guitar models from Google Sheets...', 'info');
             
-            // Clear any existing models first
-            MODEL_PRESETS = {};
+            const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
+            console.log("🔗 Fetching:", url);
             
-            Promise.all([
-                fetchData(`${GAS_BASE}?kind=options&_cb=${Date.now()}`),
-                fetchData(`${GAS_BASE}?kind=models&_cb=${Date.now()}`)
-            ]).then(([optionsResponse, modelsResponse]) => {
-                
-                console.log('✅ Raw OPTIONS response:', optionsResponse);
-                console.log('✅ Raw MODELS response:', modelsResponse);
-                
-                // Note: OPTIONS data structure needs fixing in Google Sheets
-                // For now, we'll extract options from the models data
-                if (optionsResponse.ok && optionsResponse.data) {
-                    console.log('⚠️ OPTIONS data needs restructuring in Google Sheets');
-                }
-                
-                if (modelsResponse.ok && modelsResponse.data) {
-                    // IMPORTANT: Copy ALL models from the response
-                    for (const [modelName, modelData] of Object.entries(modelsResponse.data)) {
-                        if (modelName !== 'NA') { // Skip the 'NA' entry
-                            MODEL_PRESETS[modelName] = modelData;
+            fetch(url)
+                .then(response => {
+                    console.log("📥 Response status:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("📦 Raw API response:", data);
+                    
+                    if (data.ok && data.data) {
+                        // Clear and populate models
+                        MODEL_PRESETS = {};
+                        
+                        // Copy all models except 'NA'
+                        let modelCount = 0;
+                        for (const [modelName, modelData] of Object.entries(data.data)) {
+                            if (modelName && modelName !== 'NA' && modelName.trim() !== '') {
+                                MODEL_PRESETS[modelName] = modelData;
+                                modelCount++;
+                            }
                         }
+                        
+                        console.log(`✅ Loaded ${modelCount} models successfully!`);
+                        console.log("🎸 First 10 models:", Object.keys(MODEL_PRESETS).slice(0, 10));
+                        console.log("🎸 Sample model data:", Object.keys(MODEL_PRESETS)[0], MODEL_PRESETS[Object.keys(MODEL_PRESETS)[0]]);
+                        
+                        // Populate the dropdown
+                        populateModelDropdown();
+                        
+                        dataLoaded = true;
+                        showStatus(`✅ Loaded ${modelCount} guitar models from Google Sheets`, 'success');
+                        
+                    } else {
+                        throw new Error("Invalid response format");
                     }
+                })
+                .catch(error => {
+                    console.error("❌ Error loading models:", error);
+                    showStatus(`❌ Failed to load models: ${error.message}`, 'error');
                     
-                    console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
-                    console.log('✅ Found', Object.keys(MODEL_PRESETS).length, 'models');
-                    console.log('✅ Sample model data:', Object.keys(MODEL_PRESETS)[0], MODEL_PRESETS[Object.keys(MODEL_PRESETS)[0]]);
-                    
-                    // Populate model dropdown immediately after loading models
+                    // Fallback models
+                    MODEL_PRESETS = {
+                        "J43": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
+                        "L36": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"}
+                    };
                     populateModelDropdown();
-                } else {
-                    console.error('❌ No models data received');
-                    showStatus('❌ No models data received from API', 'error');
-                }
-                
-                dataLoaded = true;
-                showStatus('✅ Live data loaded from Google Sheets', 'success');
-                
-            }).catch(error => {
-                console.error('❌ Error loading data:', error);
-                showStatus('❌ Failed to load live data. Using demo models.', 'error');
-                
-                // Fallback: Create a minimal demo with actual model names from your data
-                MODEL_PRESETS = {
-                    "J43": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
-                    "L36": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
-                    "ESSENTIAL D": {"SCALE": "25.4", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
-                    "19 STD": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"}
-                };
-                
-                populateModelDropdown();
-            });
-        }
-
-        function loadDemoData() {
-            console.log('🔄 Loading demo data as fallback');
-            
-            // Demo guitar specs
-            GUITAR_SPECS = {
-                "FINISH": ["AGED", "LIGHT RELIC", "HEAVY RELIC", "Natural", "Gloss", "Satin"],
-                "TOP": ["STIKA SPRUCE", "MAHOGANY", "FLAME MAPLE", "Cedar", "Redwood"],
-                "BACK / SIDES": ["MAHOGANY", "FLAME MAPLE", "Rosewood", "Walnut", "Maple"],
-                "BACKSTRIP": ["CHECKER", "ZIPPER", "Herringbone", "Simple", "None"],
-                "ROSETTE": ["B / W / B", "CREAM", "Abalone", "Wood", "Custom"],
-                "BRACING": ["7MM / 15MM", "8MM / 20MM", "Standard", "Heavy", "Light"],
-                "END WEDGE": ["IN RW", "BW IVORID BW", "Ebony", "Maple", "None"],
-                "BINDINGS": ["CREAM", "TORT", "IVOROID", "Wood", "Plastic"],
-                "PURFLING F/B": ["W BWB / -", "HERRING / BW", "Abalone", "Wood", "None"],
-                "FRETBOARD": ["SANTOS", "EBONY", "Rosewood", "Maple", "Pau Ferro"],
-                "NUT WIDTH": ["43", "45", "42", "44", "46"],
-                "F/BOARD INLAYS": ["6MM DOTS", "DIAMOND", "Blocks", "None", "Custom"],
-                "SCALE": ["SHORT 24.9", "LONG 25.4", "Standard", "Custom"],
-                "NECK SHAPE": ["VINTAGE V", "PRE WAR", "Modern C", "Thin C", "Custom"],
-                "HEADSTOCK VENEER": ["EBONY", "MAPLE", "Rosewood", "Matching Body"],
-                "HEADSTOCK INLAY": ["LOGO", "LOGO HESDSTOCK", "Name", "Custom", "None"],
-                "HS DECAL": ["LOGO BANNER", "LOGO", "Name", "Custom", "None"],
-                "BODY JOIN": ["14", "13", "12", "15"],
-                "M/HEADS": ["NICKEL KLUSON", "NICKEL GOTOH", "Gold", "Chrome", "Vintage"],
-                "FRETS": ["G STYLE", "M STYLE", "Jumbo", "Medium", "Small"],
-                "BRIDGE STYLE": ["SANTOS", "EBONY", "Rosewood", "Maple"],
-                "BRIDGE WOOD": ["SANTOS", "EBONY", "Rosewood", "Maple"],
-                "PICKGUARD": ["TORT", "FIRE STRIPE", "Black", "White", "None"],
-                "BRIDGE PINS": ["CREAM", "EBONY", "Bone", "Plastic"],
-                "END PIN": ["CREAM", "BLACK", "Ebony", "Bone"],
-                "STRINGS": ["12's", "11's", "13's", "10's"],
-                "PICKUP": ["None", "Magnetic", "Piezo", "Both"]
-            };
-
-            MODEL_PRESETS = {
-                "J43": {
-                    "FINISH": "AGED",
-                    "TOP": "STIKA SPRUCE",
-                    "BACK / SIDES": "MAHOGANY",
-                    "BACKSTRIP": "CHECKER",
-                    "ROSETTE": "B / W / B",
-                    "BRACING": "7MM / 15MM",
-                    "END WEDGE": "IN RW",
-                    "BINDINGS": "CREAM",
-                    "PURFLING F/B": "W BWB / -",
-                    "FRETBOARD": "SANTOS",
-                    "NUT WIDTH": "43",
-                    "F/BOARD INLAYS": "6MM DOTS",
-                    "SCALE": "SHORT 24.9",
-                    "NECK SHAPE": "VINTAGE V",
-                    "HEADSTOCK VENEER": "EBONY",
-                    "HEADSTOCK INLAY": "LOGO",
-                    "HS DECAL": "LOGO BANNER",
-                    "BODY JOIN": "14",
-                    "M/HEADS": "NICKEL KLUSON",
-                    "FRETS": "G STYLE",
-                    "BRIDGE STYLE": "SANTOS",
-                    "BRIDGE WOOD": "SANTOS",
-                    "PICKGUARD": "TORT",
-                    "BRIDGE PINS": "CREAM",
-                    "END PIN": "CREAM",
-                    "STRINGS": "12's"
-                },
-                "L36": {
-                    "FINISH": "LIGHT RELIC",
-                    "TOP": "MAHOGANY",
-                    "BACK / SIDES": "FLAME MAPLE",
-                    "BACKSTRIP": "ZIPPER",
-                    "ROSETTE": "CREAM",
-                    "BRACING": "8MM / 20MM",
-                    "END WEDGE": "BW IVORID BW",
-                    "BINDINGS": "TORT",
-                    "PURFLING F/B": "HERRING / BW",
-                    "FRETBOARD": "EBONY",
-                    "NUT WIDTH": "45",
-                    "F/BOARD INLAYS": "DIAMOND",
-                    "SCALE": "LONG 25.4",
-                    "NECK SHAPE": "PRE WAR",
-                    "HEADSTOCK VENEER": "MAPLE",
-                    "HEADSTOCK INLAY": "LOGO HESDSTOCK",
-                    "HS DECAL": "LOGO",
-                    "BODY JOIN": "13",
-                    "M/HEADS": "NICKEL GOTOH",
-                    "FRETS": "M STYLE",
-                    "BRIDGE STYLE": "EBONY",
-                    "BRIDGE WOOD": "EBONY",
-                    "PICKGUARD": "FIRE STRIPE",
-                    "BRIDGE PINS": "EBONY",
-                    "END PIN": "BLACK",
-                    "STRINGS": "11's"
-                }
-            };
-            
-            showStatus('⚠️ Using demo data (live data failed to load)', 'warning');
+                });
         }
 
         function populateModelDropdown() {
             const modelSelect = document.getElementById('model');
-            
             if (!modelSelect) {
-                console.error('❌ Model select element not found');
+                console.error("❌ Model select element not found!");
                 return;
             }
             
-            console.log('🔄 Populating model dropdown...');
-            console.log('📋 Available models:', Object.keys(MODEL_PRESETS));
+            console.log("🔄 Populating model dropdown...");
             
-            modelSelect.innerHTML = '<option value="">Choose a model</option>';
+            // Clear existing options
+            modelSelect.innerHTML = '';
             
-            // Check if we have models to populate
-            if (!MODEL_PRESETS || Object.keys(MODEL_PRESETS).length === 0) {
-                console.error('❌ No MODEL_PRESETS available');
-                modelSelect.innerHTML = '<option value="">No models available</option>';
-                return;
-            }
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Choose a model';
+            modelSelect.appendChild(defaultOption);
             
-            // Populate from live models data
+            // Add all models in alphabetical order
             const modelNames = Object.keys(MODEL_PRESETS).sort();
-            console.log(`📋 Populating dropdown with ${modelNames.length} models`);
+            console.log(`📋 Adding ${modelNames.length} models to dropdown`);
             
-            modelNames.forEach(modelName => {
-                if (modelName && modelName !== 'NA') { // Skip the 'NA' entry
-                    const option = document.createElement('option');
-                    option.value = modelName;
-                    option.textContent = modelName;
-                    modelSelect.appendChild(option);
-                    console.log(`   Added model: ${modelName}`);
+            modelNames.forEach((modelName, index) => {
+                const option = document.createElement('option');
+                option.value = modelName;
+                option.textContent = modelName;
+                modelSelect.appendChild(option);
+                
+                if (index < 5) {
+                    console.log(`   ✓ Added: ${modelName}`);
                 }
             });
             
-            console.log(`✅ Model dropdown populated with ${modelSelect.options.length - 1} models`);
+            console.log(`✅ Model dropdown populated with ${modelNames.length} models`);
+            
+            // Verify the dropdown was populated
+            setTimeout(() => {
+                const optionCount = modelSelect.options.length - 1; // minus the default option
+                console.log(`🔍 Verification: Dropdown now has ${optionCount} model options`);
+                if (optionCount !== modelNames.length) {
+                    console.warn("⚠️ Mismatch between expected and actual dropdown options!");
+                }
+            }, 100);
         }
 
         async function fetchData(url) {
@@ -358,20 +270,29 @@
 
         function handleModelChange(event) {
             const selectedModel = event.target.value;
+            console.log(`🎸 Model selected: ${selectedModel}`);
+            
             if (!selectedModel) {
                 hideSpecs();
                 return;
             }
             
-            const preset = MODEL_PRESETS[selectedModel] || {};
-            baseline = { ...preset };
-            currentSpecs = { ...preset };
+            const modelData = MODEL_PRESETS[selectedModel];
+            if (!modelData) {
+                console.error(`❌ No data found for model: ${selectedModel}`);
+                console.log("Available models:", Object.keys(MODEL_PRESETS));
+                showStatus(`❌ No data found for model: ${selectedModel}`, 'error');
+                hideSpecs();
+                return;
+            }
+            
+            console.log(`✅ Model data found:`, modelData);
+            baseline = { ...modelData };
+            currentSpecs = { ...modelData };
             dirtyFields.clear();
             
-            console.log(`🎸 Selected model: ${selectedModel}`, preset);
-            
             showSpecs();
-            populateSpecs(preset);
+            populateSpecs(modelData);
         }
 
         function showSpecs() {
@@ -382,11 +303,13 @@
             document.getElementById('specsSection').classList.add('hidden');
         }
 
-        function populateSpecs(preset) {
+        function populateSpecs(modelData) {
             const specsGrid = document.getElementById('specsGrid');
             specsGrid.innerHTML = '';
             
-            // Map actual field names from your models to display names
+            console.log("🔧 Populating specs for model:", modelData);
+            
+            // Field mapping for better display names
             const fieldMapping = {
                 'SCALE': 'Scale Length',
                 'NUT WIDTH': 'Nut Width', 
@@ -420,18 +343,19 @@
             Object.values(MODEL_PRESETS).forEach(model => {
                 Object.keys(model).forEach(field => {
                     if (!fieldOptions[field]) fieldOptions[field] = new Set();
-                    if (model[field] && model[field] !== '-') {
+                    if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
                         fieldOptions[field].add(model[field]);
                     }
                 });
             });
             
-            // Create dropdowns for each field
+            // Create dropdowns for each field that has options
             Object.keys(fieldMapping).forEach(field => {
                 if (fieldOptions[field] && fieldOptions[field].size > 0) {
                     const fieldDiv = document.createElement('div');
                     const options = Array.from(fieldOptions[field]).sort();
                     const displayName = fieldMapping[field];
+                    const currentValue = modelData[field] || '';
                     
                     fieldDiv.innerHTML = `
                         <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
@@ -441,7 +365,7 @@
                                     onchange="handleSpecChange('${field}', this.value)">
                                 <option value="">Select...</option>
                                 ${options.map(option => 
-                                    `<option value="${option}" ${preset[field] === option ? 'selected' : ''}>${option}</option>`
+                                    `<option value="${option}" ${currentValue === option ? 'selected' : ''}>${option}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -449,6 +373,8 @@
                     specsGrid.appendChild(fieldDiv);
                 }
             });
+            
+            console.log(`✅ Created ${specsGrid.children.length} specification fields`);
         }
 
         function handleSpecChange(field, value) {
@@ -490,12 +416,15 @@
             btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
             btn.disabled = true;
             
-            // Clear existing data
-            GUITAR_SPECS = {};
+            // Clear all data
             MODEL_PRESETS = {};
+            currentSpecs = {};
+            baseline = {};
+            dirtyFields.clear();
+            hideSpecs();
             
             setTimeout(() => {
-                loadInitialData();
+                loadModelsData();
                 btn.innerHTML = 'Hard reset (reload options)';
                 btn.disabled = false;
             }, 1000);
