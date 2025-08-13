@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Atkin Custom Spec Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -49,31 +49,23 @@
                     <div class="grid md:grid-cols-4 gap-4">
                         <div>
                             <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
-                            <input id="serial" type="text" 
-                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   value="ATK-2025-00123" placeholder="e.g. ATK-2025-00123">
+                            <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" value="ATK-2025-00123" placeholder="e.g. ATK-2025-00123" />
                         </div>
                         
                         <div>
                             <label for="customer" class="text-sm font-medium text-gray-700 mb-1 block">Customer Name</label>
-                            <input id="customer" type="text" 
-                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   placeholder="Customer Name">
+                            <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" placeholder="Customer Name" />
                         </div>
                         
                         <div>
                             <label for="email" class="text-sm font-medium text-gray-700 mb-1 block">Contact Email</label>
-                            <input id="email" type="email" 
-                                   class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                                   placeholder="name@example.com">
+                            <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" placeholder="name@example.com" />
                         </div>
                         
                         <div>
                             <label for="model" class="text-sm font-medium text-gray-700 mb-1 block">Model</label>
-                            <select id="model" 
-                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
-                                <option value="">Choose a model</option>
-                                <!-- Models will be populated dynamically from Google Sheets -->
+                            <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
+                                <option value="">Loading models...</option>
                             </select>
                         </div>
                     </div>
@@ -81,8 +73,7 @@
                     <div class="grid md:grid-cols-4 gap-4">
                         <div>
                             <label for="rightLeft" class="text-sm font-medium text-gray-700 mb-1 block">RIGHT / LEFT</label>
-                            <select id="rightLeft" 
-                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
+                            <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
                                 <option value="">Select...</option>
                                 <option value="RIGHT">RIGHT</option>
                                 <option value="LEFT">LEFT</option>
@@ -102,32 +93,24 @@
                 <!-- Notes Section -->
                 <div>
                     <label for="notes" class="text-sm font-medium text-gray-700 mb-1 block">Additional Notes</label>
-                    <textarea id="notes" 
-                              class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all resize-y"
-                              placeholder="Anything extra to capture..."></textarea>
+                    <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all resize-y" placeholder="Anything extra to capture..."></textarea>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-                    <button onclick="printPdf()" 
-                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
+                    <button onclick="printPdf()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
                         Download PDF
                     </button>
                     
-                    <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116" 
-                       target="_blank" rel="noreferrer"
-                       class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 no-underline">
+                    <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 no-underline">
                         Edit spec sheet (Google Sheets)
                     </a>
                     
-                    <button onclick="softReset()" 
-                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
+                    <button onclick="softReset()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
                         Soft reset
                     </button>
                     
-                    <button onclick="hardReset()" id="hardResetBtn"
-                            class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200"
-                            title="Reload OPTIONS & MODELS from Google Sheets (cache-busted)">
+                    <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200" title="Reload OPTIONS & MODELS from Google Sheets (cache-busted)">
                         Hard reset (reload options)
                     </button>
                 </div>
@@ -139,14 +122,13 @@
         // Configuration
         const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
         
-        // Will be populated from your Google Sheets
+        // Global data storage
         let GUITAR_SPECS = {};
         let MODEL_PRESETS = {};
-        let AVAILABLE_MODELS = [];
-
         let currentSpecs = {};
         let baseline = {};
         let dirtyFields = new Set();
+        let dataLoaded = false;
 
         // Initialize the application
         function init() {
@@ -162,122 +144,157 @@
             showStatus('Loading live data from Google Sheets...', 'info');
             
             Promise.all([
-                fetchData(`${GAS_BASE}?kind=options`),
-                fetchData(`${GAS_BASE}?kind=models`)
+                fetchData(`${GAS_BASE}?kind=options&_cb=${Date.now()}`),
+                fetchData(`${GAS_BASE}?kind=models&_cb=${Date.now()}`)
             ]).then(([optionsResponse, modelsResponse]) => {
-                console.log('Raw options response:', optionsResponse);
-                console.log('Raw models response:', modelsResponse);
                 
-                // Process options data - handle multiple possible formats
-                if (optionsResponse) {
-                    if (optionsResponse.data) {
-                        GUITAR_SPECS = optionsResponse.data;
-                    } else if (optionsResponse.ok && optionsResponse.kind === 'options') {
-                        GUITAR_SPECS = optionsResponse.data || {};
-                    } else {
-                        // Direct format (no wrapper)
-                        GUITAR_SPECS = optionsResponse;
-                    }
-                    console.log('✅ Options processed:', Object.keys(GUITAR_SPECS));
+                console.log('✅ Raw OPTIONS response:', optionsResponse);
+                console.log('✅ Raw MODELS response:', modelsResponse);
+                
+                if (optionsResponse.ok && optionsResponse.data) {
+                    GUITAR_SPECS = optionsResponse.data;
+                    console.log('✅ Loaded OPTIONS:', Object.keys(GUITAR_SPECS));
                 }
                 
-                // Process models data - handle multiple possible formats
-                if (modelsResponse) {
-                    if (modelsResponse.data) {
-                        MODEL_PRESETS = modelsResponse.data;
-                    } else if (modelsResponse.ok && modelsResponse.kind === 'models') {
-                        MODEL_PRESETS = modelsResponse.data || {};
-                    } else {
-                        // Direct format (no wrapper)
-                        MODEL_PRESETS = modelsResponse;
-                    }
-                    AVAILABLE_MODELS = Object.keys(MODEL_PRESETS);
-                    console.log('✅ Models processed:', AVAILABLE_MODELS);
+                if (modelsResponse.ok && modelsResponse.data) {
+                    MODEL_PRESETS = modelsResponse.data;
+                    console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
                 }
                 
                 // Populate model dropdown
                 populateModelDropdown();
                 
-                // Force populate as backup
-                setTimeout(() => forcePopulateModels(), 1000);
-                
-                if (AVAILABLE_MODELS.length > 0) {
-                    showStatus('✅ Live data loaded successfully from Google Sheets', 'success');
-                    console.log('✅ Successfully loaded live data from Google Sheets');
-                } else {
-                    showStatus('⚠️ Connected to Google Sheets but no models found. Check your MODELS tab.', 'warning');
-                }
+                dataLoaded = true;
+                showStatus('✅ Live data loaded from Google Sheets', 'success');
                 
             }).catch(error => {
-                console.log('❌ Failed to load live data:', error);
-                showStatus('⚠️ Could not connect to Google Sheets. Please check your internet connection and try "Hard reset".', 'warning');
+                console.error('❌ Error loading data:', error);
+                showStatus('❌ Failed to load live data. Check console for details.', 'error');
                 
-                // Still populate empty dropdown so form works
+                // Fallback to demo data
+                loadDemoData();
                 populateModelDropdown();
             });
         }
 
-        function populateModelDropdown() {
-            const modelSelect = document.getElementById('model');
+        function loadDemoData() {
+            console.log('🔄 Loading demo data as fallback');
             
-            // Clear existing options except the first one
-            while (modelSelect.children.length > 1) {
-                modelSelect.removeChild(modelSelect.lastChild);
-            }
+            // Demo guitar specs
+            GUITAR_SPECS = {
+                "FINISH": ["AGED", "LIGHT RELIC", "HEAVY RELIC", "Natural", "Gloss", "Satin"],
+                "TOP": ["STIKA SPRUCE", "MAHOGANY", "FLAME MAPLE", "Cedar", "Redwood"],
+                "BACK / SIDES": ["MAHOGANY", "FLAME MAPLE", "Rosewood", "Walnut", "Maple"],
+                "BACKSTRIP": ["CHECKER", "ZIPPER", "Herringbone", "Simple", "None"],
+                "ROSETTE": ["B / W / B", "CREAM", "Abalone", "Wood", "Custom"],
+                "BRACING": ["7MM / 15MM", "8MM / 20MM", "Standard", "Heavy", "Light"],
+                "END WEDGE": ["IN RW", "BW IVORID BW", "Ebony", "Maple", "None"],
+                "BINDINGS": ["CREAM", "TORT", "IVOROID", "Wood", "Plastic"],
+                "PURFLING F/B": ["W BWB / -", "HERRING / BW", "Abalone", "Wood", "None"],
+                "FRETBOARD": ["SANTOS", "EBONY", "Rosewood", "Maple", "Pau Ferro"],
+                "NUT WIDTH": ["43", "45", "42", "44", "46"],
+                "F/BOARD INLAYS": ["6MM DOTS", "DIAMOND", "Blocks", "None", "Custom"],
+                "SCALE": ["SHORT 24.9", "LONG 25.4", "Standard", "Custom"],
+                "NECK SHAPE": ["VINTAGE V", "PRE WAR", "Modern C", "Thin C", "Custom"],
+                "HEADSTOCK VENEER": ["EBONY", "MAPLE", "Rosewood", "Matching Body"],
+                "HEADSTOCK INLAY": ["LOGO", "LOGO HESDSTOCK", "Name", "Custom", "None"],
+                "HS DECAL": ["LOGO BANNER", "LOGO", "Name", "Custom", "None"],
+                "BODY JOIN": ["14", "13", "12", "15"],
+                "M/HEADS": ["NICKEL KLUSON", "NICKEL GOTOH", "Gold", "Chrome", "Vintage"],
+                "FRETS": ["G STYLE", "M STYLE", "Jumbo", "Medium", "Small"],
+                "BRIDGE STYLE": ["SANTOS", "EBONY", "Rosewood", "Maple"],
+                "BRIDGE WOOD": ["SANTOS", "EBONY", "Rosewood", "Maple"],
+                "PICKGUARD": ["TORT", "FIRE STRIPE", "Black", "White", "None"],
+                "BRIDGE PINS": ["CREAM", "EBONY", "Bone", "Plastic"],
+                "END PIN": ["CREAM", "BLACK", "Ebony", "Bone"],
+                "STRINGS": ["12's", "11's", "13's", "10's"],
+                "PICKUP": ["None", "Magnetic", "Piezo", "Both"]
+            };
+
+            MODEL_PRESETS = {
+                "J43": {
+                    "FINISH": "AGED",
+                    "TOP": "STIKA SPRUCE",
+                    "BACK / SIDES": "MAHOGANY",
+                    "BACKSTRIP": "CHECKER",
+                    "ROSETTE": "B / W / B",
+                    "BRACING": "7MM / 15MM",
+                    "END WEDGE": "IN RW",
+                    "BINDINGS": "CREAM",
+                    "PURFLING F/B": "W BWB / -",
+                    "FRETBOARD": "SANTOS",
+                    "NUT WIDTH": "43",
+                    "F/BOARD INLAYS": "6MM DOTS",
+                    "SCALE": "SHORT 24.9",
+                    "NECK SHAPE": "VINTAGE V",
+                    "HEADSTOCK VENEER": "EBONY",
+                    "HEADSTOCK INLAY": "LOGO",
+                    "HS DECAL": "LOGO BANNER",
+                    "BODY JOIN": "14",
+                    "M/HEADS": "NICKEL KLUSON",
+                    "FRETS": "G STYLE",
+                    "BRIDGE STYLE": "SANTOS",
+                    "BRIDGE WOOD": "SANTOS",
+                    "PICKGUARD": "TORT",
+                    "BRIDGE PINS": "CREAM",
+                    "END PIN": "CREAM",
+                    "STRINGS": "12's"
+                },
+                "L36": {
+                    "FINISH": "LIGHT RELIC",
+                    "TOP": "MAHOGANY",
+                    "BACK / SIDES": "FLAME MAPLE",
+                    "BACKSTRIP": "ZIPPER",
+                    "ROSETTE": "CREAM",
+                    "BRACING": "8MM / 20MM",
+                    "END WEDGE": "BW IVORID BW",
+                    "BINDINGS": "TORT",
+                    "PURFLING F/B": "HERRING / BW",
+                    "FRETBOARD": "EBONY",
+                    "NUT WIDTH": "45",
+                    "F/BOARD INLAYS": "DIAMOND",
+                    "SCALE": "LONG 25.4",
+                    "NECK SHAPE": "PRE WAR",
+                    "HEADSTOCK VENEER": "MAPLE",
+                    "HEADSTOCK INLAY": "LOGO HESDSTOCK",
+                    "HS DECAL": "LOGO",
+                    "BODY JOIN": "13",
+                    "M/HEADS": "NICKEL GOTOH",
+                    "FRETS": "M STYLE",
+                    "BRIDGE STYLE": "EBONY",
+                    "BRIDGE WOOD": "EBONY",
+                    "PICKGUARD": "FIRE STRIPE",
+                    "BRIDGE PINS": "EBONY",
+                    "END PIN": "BLACK",
+                    "STRINGS": "11's"
+                }
+            };
             
-            console.log('Available models to populate:', AVAILABLE_MODELS);
-            
-            // Add models from Google Sheets
-            if (AVAILABLE_MODELS && AVAILABLE_MODELS.length > 0) {
-                AVAILABLE_MODELS.forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                    console.log('Added model option:', model);
-                });
-                console.log('✅ Model dropdown populated with:', AVAILABLE_MODELS);
-            } else {
-                console.log('⚠️ No models available to populate dropdown');
-                // Add a message option to show there's an issue
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No models found - check Google Sheets';
-                option.disabled = true;
-                modelSelect.appendChild(option);
-            }
+            showStatus('⚠️ Using demo data (live data failed to load)', 'warning');
         }
 
-        function forcePopulateModels() {
-            console.log('🔧 Forcing model population...');
-            console.log('Available models:', AVAILABLE_MODELS);
-            console.log('Model presets keys:', Object.keys(MODEL_PRESETS));
-            
+        function populateModelDropdown() {
             const modelSelect = document.getElementById('model');
+            modelSelect.innerHTML = '<option value="">Choose a model</option>';
             
-            // Clear existing options except the first one
-            while (modelSelect.children.length > 1) {
-                modelSelect.removeChild(modelSelect.lastChild);
-            }
-            
-            // Get models from the actual loaded data
-            const realModels = Object.keys(MODEL_PRESETS);
-            console.log('Real models from data:', realModels);
-            
-            // Add first 10 models as a test
-            realModels.slice(0, 10).forEach(model => {
+            // Populate from live models data
+            Object.keys(MODEL_PRESETS).forEach(modelName => {
                 const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
+                option.value = modelName;
+                option.textContent = modelName;
                 modelSelect.appendChild(option);
-                console.log('Added model:', model);
             });
+            
+            console.log(`📋 Populated model dropdown with ${Object.keys(MODEL_PRESETS).length} models`);
         }
 
         async function fetchData(url) {
+            console.log('🔄 Fetching:', url);
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
+            const data = await response.json();
+            console.log('📦 Response:', data);
+            return data;
         }
 
         function showStatus(message, type = 'info') {
@@ -291,8 +308,8 @@
             statusDiv.innerHTML = `<span>${message}</span>`;
             statusDiv.classList.remove('hidden');
             
-            if (type === 'info') {
-                setTimeout(() => statusDiv.classList.add('hidden'), 3000);
+            if (type === 'info' || type === 'success') {
+                setTimeout(() => statusDiv.classList.add('hidden'), 4000);
             }
         }
 
@@ -307,6 +324,8 @@
             baseline = { ...preset };
             currentSpecs = { ...preset };
             dirtyFields.clear();
+            
+            console.log(`🎸 Selected model: ${selectedModel}`, preset);
             
             showSpecs();
             populateSpecs(preset);
@@ -324,11 +343,13 @@
             const specsGrid = document.getElementById('specsGrid');
             specsGrid.innerHTML = '';
             
-            // Use the fields from your Google Sheets data
+            // Ensure we have specs to work with
+            if (Object.keys(GUITAR_SPECS).length === 0) {
+                specsGrid.innerHTML = '<div class="col-span-2 text-center text-gray-500">No specification options loaded</div>';
+                return;
+            }
+            
             Object.keys(GUITAR_SPECS).forEach(field => {
-                // Skip MODEL and RIGHT/LEFT fields as they're handled separately
-                if (field === 'MODEL' || field === 'RIGHT / LEFT') return;
-                
                 const fieldDiv = document.createElement('div');
                 const options = GUITAR_SPECS[field] || [];
                 
@@ -388,12 +409,10 @@
             btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
             btn.disabled = true;
             
-            // Clear current data
+            // Clear existing data
             GUITAR_SPECS = {};
             MODEL_PRESETS = {};
-            AVAILABLE_MODELS = [];
             
-            // Reload from Google Sheets
             setTimeout(() => {
                 loadInitialData();
                 btn.innerHTML = 'Hard reset (reload options)';
