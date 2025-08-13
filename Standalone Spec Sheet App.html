@@ -1,0 +1,622 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1894.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    span.s1 {font: 12.0px 'Apple Color Emoji'}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Atkin Custom Spec Sheet&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/react@18/umd/react.development.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media print {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>@page { size: A4 portrait; margin: 12mm; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>body { background: white; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.print\:w-\[794px\] { width: 794px !important; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.print\:mx-auto { margin-left: auto !important; margin-right: auto !important; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.print\:border-0 { border-width: 0 !important; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.print\:hidden { display: none !important; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="root"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="text/babel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const { useState, useCallback, useEffect, useMemo, useRef } = React;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const { ChevronDown, AlertCircle, Loader2, RefreshCw } = LucideReact;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/** ================== CONFIG ================== **/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SHEET_UI_URL = "https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&amp;gid=1234273116#gid=1234273116";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const OPTIONS_API_URL = `${GAS_BASE}?kind=options`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MODELS_API_URL = `${GAS_BASE}?kind=models`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Field constants</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const RL_KEY = "RIGHT / LEFT";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MODEL_KEY = "MODEL";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// CSS class constants</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const HIGHLIGHT_CLASSES = "ring-2 ring-orange-500 ring-offset-1 rounded-[14px]";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const INPUT_BASE_CLASSES = "w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BUTTON_BASE_CLASSES = "inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Mock data for fallback</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MOCK_OPTIONS = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>[MODEL_KEY]: ["J43", "L36", "R25", "M18"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"FINISH": ["AGED", "LIGHT RELIC", "HEAVY RELIC", "Natural", "Gloss", "Satin"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"TOP": ["STIKA SPRUCE", "MAHOGANY", "FLAME MAPLE", "Cedar", "Redwood"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BACK / SIDES": ["MAHOGANY", "FLAME MAPLE", "Rosewood", "Walnut", "Maple"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BACKSTRIP": ["CHECKER", "ZIPPER", "Herringbone", "Simple", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"ROSETTE": ["B / W / B", "CREAM", "Abalone", "Wood", "Custom"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BRACING": ["7MM / 15MM", "8MM / 20MM", "Standard", "Heavy", "Light"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"END WEDGE": ["IN RW", "BW IVORID BW", "Ebony", "Maple", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BINDINGS": ["CREAM", "TORT", "IVOROID", "Wood", "Plastic"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"PURFLING F/B": ["W BWB / -", "HERRING / BW", "Abalone", "Wood", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"FRETBOARD": ["SANTOS", "EBONY", "Rosewood", "Maple", "Pau Ferro"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"NUT WIDTH": ["43", "45", "42", "44", "46"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"F/BOARD INLAYS": ["6MM DOTS", "DIAMOND", "Blocks", "None", "Custom"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"SCALE": ["SHORT 24.9", "LONG 25.4", "Standard", "Custom"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"NECK SHAPE": ["VINTAGE V", "PRE WAR", "Modern C", "Thin C", "Custom"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"HEADSTOCK VENEER": ["EBONY", "MAPLE", "Rosewood", "Matching Body"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"HEADSTOCK INLAY": ["LOGO", "LOGO HESDSTOCK", "Name", "Custom", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"HS DECAL": ["LOGO BANNER", "LOGO", "Name", "Custom", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BODY JOIN": ["14", "13", "12", "15"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"M/HEADS": ["NICKEL KLUSON", "NICKEL GOTOH", "Gold", "Chrome", "Vintage"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"FRETS": ["G STYLE", "M STYLE", "Jumbo", "Medium", "Small"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BRIDGE STYLE": ["SANTOS", "EBONY", "Rosewood", "Maple"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BRIDGE WOOD": ["SANTOS", "EBONY", "Rosewood", "Maple"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"PICKGUARD": ["TORT", "FIRE STRIPE", "Black", "White", "None"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"BRIDGE PINS": ["CREAM", "EBONY", "Bone", "Plastic"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"END PIN": ["CREAM", "BLACK", "Ebony", "Bone"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"STRINGS": ["12's", "11's", "13's", "10's"],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"PICKUP": ["None", "Magnetic", "Piezo", "Both"]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MOCK_MODELS = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"J43": {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FINISH": "AGED",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"TOP": "STIKA SPRUCE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BACK / SIDES": "MAHOGANY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BACKSTRIP": "CHECKER",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"ROSETTE": "B / W / B",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRACING": "7MM / 15MM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"END WEDGE": "IN RW",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BINDINGS": "CREAM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"PURFLING F/B": "W BWB / -",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FRETBOARD": "SANTOS",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"NUT WIDTH": "43",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"F/BOARD INLAYS": "6MM DOTS",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"SCALE": "SHORT 24.9",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"NECK SHAPE": "VINTAGE V",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HEADSTOCK VENEER": "EBONY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HEADSTOCK INLAY": "LOGO",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HS DECAL": "LOGO BANNER",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BODY JOIN": "14",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"M/HEADS": "NICKEL KLUSON",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FRETS": "G STYLE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE STYLE": "SANTOS",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE WOOD": "SANTOS",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"PICKGUARD": "TORT",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE PINS": "CREAM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"END PIN": "CREAM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"STRINGS": "12's"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"L36": {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FINISH": "LIGHT RELIC",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"TOP": "MAHOGANY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BACK / SIDES": "FLAME MAPLE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BACKSTRIP": "ZIPPER",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"ROSETTE": "CREAM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRACING": "8MM / 20MM",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"END WEDGE": "BW IVORID BW",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BINDINGS": "TORT",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"PURFLING F/B": "HERRING / BW",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FRETBOARD": "EBONY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"NUT WIDTH": "45",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"F/BOARD INLAYS": "DIAMOND",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"SCALE": "LONG 25.4",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"NECK SHAPE": "PRE WAR",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HEADSTOCK VENEER": "MAPLE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HEADSTOCK INLAY": "LOGO HESDSTOCK",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"HS DECAL": "LOGO",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BODY JOIN": "13",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"M/HEADS": "NICKEL GOTOH",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"FRETS": "M STYLE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE STYLE": "EBONY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE WOOD": "EBONY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"PICKGUARD": "FIRE STRIPE",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"BRIDGE PINS": "EBONY",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"END PIN": "BLACK",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"STRINGS": "11's"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/** ================== UI HELPERS ================== **/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function Label({ children, htmlFor }) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return React.createElement('label', {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>htmlFor: htmlFor,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className: "text-sm font-medium text-gray-700 mb-1 block"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, children);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function LoadingSpinner({ size = 16 }) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return React.createElement(Loader2, { className: "animate-spin", size: size });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function ErrorMessage({ message, onRetry }) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isOfflineMode = message.includes('Using offline data') || message.includes('demo data');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bgColor = isOfflineMode ? 'bg-amber-50' : 'bg-red-50';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const borderColor = isOfflineMode ? 'border-amber-200' : 'border-red-200';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const textColor = isOfflineMode ? 'text-amber-800' : 'text-red-700';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const iconColor = isOfflineMode ? 'text-amber-600' : 'text-red-500';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className: `flex items-center gap-2 p-3 ${bgColor} border ${borderColor} rounded-xl ${textColor}`</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>React.createElement(AlertCircle, { key: "icon", size: 18, className: iconColor }),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>React.createElement('span', { key: "message", className: "flex-1" }, message),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onRetry &amp;&amp; React.createElement('button', {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key: "retry",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick: onRetry,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className: `${isOfflineMode ? 'text-amber-700 hover:text-amber-900' : 'text-red-600 hover:text-red-800'} font-medium text-sm flex items-center gap-1`</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>React.createElement(RefreshCw, { key: "refresh-icon", size: 14 }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"Retry Live Data"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>])</p>
+<p class="p1"><span class="Apple-converted-space">            </span>]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function Select({ value, onChange, options = [], placeholder, className, disabled = false, id, "aria-label": ariaLabel }) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const list = Array.isArray(options) ? options : [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className: `relative ${className || ""}`</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>React.createElement('select', {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key: "select",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>id: id,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className: `${INPUT_BASE_CLASSES} appearance-none pr-10 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value: value ?? "",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange: (e) =&gt; onChange(e.target.value),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>disabled: disabled,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"aria-label": ariaLabel || placeholder</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>React.createElement('option', { key: "placeholder", value: "", disabled: true }, placeholder || "Select..."),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>...list.map((opt) =&gt; React.createElement('option', {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>key: String(opt),</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>value: String(opt)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}, String(opt)))</p>
+<p class="p1"><span class="Apple-converted-space">                </span>]),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>React.createElement(ChevronDown, {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key: "chevron",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className: `absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${disabled ? 'opacity-30' : ''}`,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>size: 18</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})</p>
+<p class="p1"><span class="Apple-converted-space">            </span>]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/** ================== NORMALIZATION ================== **/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const normHeader = (s) =&gt; String(s ?? "").replace(/\s*\/\s*/g, " / ").replace(/\s+/g, " ").trim();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function coerceList(v) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!v) return [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (Array.isArray(v)) return v.map(String).map((s) =&gt; s.trim()).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (typeof v === "object") {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const o = v;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Array.isArray(o.values)) return o.values.map(String).map((s) =&gt; s.trim()).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Array.isArray(o.items)) return o.items.map(String).map((s) =&gt; s.trim()).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (typeof v === "string") {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return v.split(/[\n\r,;|]+/).map((s) =&gt; s.trim()).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function normalizeOptions(raw) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const body = raw &amp;&amp; typeof raw === "object" ? (raw.data ?? raw) : {};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const out = {};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (const [k, v] of Object.entries(body || {})) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const nk = normHeader(k);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const arr = coerceList(v);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (nk &amp;&amp; arr.length) out[nk] = Array.from(new Set(arr));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return out;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return {};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function normalizeModels(raw) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const candidate = raw &amp;&amp; typeof raw === "object" ? (raw.models ?? raw.data ?? raw) : {};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return {};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const out = {};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (const [modelName, fields] of Object.entries(candidate)) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rec = fields &amp;&amp; typeof fields === "object" ? fields : {};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normalized = {};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (const [fk, fv] of Object.entries(rec)) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>normalized[normHeader(fk)] = String(fv ?? "");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>out[String(modelName)] = normalized;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/** ================== MAIN APP ================== **/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function App() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Form fields</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [serial, setSerial] = useState("ATK-2025-00123");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [customer, setCustomer] = useState("");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [email, setEmail] = useState("");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [notes, setNotes] = useState("");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Data state</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [options, setOptions] = useState({});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [models, setModels] = useState({});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [specs, setSpecs] = useState({});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// UI state</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [loadingState, setLoadingState] = useState({ isLoading: false, error: null });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Highlighting</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [baseline, setBaseline] = useState({});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const [dirty, setDirty] = useState(new Set());</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Fetch function ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const fetchAll = useCallback(async (cacheBust = false) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setLoadingState({ isLoading: true, error: null });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const optUrl = cacheBust ? `${OPTIONS_API_URL}&amp;t=${Date.now()}` : OPTIONS_API_URL;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const modUrl = cacheBust ? `${MODELS_API_URL}&amp;t=${Date.now()}` : MODELS_API_URL;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>console.log('<span class="s1">🔍</span> Fetching from:', { optUrl, modUrl });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const [optRes, modRes] = await Promise.all([</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>fetch(optUrl).catch(e =&gt; ({ ok: false, error: e.message })),</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>fetch(modUrl).catch(e =&gt; ({ ok: false, error: e.message }))</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let optRaw = {};</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let modRaw = {};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (optRes.ok) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const text = await optRes.text();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>optRaw = JSON.parse(text);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>console.log('<span class="s1">✅</span> Options loaded successfully');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (modRes.ok) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const text = await modRes.text();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>modRaw = JSON.parse(text);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>console.log('<span class="s1">✅</span> Models loaded successfully');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (optRes.ok || modRes.ok) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const optionsCanon = normalizeOptions(optRaw);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const modelsCanon = normalizeModels(modRaw);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const finalOptions = Object.keys(optionsCanon).length &gt; 0 ? optionsCanon : { ...MOCK_OPTIONS };</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const finalModels = Object.keys(modelsCanon).length &gt; 0 ? modelsCanon : { ...MOCK_MODELS };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (!Array.isArray(finalOptions[MODEL_KEY]) || finalOptions[MODEL_KEY].length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>finalOptions[MODEL_KEY] = Object.keys(finalModels);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>setOptions(finalOptions);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>setModels(finalModels);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>setLoadingState({ isLoading: false, error: null });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>throw new Error('Both APIs failed');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>console.error('<span class="s1">❌</span> Using fallback data:', error);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setOptions({ ...MOCK_OPTIONS });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setModels({ ...MOCK_MODELS });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setLoadingState({<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isLoading: false,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>error: `API connection failed. Using demo data based on your guitar specifications.`</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Initial load</p>
+<p class="p1"><span class="Apple-converted-space">            </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>fetchAll();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [fetchAll]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Memoized options getter ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const getOptionsFor = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return (field) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (field === RL_KEY) return ["RIGHT", "LEFT"];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const live = Array.isArray(options[field]) ? options[field] : [];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const fromModels = new Set();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>Object.values(models).forEach((rec) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const v = rec[field];</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (v) fromModels.add(String(v));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return Array.from(new Set([...live, ...fromModels])).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [options, models]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Field order ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const FIELD_ORDER = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const chosen = specs[MODEL_KEY];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const presetFields = chosen &amp;&amp; models[chosen] ? Object.keys(models[chosen]) : [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const optionFields = Object.keys(options).filter((k) =&gt; k !== MODEL_KEY &amp;&amp; k !== RL_KEY &amp;&amp; Array.isArray(options[k]) &amp;&amp; options[k].length &gt; 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const merged = Array.from(new Set([...presetFields, ...optionFields]));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return merged.filter((k) =&gt; k !== MODEL_KEY &amp;&amp; k !== RL_KEY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [options, models, specs]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Model preset application ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const applyModelPreset = useCallback((modelName) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const preset = models[modelName] || {};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setBaseline(preset);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setDirty(new Set());</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setSpecs((curr) =&gt; ({ ...preset, [MODEL_KEY]: modelName, [RL_KEY]: curr[RL_KEY] ?? "" }));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [models]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Field change handler ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const onChangeField = useCallback((field, value) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setSpecs((curr) =&gt; ({ ...curr, [field]: value }));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (field === MODEL_KEY || field === RL_KEY) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>setDirty((prev) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const next = new Set(prev);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const base = baseline[field] ?? "";</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (value === "" &amp;&amp; base === "") {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>next.delete(field);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else if (value !== base) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>next.add(field);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>next.delete(field);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return next;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [baseline]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Action handlers ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const softReset = useCallback(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setCustomer("");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setEmail("");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setNotes("");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setSpecs({});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setBaseline({});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setDirty(new Set());</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hardReset = useCallback(async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>await fetchAll(true);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setDirty(new Set());</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Error handled in fetchAll</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [fetchAll]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const printPdf = useCallback(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>window.print();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Styling helper ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const getFieldClassName = useCallback((field) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return dirty.has(field) ? HIGHLIGHT_CLASSES : "";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, [dirty]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>/** ------ Render data ------ **/</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const modelList = Array.isArray(options[MODEL_KEY]) ? options[MODEL_KEY] : Object.keys(models || {});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const rlList = getOptionsFor(RL_KEY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isDataLoading = loadingState.isLoading &amp;&amp; Object.keys(options).length === 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return React.createElement('div', { className: "p-6" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key: "main-container",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className: "rounded-2xl shadow-xl border border-gray-200 bg-white print:w-[794px] print:mx-auto print:border-0"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>key: "content",</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>className: "p-6 space-y-4"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>React.createElement('h1', {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>key: "title",</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>className: "text-2xl font-bold mb-2"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}, "Atkin Custom Spec Sheet"),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Loading state</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isDataLoading &amp;&amp; React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>key: "loading",</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>className: "flex items-center justify-center gap-3 p-8 text-gray-600"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>React.createElement(LoadingSpinner, { key: "spinner", size: 20 }),</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>React.createElement('span', { key: "text" }, "Loading spec sheet options...")</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>]),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Error state</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>loadingState.error &amp;&amp; React.createElement(ErrorMessage, {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>key: "error",</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>message: loadingState.error,</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>onRetry: () =&gt; fetchAll(true)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Main form</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>!isDataLoading &amp;&amp; React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>key: "form-container",</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>className: "space-y-4"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Header form</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>key: "header-form",</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>className: "bg-gray-50 p-4 rounded-xl shadow-inner space-y-4"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "header-grid",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: "grid md:grid-cols-4 gap-4"</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', { key: "serial" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Label, { key: "serial-label", htmlFor: "serial" }, "Serial Number"),</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement('input', {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: "serial-input",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: "serial",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>className: INPUT_BASE_CLASSES,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: serial,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (e) =&gt; setSerial(e.target.value),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "e.g. ATK-2025-00123"</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>]),</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', { key: "customer" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Label, { key: "customer-label", htmlFor: "customer" }, "Customer Name"),</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement('input', {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: "customer-input",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: "customer",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>className: INPUT_BASE_CLASSES,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: customer,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (e) =&gt; setCustomer(e.target.value),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "Customer Name"</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>]),</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', { key: "email" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Label, { key: "email-label", htmlFor: "email" }, "Contact Email"),</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement('input', {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: "email-input",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: "email",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>type: "email",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>className: INPUT_BASE_CLASSES,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: email,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (e) =&gt; setEmail(e.target.value),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "name@example.com"</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>]),</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', { key: "model" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Label, { key: "model-label", htmlFor: "model" }, "Model"),</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Select, {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: "model-select",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: "model",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: specs[MODEL_KEY],</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (v) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>if (!v) return;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>onChangeField(MODEL_KEY, v);</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>applyModelPreset(v);</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>options: modelList,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "Choose a model",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>disabled: modelList.length === 0,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>"aria-label": "Select model"</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>])</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>]),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "rl-grid",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: "grid md:grid-cols-4 gap-4"</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', { key: "rl" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Label, { key: "rl-label", htmlFor: "right-left" }, RL_KEY),</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Select, {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: "rl-select",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: "right-left",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: specs[RL_KEY],</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (v) =&gt; onChangeField(RL_KEY, v),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>options: rlList,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "Select...",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>"aria-label": "Select right or left orientation"</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>])</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>])</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>]),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Specs grid</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>specs[MODEL_KEY] &amp;&amp; React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>key: "specs-section",</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>className: "space-y-4"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('h2', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "specs-title",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: "text-lg font-semibold text-gray-800"</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, "Specifications"),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "specs-grid",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: "grid md:grid-cols-2 gap-4"</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, FIELD_ORDER.map((field) =&gt; React.createElement('div', { key: field }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement(Label, {</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>key: `${field}-label`,</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>htmlFor: `spec-${field}`</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>}, field),</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>key: `${field}-container`,</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>className: getFieldClassName(field)</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>React.createElement(Select, {</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>key: `${field}-select`,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>id: `spec-${field}`,</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>value: specs[field],</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>onChange: (v) =&gt; onChangeField(field, v),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>options: getOptionsFor(field),</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>placeholder: "Select...",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>className: "w-full",</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>"aria-label": `Select ${field}`</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>])</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>])))</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>]),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Notes</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>React.createElement('div', { key: "notes" }, [</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement(Label, { key: "notes-label", htmlFor: "notes" }, "Additional Notes"),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('textarea', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "notes-textarea",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>id: "notes",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: `${INPUT_BASE_CLASSES} min-h-[140px] resize-y`,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>value: notes,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>onChange: (e) =&gt; setNotes(e.target.value),</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>placeholder: "Anything extra to capture..."</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>]),</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Action buttons</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>React.createElement('div', {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>key: "buttons",</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>className: "flex flex-wrap items-center gap-3 pt-2 print:hidden"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}, [</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('button', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "print",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>onClick: printPdf,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50`</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, "Download PDF"),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('a', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "sheets-link",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>href: SHEET_UI_URL,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>target: "_blank",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>rel: "noreferrer",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50 no-underline`</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, "Edit spec sheet (Google Sheets)"),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('button', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "soft-reset",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>onClick: softReset,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: `${BUTTON_BASE_CLASSES} hover:bg-gray-50`</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}, "Soft reset"),</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>React.createElement('button', {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key: "hard-reset",</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>onClick: hardReset,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>disabled: loadingState.isLoading,</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className: `${</p>
+</body>
+</html>
