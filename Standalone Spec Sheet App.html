@@ -161,20 +161,29 @@
                     MODEL_PRESETS = modelsResponse.data;
                     console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
                     console.log('✅ Found', Object.keys(MODEL_PRESETS).length, 'models');
+                    
+                    // Populate model dropdown immediately after loading models
+                    populateModelDropdown();
+                } else {
+                    console.error('❌ No models data received');
+                    showStatus('❌ No models data received from API', 'error');
                 }
-                
-                // Populate model dropdown
-                populateModelDropdown();
                 
                 dataLoaded = true;
                 showStatus('✅ Live data loaded from Google Sheets', 'success');
                 
             }).catch(error => {
                 console.error('❌ Error loading data:', error);
-                showStatus('❌ Failed to load live data. Check console for details.', 'error');
+                showStatus('❌ Failed to load live data. Using demo models.', 'error');
                 
-                // Fallback to demo data
-                loadDemoData();
+                // Fallback: Create a minimal demo with actual model names from your data
+                MODEL_PRESETS = {
+                    "J43": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
+                    "L36": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
+                    "ESSENTIAL D": {"SCALE": "25.4", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
+                    "19 STD": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"}
+                };
+                
                 populateModelDropdown();
             });
         }
@@ -277,17 +286,39 @@
 
         function populateModelDropdown() {
             const modelSelect = document.getElementById('model');
+            
+            if (!modelSelect) {
+                console.error('❌ Model select element not found');
+                return;
+            }
+            
+            console.log('🔄 Populating model dropdown...');
+            console.log('📋 Available models:', Object.keys(MODEL_PRESETS));
+            
             modelSelect.innerHTML = '<option value="">Choose a model</option>';
             
+            // Check if we have models to populate
+            if (!MODEL_PRESETS || Object.keys(MODEL_PRESETS).length === 0) {
+                console.error('❌ No MODEL_PRESETS available');
+                modelSelect.innerHTML = '<option value="">No models available</option>';
+                return;
+            }
+            
             // Populate from live models data
-            Object.keys(MODEL_PRESETS).forEach(modelName => {
-                const option = document.createElement('option');
-                option.value = modelName;
-                option.textContent = modelName;
-                modelSelect.appendChild(option);
+            const modelNames = Object.keys(MODEL_PRESETS).sort();
+            console.log(`📋 Populating dropdown with ${modelNames.length} models`);
+            
+            modelNames.forEach(modelName => {
+                if (modelName && modelName !== 'NA') { // Skip the 'NA' entry
+                    const option = document.createElement('option');
+                    option.value = modelName;
+                    option.textContent = modelName;
+                    modelSelect.appendChild(option);
+                    console.log(`   Added model: ${modelName}`);
+                }
             });
             
-            console.log(`📋 Populated model dropdown with ${Object.keys(MODEL_PRESETS).length} models`);
+            console.log(`✅ Model dropdown populated with ${modelSelect.options.length - 1} models`);
         }
 
         async function fetchData(url) {
