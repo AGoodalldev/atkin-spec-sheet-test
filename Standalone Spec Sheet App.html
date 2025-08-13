@@ -143,6 +143,9 @@
         function loadInitialData() {
             showStatus('Loading live data from Google Sheets...', 'info');
             
+            // Clear any existing models first
+            MODEL_PRESETS = {};
+            
             Promise.all([
                 fetchData(`${GAS_BASE}?kind=options&_cb=${Date.now()}`),
                 fetchData(`${GAS_BASE}?kind=models&_cb=${Date.now()}`)
@@ -158,14 +161,16 @@
                 }
                 
                 if (modelsResponse.ok && modelsResponse.data) {
-                    // Clear any existing models first
-                    MODEL_PRESETS = {};
-                    
-                    // Copy all models from the response
-                    Object.assign(MODEL_PRESETS, modelsResponse.data);
+                    // IMPORTANT: Copy ALL models from the response
+                    for (const [modelName, modelData] of Object.entries(modelsResponse.data)) {
+                        if (modelName !== 'NA') { // Skip the 'NA' entry
+                            MODEL_PRESETS[modelName] = modelData;
+                        }
+                    }
                     
                     console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
                     console.log('✅ Found', Object.keys(MODEL_PRESETS).length, 'models');
+                    console.log('✅ Sample model data:', Object.keys(MODEL_PRESETS)[0], MODEL_PRESETS[Object.keys(MODEL_PRESETS)[0]]);
                     
                     // Populate model dropdown immediately after loading models
                     populateModelDropdown();
