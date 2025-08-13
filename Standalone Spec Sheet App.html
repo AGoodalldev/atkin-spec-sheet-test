@@ -165,8 +165,8 @@
                 fetchData(`${GAS_BASE}?kind=options`),
                 fetchData(`${GAS_BASE}?kind=models`)
             ]).then(([optionsResponse, modelsResponse]) => {
-                console.log('Raw options response:', optionsResponse);
-                console.log('Raw models response:', modelsResponse);
+                console.log('🔍 Raw options response:', optionsResponse);
+        console.log('🔍 Raw models response:', modelsResponse);
                 
                 // Process options data - handle multiple possible formats
                 if (optionsResponse) {
