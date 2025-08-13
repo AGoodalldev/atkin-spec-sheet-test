@@ -151,14 +151,16 @@
                 console.log('✅ Raw OPTIONS response:', optionsResponse);
                 console.log('✅ Raw MODELS response:', modelsResponse);
                 
+                // Note: OPTIONS data structure needs fixing in Google Sheets
+                // For now, we'll extract options from the models data
                 if (optionsResponse.ok && optionsResponse.data) {
-                    GUITAR_SPECS = optionsResponse.data;
-                    console.log('✅ Loaded OPTIONS:', Object.keys(GUITAR_SPECS));
+                    console.log('⚠️ OPTIONS data needs restructuring in Google Sheets');
                 }
                 
                 if (modelsResponse.ok && modelsResponse.data) {
                     MODEL_PRESETS = modelsResponse.data;
                     console.log('✅ Loaded MODELS:', Object.keys(MODEL_PRESETS));
+                    console.log('✅ Found', Object.keys(MODEL_PRESETS).length, 'models');
                 }
                 
                 // Populate model dropdown
@@ -343,30 +345,68 @@
             const specsGrid = document.getElementById('specsGrid');
             specsGrid.innerHTML = '';
             
-            // Ensure we have specs to work with
-            if (Object.keys(GUITAR_SPECS).length === 0) {
-                specsGrid.innerHTML = '<div class="col-span-2 text-center text-gray-500">No specification options loaded</div>';
-                return;
-            }
+            // Map actual field names from your models to display names
+            const fieldMapping = {
+                'SCALE': 'Scale Length',
+                'NUT WIDTH': 'Nut Width', 
+                'NECK SHAPE': 'Neck Shape',
+                'HEADSTOCK VENEER': 'Headstock Veneer',
+                'HS DECAL': 'Headstock Decal',
+                'HEADSTOCK INLAY': 'Headstock Inlay',
+                'FRETBOARD': 'Fretboard',
+                'F / BOARD INLAYS': 'Fretboard Inlays',
+                'BRIDGE STYLE': 'Bridge Style',
+                'BRIDGE WOOD': 'Bridge Wood',
+                'TOP': 'Top Wood',
+                'BACK / SIDES': 'Back & Sides',
+                'BINDINGS': 'Bindings',
+                'PURFLING F / B': 'Purfling',
+                'BACKSTRIP': 'Backstrip',
+                'END WEDGE': 'End Wedge',
+                'FRETS': 'Frets',
+                'BRACING': 'Bracing',
+                'ROSETTE': 'Rosette',
+                'MACHINEHEADS': 'Machine Heads',
+                'PICKGUARD': 'Pickguard',
+                'BRIDGE PINS': 'Bridge Pins',
+                'END PIN': 'End Pin',
+                'STRINGS': 'Strings',
+                'BODY JOIN': 'Body Join'
+            };
             
-            Object.keys(GUITAR_SPECS).forEach(field => {
-                const fieldDiv = document.createElement('div');
-                const options = GUITAR_SPECS[field] || [];
-                
-                fieldDiv.innerHTML = `
-                    <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${field}</label>
-                    <div id="container-${field}">
-                        <select id="spec-${field}" 
-                                class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
-                                onchange="handleSpecChange('${field}', this.value)">
-                            <option value="">Select...</option>
-                            ${options.map(option => 
-                                `<option value="${option}" ${preset[field] === option ? 'selected' : ''}>${option}</option>`
-                            ).join('')}
-                        </select>
-                    </div>
-                `;
-                specsGrid.appendChild(fieldDiv);
+            // Get all unique values for each field from all models
+            const fieldOptions = {};
+            Object.values(MODEL_PRESETS).forEach(model => {
+                Object.keys(model).forEach(field => {
+                    if (!fieldOptions[field]) fieldOptions[field] = new Set();
+                    if (model[field] && model[field] !== '-') {
+                        fieldOptions[field].add(model[field]);
+                    }
+                });
+            });
+            
+            // Create dropdowns for each field
+            Object.keys(fieldMapping).forEach(field => {
+                if (fieldOptions[field] && fieldOptions[field].size > 0) {
+                    const fieldDiv = document.createElement('div');
+                    const options = Array.from(fieldOptions[field]).sort();
+                    const displayName = fieldMapping[field];
+                    
+                    fieldDiv.innerHTML = `
+                        <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
+                        <div id="container-${field}">
+                            <select id="spec-${field}" 
+                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
+                                    onchange="handleSpecChange('${field}', this.value)">
+                                <option value="">Select...</option>
+                                ${options.map(option => 
+                                    `<option value="${option}" ${preset[field] === option ? 'selected' : ''}>${option}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    `;
+                    specsGrid.appendChild(fieldDiv);
+                }
             });
         }
 
