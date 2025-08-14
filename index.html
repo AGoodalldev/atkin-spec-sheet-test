@@ -199,7 +199,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
                         <div class="text-sm text-gray-600 flex items-center gap-1">
-                            <span class="text-green-600 font-bold">●</span>
+                            <span>🟢</span>
                             <span>= Model baseline</span>
                         </div>
                     </div>
@@ -557,15 +557,16 @@
                         <div id="container-${field}">
                             <select id="spec-${field}" 
                                     class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
-                                    onchange="handleSpecChange('${field}', this.value)">
+                                    onchange="handleSpecChange('${field}', this.value)"
+                                    onfocus="showDotsInDropdown('${field}', '${currentValue}')"
+                                    onblur="hideDotsInDropdown('${field}')">
                                 <option value="">Select...</option>
                                 ${options.map(option => {
                                     const isBaseline = option === currentValue;
                                     const selected = isBaseline ? 'selected' : '';
-                                    const indicator = isBaseline ? '● ' : '';
-                                    return `<option value="${option}" ${selected}>${indicator}${option}</option>`;
+                                    return `<option value="${option}" ${selected} data-baseline="${isBaseline}">${option}</option>`;
                                 }).join('')}
-                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected>● ${currentValue}</option>` : ''}
+                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected data-baseline="true">${currentValue}</option>` : ''}
                             </select>
                         </div>
                     `;
@@ -579,6 +580,30 @@
             const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
             console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
             console.log(`🎯 Model has data for ${Object.keys(modelData).length} fields, created dropdowns for ${specsGrid.children.length} fields`);
+        }
+
+        function showDotsInDropdown(field, baselineValue) {
+            const selectElement = document.getElementById(`spec-${field}`);
+            if (!selectElement) return;
+            
+            // Add green dots to baseline options when dropdown opens
+            Array.from(selectElement.options).forEach(option => {
+                if (option.getAttribute('data-baseline') === 'true' && !option.textContent.startsWith('🟢 ')) {
+                    option.textContent = '🟢 ' + option.textContent;
+                }
+            });
+        }
+
+        function hideDotsInDropdown(field) {
+            const selectElement = document.getElementById(`spec-${field}`);
+            if (!selectElement) return;
+            
+            // Remove green dots from all options when dropdown closes
+            Array.from(selectElement.options).forEach(option => {
+                if (option.textContent.startsWith('🟢 ')) {
+                    option.textContent = option.textContent.replace('🟢 ', '');
+                }
+            });
         }
 
         function handleSpecChange(field, value) {
