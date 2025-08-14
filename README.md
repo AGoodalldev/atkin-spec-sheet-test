@@ -254,6 +254,8 @@
 
         function showStatus(message, type = 'info') {
             const statusDiv = document.getElementById('statusMessage');
+            if (!statusDiv) return;
+            
             const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
                            type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
                            type === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
@@ -296,15 +298,23 @@
         }
 
         function showSpecs() {
-            document.getElementById('specsSection').classList.remove('hidden');
+            const specsSection = document.getElementById('specsSection');
+            if (specsSection) {
+                specsSection.classList.remove('hidden');
+            }
         }
 
         function hideSpecs() {
-            document.getElementById('specsSection').classList.add('hidden');
+            const specsSection = document.getElementById('specsSection');
+            if (specsSection) {
+                specsSection.classList.add('hidden');
+            }
         }
 
         function populateSpecs(modelData) {
             const specsGrid = document.getElementById('specsGrid');
+            if (!specsGrid) return;
+            
             specsGrid.innerHTML = '';
             
             console.log("🔧 Populating specs for model:", modelData);
@@ -383,12 +393,14 @@
             const baseValue = baseline[field] || '';
             const container = document.getElementById(`container-${field}`);
             
-            if (value !== baseValue) {
-                dirtyFields.add(field);
-                container.classList.add('highlight-changed');
-            } else {
-                dirtyFields.delete(field);
-                container.classList.remove('highlight-changed');
+            if (container) {
+                if (value !== baseValue) {
+                    dirtyFields.add(field);
+                    container.classList.add('highlight-changed');
+                } else {
+                    dirtyFields.delete(field);
+                    container.classList.remove('highlight-changed');
+                }
             }
         }
 
@@ -397,11 +409,11 @@
         }
 
         function softReset() {
-            document.getElementById('customer').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('notes').value = '';
-            document.getElementById('model').value = '';
-            document.getElementById('rightLeft').value = '';
+            const fields = ['customer', 'email', 'notes', 'model', 'rightLeft'];
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
             
             currentSpecs = {};
             baseline = {};
@@ -413,8 +425,10 @@
 
         function hardReset() {
             const btn = document.getElementById('hardResetBtn');
-            btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
-            btn.disabled = true;
+            if (btn) {
+                btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
+                btn.disabled = true;
+            }
             
             // Clear all data
             MODEL_PRESETS = {};
@@ -425,8 +439,10 @@
             
             setTimeout(() => {
                 loadModelsData();
-                btn.innerHTML = 'Hard reset (reload options)';
-                btn.disabled = false;
+                if (btn) {
+                    btn.innerHTML = 'Hard reset (reload options)';
+                    btn.disabled = false;
+                }
             }, 1000);
         }
 
