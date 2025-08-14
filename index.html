@@ -609,8 +609,7 @@
         }
 
         function handleSpecChange(field, value) {
-            // Immediately remove dots when a selection is made
-            hideDotsInDropdown(field);
+            // Don't remove dots here - let the onblur handle it
             
             currentSpecs[field] = value;
             
