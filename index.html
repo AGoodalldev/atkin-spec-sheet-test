@@ -224,8 +224,9 @@
         // Configuration
         const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
         
-        // Global data storage - start completely fresh
+        // Global data storage
         let MODEL_PRESETS = {};
+        let GUITAR_SPECS = {}; // This will store the OPTIONS data
         let currentSpecs = {};
         let baseline = {};
         let dirtyFields = new Set();
@@ -235,7 +236,7 @@
         function init() {
             console.log("🚀 Starting Atkin Spec Sheet...");
             setupEventListeners();
-            loadModelsData();
+            loadAllData(); // Load both models and options
         }
 
         function setupEventListeners() {
@@ -245,59 +246,96 @@
             }
         }
 
-        function loadModelsData() {
-            console.log("📡 Loading models from Google Sheets...");
-            showStatus('Loading guitar models from Google Sheets...', 'info');
+        // Load both models and options data
+        async function loadAllData() {
+            console.log("📡 Loading data from Google Sheets...");
+            showStatus('Loading guitar data from Google Sheets...', 'info');
+            
+            try {
+                // Load both models and options in parallel
+                const [modelsData, optionsData] = await Promise.all([
+                    loadModelsData(),
+                    loadOptionsData()
+                ]);
+                
+                console.log("✅ All data loaded successfully!");
+                dataLoaded = true;
+                
+                const modelCount = Object.keys(MODEL_PRESETS).length;
+                const optionFields = Object.keys(GUITAR_SPECS).length;
+                showStatus(`✅ Loaded ${modelCount} models and ${optionFields} specification fields`, 'success');
+                
+            } catch (error) {
+                console.error("❌ Error loading data:", error);
+                showStatus(`❌ Failed to load data: ${error.message}`, 'error');
+            }
+        }
+
+        // Load models data
+        async function loadModelsData() {
+            console.log("📡 Loading models...");
             
             const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
-            console.log("🔗 Fetching:", url);
+            console.log("🔗 Fetching models:", url);
             
-            fetch(url)
-                .then(response => {
-                    console.log("📥 Response status:", response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("📦 Raw API response:", data);
-                    
-                    if (data.ok && data.data) {
-                        // Clear and populate models
-                        MODEL_PRESETS = {};
-                        
-                        // Copy all models except 'NA'
-                        let modelCount = 0;
-                        for (const [modelName, modelData] of Object.entries(data.data)) {
-                            if (modelName && modelName !== 'NA' && modelName.trim() !== '') {
-                                MODEL_PRESETS[modelName] = modelData;
-                                modelCount++;
-                            }
-                        }
-                        
-                        console.log(`✅ Loaded ${modelCount} models successfully!`);
-                        console.log("🎸 First 10 models:", Object.keys(MODEL_PRESETS).slice(0, 10));
-                        console.log("🎸 Sample model data:", Object.keys(MODEL_PRESETS)[0], MODEL_PRESETS[Object.keys(MODEL_PRESETS)[0]]);
-                        
-                        // Populate the dropdown
-                        populateModelDropdown();
-                        
-                        dataLoaded = true;
-                        showStatus(`✅ Loaded ${modelCount} guitar models from Google Sheets`, 'success');
-                        
-                    } else {
-                        throw new Error("Invalid response format");
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            console.log("📦 Models API response:", data);
+            
+            if (data.ok && data.data) {
+                // Clear and populate models
+                MODEL_PRESETS = {};
+                
+                // Copy all models except 'NA'
+                let modelCount = 0;
+                for (const [modelName, modelData] of Object.entries(data.data)) {
+                    if (modelName && modelName !== 'NA' && modelName.trim() !== '') {
+                        MODEL_PRESETS[modelName] = modelData;
+                        modelCount++;
                     }
-                })
-                .catch(error => {
-                    console.error("❌ Error loading models:", error);
-                    showStatus(`❌ Failed to load models: ${error.message}`, 'error');
-                    
-                    // Fallback models
-                    MODEL_PRESETS = {
-                        "J43": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"},
-                        "L36": {"SCALE": "24.9", "NUT WIDTH": "43", "TOP": "STIKA SPRUCE"}
-                    };
-                    populateModelDropdown();
+                }
+                
+                console.log(`✅ Loaded ${modelCount} models successfully!`);
+                
+                // Populate the dropdown
+                populateModelDropdown();
+                
+                return data;
+            } else {
+                throw new Error("Invalid models response format");
+            }
+        }
+
+        // Load options data - THIS WAS MISSING!
+        async function loadOptionsData() {
+            console.log("📡 Loading specification options...");
+            
+            const url = `${GAS_BASE}?kind=options&_cb=${Date.now()}`;
+            console.log("🔗 Fetching options:", url);
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            console.log("📦 Options API response:", data);
+            
+            if (data.ok && data.data) {
+                GUITAR_SPECS = data.data;
+                
+                const fieldCount = Object.keys(GUITAR_SPECS).length;
+                console.log(`✅ Loaded ${fieldCount} specification fields!`);
+                console.log("🎯 Available spec fields:", Object.keys(GUITAR_SPECS));
+                
+                // Log some sample data
+                Object.keys(GUITAR_SPECS).slice(0, 3).forEach(field => {
+                    const options = GUITAR_SPECS[field];
+                    console.log(`   📋 ${field}: ${options.length} options`);
                 });
+                
+                return data;
+            } else {
+                throw new Error("Invalid options response format");
+            }
         }
 
         function populateModelDropdown() {
@@ -334,24 +372,6 @@
             });
             
             console.log(`✅ Model dropdown populated with ${modelNames.length} models`);
-            
-            // Verify the dropdown was populated
-            setTimeout(() => {
-                const optionCount = modelSelect.options.length - 1; // minus the default option
-                console.log(`🔍 Verification: Dropdown now has ${optionCount} model options`);
-                if (optionCount !== modelNames.length) {
-                    console.warn("⚠️ Mismatch between expected and actual dropdown options!");
-                }
-            }, 100);
-        }
-
-        async function fetchData(url) {
-            console.log('🔄 Fetching:', url);
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const data = await response.json();
-            console.log('📦 Response:', data);
-            return data;
         }
 
         function showStatus(message, type = 'info') {
@@ -384,7 +404,6 @@
             const modelData = MODEL_PRESETS[selectedModel];
             if (!modelData) {
                 console.error(`❌ No data found for model: ${selectedModel}`);
-                console.log("Available models:", Object.keys(MODEL_PRESETS));
                 showStatus(`❌ No data found for model: ${selectedModel}`, 'error');
                 hideSpecs();
                 return;
@@ -420,6 +439,7 @@
             specsGrid.innerHTML = '';
             
             console.log("🔧 Populating specs for model:", modelData);
+            console.log("🎯 Using OPTIONS data:", Object.keys(GUITAR_SPECS).length, "fields available");
             
             // Field mapping for better display names
             const fieldMapping = {
@@ -450,31 +470,37 @@
                 'BODY JOIN': 'Body Join'
             };
             
-            // Use OPTIONS data if available, otherwise fall back to scanning models
             let fieldOptions = {};
             
-            if (window.GUITAR_SPECS && Object.keys(window.GUITAR_SPECS).length > 0) {
+            // Use the loaded OPTIONS data
+            if (GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0) {
                 console.log("🎯 Using OPTIONS tab data for spec dropdowns");
                 
-                // Convert OPTIONS data to the format we need
-                Object.keys(window.GUITAR_SPECS).forEach(field => {
-                    const options = window.GUITAR_SPECS[field];
+                Object.keys(GUITAR_SPECS).forEach(field => {
+                    const options = GUITAR_SPECS[field];
                     if (Array.isArray(options) && options.length > 0) {
-                        fieldOptions[field] = new Set(options.filter(opt => opt && opt.trim() !== '' && opt !== '-'));
-                        console.log(`📋 Field "${field}" from OPTIONS: ${fieldOptions[field].size} options`);
+                        fieldOptions[field] = options.filter(opt => opt && opt.trim() !== '' && opt !== '-');
+                        console.log(`📋 Field "${field}": ${fieldOptions[field].length} options`);
                     }
                 });
             } else {
-                console.log("⚠️ OPTIONS data not available - scanning models for spec options");
+                console.log("⚠️ OPTIONS data not available - falling back to model scanning");
                 
                 // Fallback: scan all models for unique values
                 Object.values(MODEL_PRESETS).forEach(model => {
                     Object.keys(model).forEach(field => {
-                        if (!fieldOptions[field]) fieldOptions[field] = new Set();
+                        if (!fieldOptions[field]) fieldOptions[field] = [];
                         if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
-                            fieldOptions[field].add(model[field]);
+                            if (!fieldOptions[field].includes(model[field])) {
+                                fieldOptions[field].push(model[field]);
+                            }
                         }
                     });
+                });
+                
+                // Sort the fallback options
+                Object.keys(fieldOptions).forEach(field => {
+                    fieldOptions[field].sort();
                 });
             }
             
@@ -482,13 +508,13 @@
             
             // Create dropdowns for each field that has options
             Object.keys(fieldMapping).forEach(field => {
-                if (fieldOptions[field] && fieldOptions[field].size > 0) {
+                if (fieldOptions[field] && fieldOptions[field].length > 0) {
                     const fieldDiv = document.createElement('div');
-                    const options = Array.from(fieldOptions[field]).sort();
+                    const options = fieldOptions[field];
                     const displayName = fieldMapping[field];
                     const currentValue = modelData[field] || '';
                     
-                    console.log(`📋 Creating field "${displayName}" with ${options.length} options from ${window.GUITAR_SPECS ? 'OPTIONS tab' : 'model scan'}`);
+                    console.log(`📋 Creating field "${displayName}" with ${options.length} options`);
                     
                     fieldDiv.innerHTML = `
                         <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
@@ -507,7 +533,7 @@
                 }
             });
             
-            const dataSource = window.GUITAR_SPECS ? 'OPTIONS tab' : 'model scanning';
+            const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
             console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
         }
 
@@ -596,13 +622,14 @@
             
             // Clear all data
             MODEL_PRESETS = {};
+            GUITAR_SPECS = {};
             currentSpecs = {};
             baseline = {};
             dirtyFields.clear();
             hideSpecs();
             
             setTimeout(() => {
-                loadModelsData();
+                loadAllData(); // Load both models and options
                 if (btn) {
                     btn.innerHTML = 'Hard reset (reload options)';
                     btn.disabled = false;
