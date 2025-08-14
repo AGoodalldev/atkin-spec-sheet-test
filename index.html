@@ -141,9 +141,11 @@
             padding: 4px 8px;
         }
         
-        /* Make green dots more visible */
-        select option[value]:not([value=""]) {
-            font-family: system-ui, -apple-system, sans-serif;
+        /* Make green dots more visible and styled */
+        .green-dot {
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 0.8em;
         }
     </style>
 </head>
@@ -199,7 +201,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
                         <div class="text-sm text-gray-600 flex items-center gap-1">
-                            <span>🟢</span>
+                            <span class="text-green-600 font-bold">●</span>
                             <span>= Model baseline</span>
                         </div>
                     </div>
@@ -586,10 +588,10 @@
             const selectElement = document.getElementById(`spec-${field}`);
             if (!selectElement) return;
             
-            // Add green dots to baseline options when dropdown opens
+            // Add small green dots to baseline options when dropdown opens
             Array.from(selectElement.options).forEach(option => {
-                if (option.getAttribute('data-baseline') === 'true' && !option.textContent.startsWith('🟢 ')) {
-                    option.textContent = '🟢 ' + option.textContent;
+                if (option.getAttribute('data-baseline') === 'true' && !option.textContent.includes('●')) {
+                    option.textContent = '● ' + option.textContent;
                 }
             });
         }
@@ -600,13 +602,16 @@
             
             // Remove green dots from all options when dropdown closes
             Array.from(selectElement.options).forEach(option => {
-                if (option.textContent.startsWith('🟢 ')) {
-                    option.textContent = option.textContent.replace('🟢 ', '');
+                if (option.textContent.startsWith('● ')) {
+                    option.textContent = option.textContent.replace('● ', '');
                 }
             });
         }
 
         function handleSpecChange(field, value) {
+            // Immediately remove dots when a selection is made
+            hideDotsInDropdown(field);
+            
             currentSpecs[field] = value;
             
             const baseValue = baseline[field] || '';
