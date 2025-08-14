@@ -34,25 +34,44 @@
             }
             
             /* Compact layout for print */
-            .p-6 { padding: 8px !important; }
-            .space-y-4 > * + * { margin-top: 8px !important; }
-            .gap-4 { gap: 6px !important; }
-            .px-4 { padding-left: 6px !important; padding-right: 6px !important; }
-            .py-3 { padding-top: 4px !important; padding-bottom: 4px !important; }
-            .text-2xl { font-size: 18px !important; }
-            .text-lg { font-size: 14px !important; }
-            .text-sm { font-size: 10px !important; }
-            .min-h-[140px] { min-height: 60px !important; }
-            .rounded-2xl { border-radius: 6px !important; }
+            .p-6 { padding: 6px !important; }
+            .space-y-4 > * + * { margin-top: 6px !important; }
+            .gap-4 { gap: 4px !important; }
+            .px-4 { padding-left: 4px !important; padding-right: 4px !important; }
+            .py-3 { padding-top: 3px !important; padding-bottom: 3px !important; }
+            .text-2xl { font-size: 16px !important; }
+            .text-lg { font-size: 12px !important; }
+            .text-sm { font-size: 9px !important; }
+            .min-h-[140px] { min-height: 50px !important; }
+            .rounded-2xl { border-radius: 4px !important; }
+            .mb-1 { margin-bottom: 2px !important; }
+            .mb-2 { margin-bottom: 4px !important; }
             
             /* Make grid more compact */
             .grid.md\\:grid-cols-4 { 
                 display: grid !important; 
                 grid-template-columns: repeat(4, 1fr) !important; 
+                gap: 6px !important;
             }
             .grid.md\\:grid-cols-2 { 
                 display: grid !important; 
                 grid-template-columns: repeat(3, 1fr) !important; 
+                gap: 4px !important;
+            }
+            
+            /* Force grid layout */
+            #specsGrid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 4px !important;
+                column-gap: 8px !important;
+            }
+            
+            /* Ensure each spec field takes up proper space */
+            #specsGrid > div {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 3px !important;
             }
             
             /* Print title styling */
@@ -168,7 +187,7 @@
                 <!-- Specifications Section -->
                 <div id="specsSection" class="space-y-4 hidden print-spacing">
                     <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-                    <div id="specsGrid" class="grid md:grid-cols-2 gap-4">
+                    <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                         <!-- Dynamic specs will be added here -->
                     </div>
                 </div>
