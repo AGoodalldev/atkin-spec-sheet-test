@@ -28,10 +28,14 @@
         }
         
         .highlight-changed {
-            ring: 2px;
-            ring-color: #f97316;
-            ring-offset: 1px;
-            border-radius: 14px;
+            border: 2px solid #f97316 !important;
+            background-color: #fef3c7 !important;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1) !important;
+        }
+        
+        .highlight-changed:focus {
+            border: 2px solid #f97316 !important;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
         }
     </style>
 </head>
@@ -391,16 +395,28 @@
             currentSpecs[field] = value;
             
             const baseValue = baseline[field] || '';
-            const container = document.getElementById(`container-${field}`);
+            const selectElement = document.getElementById(`spec-${field}`);
             
-            if (container) {
-                if (value !== baseValue) {
+            console.log(`🔧 Spec changed: ${field} = "${value}" (baseline: "${baseValue}")`);
+            
+            if (selectElement) {
+                if (value !== baseValue && value !== '') {
+                    // Field was changed from baseline - highlight it
                     dirtyFields.add(field);
-                    container.classList.add('highlight-changed');
+                    selectElement.classList.add('highlight-changed');
+                    console.log(`🟡 Highlighted field: ${field}`);
                 } else {
+                    // Field matches baseline or is empty - remove highlight
                     dirtyFields.delete(field);
-                    container.classList.remove('highlight-changed');
+                    selectElement.classList.remove('highlight-changed');
+                    console.log(`⚪ Removed highlight from field: ${field}`);
                 }
+            }
+            
+            // Update status to show number of changes
+            const changeCount = dirtyFields.size;
+            if (changeCount > 0) {
+                showStatus(`${changeCount} specification${changeCount === 1 ? '' : 's'} modified from baseline`, 'info');
             }
         }
 
@@ -415,12 +431,20 @@
                 if (element) element.value = '';
             });
             
+            // Clear all highlights from specification fields
+            dirtyFields.forEach(field => {
+                const selectElement = document.getElementById(`spec-${field}`);
+                if (selectElement) {
+                    selectElement.classList.remove('highlight-changed');
+                }
+            });
+            
             currentSpecs = {};
             baseline = {};
             dirtyFields.clear();
             hideSpecs();
             
-            showStatus('Form reset successfully', 'success');
+            showStatus('Form reset successfully - all highlights cleared', 'success');
         }
 
         function hardReset() {
