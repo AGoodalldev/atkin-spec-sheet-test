@@ -135,6 +135,24 @@
             border: 2px solid #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
         }
+        
+        /* Baseline option styling */
+        .baseline-option {
+            background-color: #dcfce7 !important;
+            color: #166534 !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Ensure baseline styling prints */
+        @media print {
+            .baseline-option {
+                background-color: #dcfce7 !important;
+                color: #166534 !important;
+                font-weight: 600 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -508,73 +526,55 @@
             
             console.log("🔍 Available spec fields:", Object.keys(fieldOptions));
             
-            // Create dropdowns for fields that exist in the model data
-            // First, let's only show fields that the model actually has data for
-            Object.keys(modelData).forEach(modelField => {
-                // Skip empty or null values
-                const modelValue = modelData[modelField];
-                if (!modelValue || modelValue === '-' || modelValue.toString().trim() === '') {
-                    return;
-                }
-                
-                // Find matching options field (exact match or case-insensitive)
-                let optionsField = null;
-                let optionsData = null;
-                
-                // Try exact match first
-                if (fieldOptions[modelField]) {
-                    optionsField = modelField;
-                    optionsData = fieldOptions[modelField];
-                } else {
-                    // Try case-insensitive match
-                    const optionsKeys = Object.keys(fieldOptions);
-                    const matchingKey = optionsKeys.find(key => 
-                        key.toLowerCase() === modelField.toLowerCase()
-                    );
-                    if (matchingKey && fieldOptions[matchingKey]) {
-                        optionsField = matchingKey;
-                        optionsData = fieldOptions[matchingKey];
-                        console.log(`🔄 Field name mapping: "${modelField}" → "${matchingKey}"`);
-                    }
-                }
-                
-                // Only create dropdown if we have options for this field
-                if (optionsField && optionsData && optionsData.length > 0) {
+            // Create dropdowns for all available OPTIONS fields (for full customization)
+            Object.keys(fieldOptions).forEach(field => {
+                if (fieldOptions[field] && fieldOptions[field].length > 0) {
                     const fieldDiv = document.createElement('div');
+                    const options = fieldOptions[field];
                     
                     // Try to get a display name from fieldMapping, otherwise use the field name
-                    const displayName = fieldMapping[modelField] || fieldMapping[optionsField] || modelField;
+                    const displayName = fieldMapping[field] || field;
                     
-                    console.log(`📋 Creating field "${displayName}" (${modelField}) with ${optionsData.length} options, model value: "${modelValue}"`);
-                    
-                    // Check if the model value exists in the options
-                    const valueExists = optionsData.includes(modelValue);
-                    if (!valueExists) {
-                        console.log(`⚠️ Model value "${modelValue}" not found in options for field "${modelField}"`);
-                        console.log(`   Available options:`, optionsData.slice(0, 5), optionsData.length > 5 ? '...' : '');
+                    // Look for the model value - try exact match first, then case-insensitive
+                    let currentValue = modelData[field] || '';
+                    if (!currentValue) {
+                        // Try to find a case-insensitive match
+                        const modelFieldKeys = Object.keys(modelData);
+                        const matchingKey = modelFieldKeys.find(key => 
+                            key.toLowerCase() === field.toLowerCase()
+                        );
+                        if (matchingKey) {
+                            currentValue = modelData[matchingKey];
+                            console.log(`🔄 Field name mapping: "${field}" → "${matchingKey}" = "${currentValue}"`);
+                        }
                     }
                     
+                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, baseline value: "${currentValue}"`);
+                    
+                    // Check if the baseline value exists in the options
+                    const baselineExists = currentValue && options.includes(currentValue);
+                    
                     fieldDiv.innerHTML = `
-                        <label for="spec-${optionsField}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
-                        <div id="container-${optionsField}">
-                            <select id="spec-${optionsField}" 
+                        <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
+                        <div id="container-${field}">
+                            <select id="spec-${field}" 
                                     class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
-                                    onchange="handleSpecChange('${optionsField}', this.value)">
+                                    onchange="handleSpecChange('${field}', this.value)">
                                 <option value="">Select...</option>
-                                ${optionsData.map(option => {
-                                    const isSelected = option === modelValue;
-                                    return `<option value="${option}" ${isSelected ? 'selected' : ''}>${option}</option>`;
+                                ${options.map(option => {
+                                    const isBaseline = option === currentValue;
+                                    const selected = isBaseline ? 'selected' : '';
+                                    const cssClass = isBaseline ? 'baseline-option' : '';
+                                    return `<option value="${option}" ${selected} class="${cssClass}">${option}${isBaseline ? ' (baseline)' : ''}</option>`;
                                 }).join('')}
-                                ${!valueExists && modelValue ? `<option value="${modelValue}" selected>${modelValue} (current)</option>` : ''}
+                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected class="baseline-option">${currentValue} (baseline)</option>` : ''}
                             </select>
                         </div>
                     `;
                     specsGrid.appendChild(fieldDiv);
                     
                     // Set the current value in our tracking
-                    currentSpecs[optionsField] = modelValue;
-                } else {
-                    console.log(`⚠️ No options found for model field "${modelField}" with value "${modelValue}"`);
+                    currentSpecs[field] = currentValue;
                 }
             });
             
