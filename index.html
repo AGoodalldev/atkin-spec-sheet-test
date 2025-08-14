@@ -440,6 +440,8 @@
             
             console.log("🔧 Populating specs for model:", modelData);
             console.log("🎯 Using OPTIONS data:", Object.keys(GUITAR_SPECS).length, "fields available");
+            console.log("📄 Model data fields:", Object.keys(modelData));
+            console.log("📄 OPTIONS data fields:", Object.keys(GUITAR_SPECS));
             
             // Field mapping for better display names
             const fieldMapping = {
@@ -507,14 +509,30 @@
             console.log("🔍 Available spec fields:", Object.keys(fieldOptions));
             
             // Create dropdowns for each field that has options
-            Object.keys(fieldMapping).forEach(field => {
+            // CHANGE: Use OPTIONS fields instead of fieldMapping keys
+            Object.keys(fieldOptions).forEach(field => {
                 if (fieldOptions[field] && fieldOptions[field].length > 0) {
                     const fieldDiv = document.createElement('div');
                     const options = fieldOptions[field];
-                    const displayName = fieldMapping[field];
-                    const currentValue = modelData[field] || '';
                     
-                    console.log(`📋 Creating field "${displayName}" with ${options.length} options`);
+                    // Try to get a display name from fieldMapping, otherwise use the field name
+                    const displayName = fieldMapping[field] || field;
+                    
+                    // Look for the model value - try exact match first, then case-insensitive
+                    let currentValue = modelData[field] || '';
+                    if (!currentValue) {
+                        // Try to find a case-insensitive match
+                        const modelFieldKeys = Object.keys(modelData);
+                        const matchingKey = modelFieldKeys.find(key => 
+                            key.toLowerCase() === field.toLowerCase()
+                        );
+                        if (matchingKey) {
+                            currentValue = modelData[matchingKey];
+                            console.log(`🔄 Field name mapping: "${field}" → "${matchingKey}" = "${currentValue}"`);
+                        }
+                    }
+                    
+                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, current value: "${currentValue}"`);
                     
                     fieldDiv.innerHTML = `
                         <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
@@ -535,6 +553,16 @@
             
             const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
             console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
+            
+            // Log any model fields that didn't get matched
+            const createdFields = Object.keys(fieldOptions);
+            const modelFields = Object.keys(modelData);
+            const unmatchedModelFields = modelFields.filter(mField => 
+                !createdFields.some(oField => oField.toLowerCase() === mField.toLowerCase())
+            );
+            if (unmatchedModelFields.length > 0) {
+                console.log("⚠️ Model fields without matching OPTIONS:", unmatchedModelFields);
+            }
         }
 
         function handleSpecChange(field, value) {
