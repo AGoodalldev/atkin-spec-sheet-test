@@ -135,6 +135,16 @@
             border: 2px solid #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
         }
+        
+        /* Style for baseline options with green dots */
+        select option {
+            padding: 4px 8px;
+        }
+        
+        /* Make green dots more visible */
+        select option[value]:not([value=""]) {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -186,7 +196,13 @@
 
                 <!-- Specifications Section -->
                 <div id="specsSection" class="space-y-4 hidden print-spacing">
-                    <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
+                        <div class="text-sm text-gray-600 flex items-center gap-1">
+                            <span class="text-green-600 font-bold">●</span>
+                            <span>= Model baseline</span>
+                        </div>
+                    </div>
                     <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                         <!-- Dynamic specs will be added here -->
                     </div>
@@ -546,9 +562,10 @@
                                 ${options.map(option => {
                                     const isBaseline = option === currentValue;
                                     const selected = isBaseline ? 'selected' : '';
-                                    return `<option value="${option}" ${selected} ${isBaseline ? 'style="background-color: #dcfce7; color: #166534; font-weight: 600;"' : ''}>${option}</option>`;
+                                    const indicator = isBaseline ? '● ' : '';
+                                    return `<option value="${option}" ${selected}>${indicator}${option}</option>`;
                                 }).join('')}
-                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected style="background-color: #dcfce7; color: #166534; font-weight: 600;">${currentValue}</option>` : ''}
+                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected>● ${currentValue}</option>` : ''}
                             </select>
                         </div>
                     `;
