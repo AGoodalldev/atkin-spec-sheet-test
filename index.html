@@ -135,24 +135,6 @@
             border: 2px solid #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
         }
-        
-        /* Baseline option styling */
-        .baseline-option {
-            background-color: #dcfce7 !important;
-            color: #166534 !important;
-            font-weight: 600 !important;
-        }
-        
-        /* Ensure baseline styling prints */
-        @media print {
-            .baseline-option {
-                background-color: #dcfce7 !important;
-                color: #166534 !important;
-                font-weight: 600 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -564,10 +546,9 @@
                                 ${options.map(option => {
                                     const isBaseline = option === currentValue;
                                     const selected = isBaseline ? 'selected' : '';
-                                    const cssClass = isBaseline ? 'baseline-option' : '';
-                                    return `<option value="${option}" ${selected} class="${cssClass}">${option}${isBaseline ? ' (baseline)' : ''}</option>`;
+                                    return `<option value="${option}" ${selected} ${isBaseline ? 'style="background-color: #dcfce7; color: #166534; font-weight: 600;"' : ''}>${option}</option>`;
                                 }).join('')}
-                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected class="baseline-option">${currentValue} (baseline)</option>` : ''}
+                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected style="background-color: #dcfce7; color: #166534; font-weight: 600;">${currentValue}</option>` : ''}
                             </select>
                         </div>
                     `;
