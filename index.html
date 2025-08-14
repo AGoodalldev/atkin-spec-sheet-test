@@ -141,7 +141,7 @@
     <div class="p-6">
         <div class="rounded-2xl shadow-xl border border-gray-200 bg-white max-w-4xl mx-auto">
             <div class="p-6 space-y-4">
-                <h1 class="text-2xl font-bold mb-2">Atkin Guitars Custom Spec Sheet</h1>
+                <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet</h1>
                 
                 <!-- Status Messages -->
                 <div id="statusMessage" class="hidden"></div>
@@ -450,16 +450,29 @@
                 'BODY JOIN': 'Body Join'
             };
             
-            // Get all unique values for each field from all models
+            // ONLY get options from the actual loaded models (no fallback data)
             const fieldOptions = {};
-            Object.values(MODEL_PRESETS).forEach(model => {
-                Object.keys(model).forEach(field => {
-                    if (!fieldOptions[field]) fieldOptions[field] = new Set();
-                    if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
-                        fieldOptions[field].add(model[field]);
+            if (Object.keys(MODEL_PRESETS).length > 2) { // Only if we have real data (more than fallback)
+                Object.values(MODEL_PRESETS).forEach(model => {
+                    Object.keys(model).forEach(field => {
+                        if (!fieldOptions[field]) fieldOptions[field] = new Set();
+                        if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
+                            fieldOptions[field].add(model[field]);
+                        }
+                    });
+                });
+            } else {
+                console.log("⚠️ Using limited model data - not enough models loaded for full specs");
+                // Only show the fields that exist in the current model
+                Object.keys(modelData).forEach(field => {
+                    if (modelData[field] && modelData[field] !== '-' && modelData[field].trim() !== '') {
+                        if (!fieldOptions[field]) fieldOptions[field] = new Set();
+                        fieldOptions[field].add(modelData[field]);
                     }
                 });
-            });
+            }
+            
+            console.log("🔍 Available spec fields from live data:", Object.keys(fieldOptions));
             
             // Create dropdowns for each field that has options
             Object.keys(fieldMapping).forEach(field => {
@@ -468,6 +481,8 @@
                     const options = Array.from(fieldOptions[field]).sort();
                     const displayName = fieldMapping[field];
                     const currentValue = modelData[field] || '';
+                    
+                    console.log(`📋 Creating field "${displayName}" with ${options.length} options:`, options.slice(0, 3));
                     
                     fieldDiv.innerHTML = `
                         <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
@@ -486,7 +501,7 @@
                 }
             });
             
-            console.log(`✅ Created ${specsGrid.children.length} specification fields`);
+            console.log(`✅ Created ${specsGrid.children.length} specification fields from live data only`);
         }
 
         function handleSpecChange(field, value) {
