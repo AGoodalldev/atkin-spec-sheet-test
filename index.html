@@ -136,10 +136,24 @@
             border: 2px solid #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
         }
+        
+        /* Guitar background styling */
+        .guitar-background {
+            background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        
+        .background-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            min-height: 100vh;
+        }
     </style>
 </head>
-<body class="bg-gray-50" style="background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgACADASIAAhEBAxEB/8QAGwAAAgIDAAAAAAAAAAAAAAAAAAYEBQEDB//EACkQAAIBAwMDBAIDAQAAAAAAAAECAwAEEQUSITFBUQYTYXGBkaEiscHw/8QAGAEAAwEBAAAAAAAAAAAAAAAAAAECAwT/xAAhEQACAgICAgMBAAAAAAAAAAAAAQIRAyEEMRJBIlFhE//aAAwDAQACEQMRAD8A7NRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf//Z'); background-size: cover; background-position: center; background-attachment: fixed;">
-    <div class="p-6" style="background: rgba(255, 255, 255, 0.95); min-height: 100vh;">
+<body class="bg-gray-50 guitar-background">
+    <div class="p-6 background-overlay">
         <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/95 backdrop-blur-sm max-w-4xl mx-auto">
             <div class="p-6 space-y-4">
                 <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet</h1>
