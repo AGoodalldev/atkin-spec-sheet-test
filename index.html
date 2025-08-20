@@ -728,6 +728,9 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    
+    <!-- Ensure no text content after script -->
+    <div style="display: none !important; visibility: hidden !important;"></div>
 </body>
 </html> = document.querySelectorAll('select[id^="spec-"]');
             allSelects.forEach(select => {
