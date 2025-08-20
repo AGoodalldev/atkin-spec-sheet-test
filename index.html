@@ -167,115 +167,103 @@
                 margin: 0 !important;
             }
             
-            /* iOS Safari specific fixes - better space distribution */
+            /* iOS Safari specific fixes - simple layout, no flexbox */
             @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: none !important;
-                    width: 100% !important;
-                    font-size: 12px !important;
+                    transform: scale(0.9) !important;
+                    width: 111.11% !important; /* Compensate for 0.9 scale */
+                    font-size: 11px !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    height: 100vh !important;
                 }
                 
                 .p-6 {
-                    padding: 8px !important;
-                    height: 100vh !important;
-                    display: flex !important;
-                    flex-direction: column !important;
+                    padding: 6px !important;
                 }
                 
                 .rounded-2xl.shadow-xl {
-                    padding: 8px !important;
-                    height: 100% !important;
-                    display: flex !important;
-                    flex-direction: column !important;
+                    padding: 6px !important;
                 }
                 
-                /* Header section - fixed height */
+                /* Remove all flexbox - use normal flow */
+                .space-y-4 {
+                    display: block !important;
+                }
+                
+                .space-y-4 > * + * {
+                    margin-top: 4px !important;
+                }
+                
+                /* Header section - compact */
                 .bg-gray-50 {
-                    flex-shrink: 0 !important;
-                    margin-bottom: 8px !important;
+                    margin-bottom: 4px !important;
+                    padding: 4px !important;
                 }
                 
-                /* Specifications section - take remaining space */
+                /* Specifications grid - compact but readable */
                 #specsSection {
-                    flex: 1 !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    min-height: 0 !important;
+                    margin: 4px 0 !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 6px !important;
-                    row-gap: 8px !important;
-                    flex: 1 !important;
-                    align-content: start !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 3px !important;
+                    row-gap: 2px !important;
                 }
                 
-                /* Notes section - fixed height at bottom */
-                .print-spacing {
-                    flex-shrink: 0 !important;
-                    margin-top: 8px !important;
+                /* Notes section - smaller */
+                textarea {
+                    height: 40px !important;
+                    min-height: 40px !important;
+                    max-height: 40px !important;
                 }
                 
                 .grid.md\\:grid-cols-4 {
                     grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 4px !important;
+                    gap: 3px !important;
                 }
                 
-                .text-2xl { font-size: 16px !important; }
+                .text-2xl { font-size: 14px !important; }
                 h1 { 
-                    font-size: 16px !important; 
-                    margin: 0 0 6px 0 !important;
-                    padding: 3px 0 !important;
+                    font-size: 14px !important; 
+                    margin: 0 0 4px 0 !important;
+                    padding: 2px 0 !important;
                 }
                 h2 { 
-                    font-size: 13px !important; 
-                    margin: 0 0 6px 0 !important;
+                    font-size: 11px !important; 
+                    margin: 2px 0 3px 0 !important;
                 }
                 
                 input, select, textarea, label {
-                    font-size: 11px !important;
-                    padding: 3px 4px !important;
-                    margin: 1px 0 !important;
-                    line-height: 1.4 !important;
+                    font-size: 9px !important;
+                    padding: 2px 3px !important;
+                    margin: 0 !important;
+                    line-height: 1.3 !important;
                 }
                 
-                textarea {
-                    height: 80px !important;
-                    min-height: 80px !important;
-                    max-height: 80px !important;
-                }
-                
-                /* Use full page margins */
+                /* Compact margins */
                 @page {
-                    margin: 12mm !important;
+                    margin: 10mm !important;
                 }
                 
-                /* Ensure proper spacing */
-                .space-y-4 {
-                    display: flex !important;
-                    flex-direction: column !important;
-                    height: 100% !important;
+                /* Ensure no forced heights that cause overflow */
+                html, body {
+                    height: auto !important;
                 }
                 
-                .space-y-4 > * + * {
-                    margin-top: 6px !important;
+                /* Prevent page breaks within sections */
+                .bg-gray-50, #specsSection, .print-spacing {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
                 }
                 
-                /* Remove the container flex from main content area */
-                .space-y-4 > .bg-gray-50 {
-                    flex-shrink: 0 !important;
+                /* Spec field compact spacing */
+                #specsGrid > div {
+                    margin-bottom: 1px !important;
                 }
                 
-                .space-y-4 > #specsSection {
-                    flex: 1 !important;
-                }
-                
-                .space-y-4 > .print-spacing {
-                    flex-shrink: 0 !important;
+                label {
+                    margin-bottom: 1px !important;
                 }
             }
         }
