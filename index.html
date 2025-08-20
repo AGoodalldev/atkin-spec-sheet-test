@@ -6,6 +6,12 @@
     <title>Atkin Custom Spec Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .specs-grid-three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
         @media print {
             @page { 
                 size: A4 portrait; 
@@ -372,7 +378,7 @@
                 <!-- Specifications Section -->
                 <div id="specsSection" class="space-y-4 hidden print-spacing">
                     <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-                    <div id="specsGrid" class="grid grid-cols-3 gap-4" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div id="specsGrid" class="specs-grid-three-col">
                         <!-- Dynamic specs will be added here -->
                     </div>
                 </div>
