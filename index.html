@@ -6,65 +6,27 @@
     <title>Atkin Custom Spec Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .specs-grid-three-col {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-        
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 8mm 6mm; 
+                margin: 12mm 10mm; 
             }
             * { 
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
                 color-adjust: exact !important;
-                box-sizing: border-box !important;
             }
             body { 
                 background: white !important; 
                 background-image: none !important;
-                font-size: 7px !important;
-                line-height: 1.1 !important;
-                transform: scale(0.7) !important;
-                transform-origin: top left !important;
-                width: 142.86% !important; /* Compensate for 0.7 scale */
-                height: auto !important;
-                overflow: visible !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                font-size: 12px !important;
+                line-height: 1.4 !important;
             }
-            
-            /* Hide all non-essential elements */
             .print-hidden { 
                 display: none !important; 
             }
             
-            /* Ensure single page on mobile */
-            html, body {
-                height: auto !important;
-                overflow: visible !important;
-                page-break-inside: avoid !important;
-                page-break-after: avoid !important;
-            }
-            
-            /* Main container - ultra compact */
-            .p-6 { 
-                padding: 2px !important; 
-                margin: 0 !important;
-            }
-            
-            .rounded-2xl.shadow-xl {
-                margin: 0 !important;
-                padding: 3px !important;
-                box-shadow: none !important;
-                border: none !important;
-                border-radius: 0 !important;
-            }
-            
-            /* Ensure highlights print - subtle outline instead of thick border */
+            /* Ensure highlights print with outline instead of border */
             .highlight-changed {
                 border: none !important;
                 outline: 1px solid #f97316 !important;
@@ -74,217 +36,75 @@
                 box-sizing: border-box !important;
             }
             
-            /* Ultra compact spacing */
-            .space-y-4 > * + * { margin-top: 2px !important; }
-            .gap-4 { gap: 1px !important; }
-            .px-4 { padding-left: 1px !important; padding-right: 1px !important; }
-            .py-3 { padding-top: 1px !important; padding-bottom: 1px !important; }
-            .text-2xl { font-size: 10px !important; line-height: 1.1 !important; }
-            .text-lg { font-size: 8px !important; line-height: 1.1 !important; }
-            .text-sm { font-size: 6px !important; line-height: 1.1 !important; }
-            .min-h-[140px] { 
-                min-height: 25px !important; 
-                height: 25px !important;
-                max-height: 25px !important;
-            }
-            .rounded-2xl { border-radius: 0 !important; }
-            .mb-1 { margin-bottom: 0px !important; }
-            .mb-2 { margin-bottom: 1px !important; }
-            
-            /* Super compact grids */
-            .grid.md\\:grid-cols-4 { 
+            /* Header section - 4 columns */
+            .header-grid { 
                 display: grid !important; 
                 grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 1px !important;
-                margin: 1px 0 !important;
+                gap: 8px !important;
             }
             
-            /* Specs grid - fit more columns */
-            #specsGrid {
+            /* 3-column specifications grid */
+            .specs-grid {
                 display: grid !important;
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 1px !important;
-                column-gap: 2px !important;
-                margin: 1px 0 !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+                column-gap: 12px !important;
             }
             
-            /* Prevent page breaks */
-            #specsGrid > div {
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Compact titles */
+            /* Print title styling */
             h1 { 
                 text-align: center !important; 
-                margin: 0 0 3px 0 !important; 
-                border-bottom: 1px solid #000 !important; 
-                padding: 1px 0 2px 0 !important; 
-                font-size: 10px !important;
-                line-height: 1.1 !important;
+                margin-bottom: 15px !important; 
+                border-bottom: 2px solid #000 !important; 
+                padding-bottom: 8px !important; 
+                font-size: 18px !important;
             }
             
+            /* Section headers */
             h2 { 
-                font-size: 7px !important; 
+                font-size: 14px !important; 
                 font-weight: bold !important; 
-                margin: 2px 0 1px 0 !important; 
+                margin-top: 12px !important; 
+                margin-bottom: 8px !important; 
                 border-bottom: 1px solid #ccc !important; 
-                padding: 0 0 1px 0 !important; 
-                line-height: 1.1 !important;
+                padding-bottom: 3px !important; 
             }
             
-            /* Ultra compact form elements */
+            /* Form styling */
             input, select, textarea {
                 border: 1px solid #333 !important;
                 background: white !important;
-                font-size: 6px !important;
-                padding: 0px 1px !important;
-                margin: 0 !important;
-                height: auto !important;
-                line-height: 1.1 !important;
+                font-size: 11px !important;
+                border-radius: 4px !important;
+                padding: 4px !important;
+                color: #000 !important;
             }
             
             label {
-                font-size: 6px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                line-height: 1.1 !important;
+                font-size: 10px !important;
+                margin-bottom: 2px !important;
+                display: block !important;
             }
             
-            /* Ensure form values are visible */
-            input[type="text"], input[type="email"], select, textarea {
-                color: #000 !important;
-                background: white !important;
+            .main-container {
+                padding: 10px !important;
             }
             
-            /* Notes section - minimal height */
+            .form-section {
+                margin-bottom: 8px !important;
+                padding: 6px !important;
+            }
+            
+            .specs-section {
+                margin: 8px 0 !important;
+            }
+            
+            .notes-section {
+                margin-top: 8px !important;
+            }
+            
             textarea {
-                height: 25px !important;
-                min-height: 25px !important;
-                max-height: 25px !important;
-                resize: none !important;
-            }
-            
-            /* Remove all unnecessary spacing */
-            .bg-gray-50 {
-                padding: 1px !important;
-                margin: 0 !important;
-            }
-            
-            /* iOS Safari specific fixes - very compact single page */
-            @media print and (-webkit-min-device-pixel-ratio: 0) {
-                body {
-                    transform: scale(0.85) !important;
-                    width: 117.65% !important; /* Compensate for 0.85 scale */
-                    font-size: 10px !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                }
-                
-                .p-6 {
-                    padding: 4px !important;
-                }
-                
-                .rounded-2xl.shadow-xl {
-                    padding: 4px !important;
-                }
-                
-                /* Remove all flexbox - use normal flow */
-                .space-y-4 {
-                    display: block !important;
-                }
-                
-                .space-y-4 > * + * {
-                    margin-top: 3px !important;
-                }
-                
-                /* Header section - very compact */
-                .bg-gray-50 {
-                    margin-bottom: 3px !important;
-                    padding: 3px !important;
-                }
-                
-                /* Specifications grid - more compact */
-                #specsSection {
-                    margin: 3px 0 !important;
-                }
-                
-                #specsGrid {
-                    grid-template-columns: repeat(5, 1fr) !important;
-                    gap: 2px !important;
-                    row-gap: 1px !important;
-                }
-                
-                /* Notes section - smaller */
-                textarea {
-                    height: 30px !important;
-                    min-height: 30px !important;
-                    max-height: 30px !important;
-                }
-                
-                .grid.md\\:grid-cols-4 {
-                    grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 2px !important;
-                }
-                
-                .text-2xl { font-size: 12px !important; }
-                h1 { 
-                    font-size: 12px !important; 
-                    margin: 0 0 3px 0 !important;
-                    padding: 1px 0 !important;
-                }
-                h2 { 
-                    font-size: 10px !important; 
-                    margin: 2px 0 2px 0 !important;
-                }
-                
-                input, select, textarea, label {
-                    font-size: 8px !important;
-                    padding: 1px 2px !important;
-                    margin: 0 !important;
-                    line-height: 1.2 !important;
-                }
-                
-                /* Very compact margins */
-                @page {
-                    margin: 8mm !important;
-                }
-                
-                /* Ensure no forced heights that cause overflow */
-                html, body {
-                    height: auto !important;
-                    overflow: visible !important;
-                }
-                
-                /* Prevent page breaks within sections */
-                .bg-gray-50, #specsSection, .print-spacing {
-                    page-break-inside: avoid !important;
-                    break-inside: avoid !important;
-                }
-                
-                /* Spec field very compact spacing */
-                #specsGrid > div {
-                    margin-bottom: 0px !important;
-                }
-                
-                label {
-                    margin-bottom: 0px !important;
-                    display: block !important;
-                }
-                
-                /* Force single page */
-                * {
-                    page-break-after: avoid !important;
-                    page-break-before: avoid !important;
-                }
-                
-                /* Ensure container doesn't create extra space */
-                .max-w-4xl {
-                    max-width: none !important;
-                    margin: 0 !important;
-                }
+                min-height: 60px !important;
             }
         }
         
@@ -326,6 +146,19 @@
             background: rgba(255, 255, 255, 0.6);
             min-height: 100vh;
         }
+        
+        /* Screen layout */
+        .header-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 guitar-background">
@@ -339,7 +172,7 @@
                 
                 <!-- Main Form -->
                 <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
-                    <div class="grid md:grid-cols-4 gap-4">
+                    <div class="header-grid">
                         <div>
                             <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
                             <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" />
@@ -363,7 +196,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid md:grid-cols-4 gap-4">
+                    <div class="header-grid">
                         <div>
                             <label for="rightLeft" class="text-sm font-medium text-gray-700 mb-1 block">RIGHT / LEFT</label>
                             <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
@@ -378,7 +211,7 @@
                 <!-- Specifications Section -->
                 <div id="specsSection" class="space-y-4 hidden print-spacing">
                     <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-                    <div id="specsGrid" class="specs-grid-three-col">
+                    <div id="specsGrid" class="specs-grid">
                         <!-- Dynamic specs will be added here -->
                     </div>
                 </div>
@@ -498,7 +331,7 @@
             }
         }
 
-        // Load options data - THIS WAS MISSING!
+        // Load options data
         async function loadOptionsData() {
             console.log("📡 Loading specification options...");
             
@@ -516,12 +349,6 @@
                 const fieldCount = Object.keys(GUITAR_SPECS).length;
                 console.log(`✅ Loaded ${fieldCount} specification fields!`);
                 console.log("🎯 Available spec fields:", Object.keys(GUITAR_SPECS));
-                
-                // Log some sample data
-                Object.keys(GUITAR_SPECS).slice(0, 3).forEach(field => {
-                    const options = GUITAR_SPECS[field];
-                    console.log(`   📋 ${field}: ${options.length} options`);
-                });
                 
                 return data;
             } else {
@@ -699,7 +526,7 @@
             
             console.log("🔍 Available spec fields:", Object.keys(fieldOptions));
             
-            // Create dropdowns for all available OPTIONS fields (for full customization)
+            // Create dropdowns for each field that has options
             Object.keys(fieldOptions).forEach(field => {
                 if (fieldOptions[field] && fieldOptions[field].length > 0) {
                     const fieldDiv = document.createElement('div');
@@ -722,10 +549,10 @@
                         }
                     }
                     
-                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, baseline value: "${currentValue}"`);
-                    
                     // Check if the baseline value exists in the options
                     const baselineExists = currentValue && options.includes(currentValue);
+                    
+                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, baseline value: "${currentValue}"`);
                     
                     fieldDiv.innerHTML = `
                         <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
@@ -752,12 +579,9 @@
             
             const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
             console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
-            console.log(`🎯 Model has data for ${Object.keys(modelData).length} fields, created dropdowns for ${specsGrid.children.length} fields`);
         }
 
         function handleSpecChange(field, value) {
-            // Don't remove dots here - let the onblur handle it
-            
             currentSpecs[field] = value;
             
             const baseValue = baseline[field] || '';
@@ -777,12 +601,6 @@
                     selectElement.classList.remove('highlight-changed');
                     console.log(`⚪ Removed highlight from field: ${field}`);
                 }
-            }
-            
-            // Update status to show number of changes
-            const changeCount = dirtyFields.size;
-            if (changeCount > 0) {
-                showStatus(`${changeCount} specification${changeCount === 1 ? '' : 's'} modified from baseline`, 'info');
             }
         }
 
@@ -876,6 +694,38 @@
                 }
             });
             
+            // Clear all data
+            MODEL_PRESETS = {};
+            GUITAR_SPECS = {};
+            currentSpecs = {};
+            baseline = {};
+            dirtyFields.clear();
+            hideSpecs();
+            
+            setTimeout(() => {
+                console.log("🔄 Reloading data...");
+                loadAllData(); // Load both models and options
+                if (btn) {
+                    btn.innerHTML = 'Hard reset (reload options)';
+                    btn.disabled = false;
+                }
+                console.log("✅ Hard reset completed");
+            }, 1000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html> = document.querySelectorAll('select[id^="spec-"]');
+            allSelects.forEach(select => {
+                select.classList.remove('highlight-changed');
+                select.value = '';
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+            });
+            
             // Clear tracking data
             currentSpecs = {};
             baseline = {};
@@ -947,36 +797,4 @@
             }
             
             // Clear all specification dropdowns and highlights
-            const allSelects = document.querySelectorAll('select[id^="spec-"]');
-            allSelects.forEach(select => {
-                select.classList.remove('highlight-changed');
-                select.value = '';
-                if (select.options.length > 0) {
-                    select.selectedIndex = 0;
-                }
-            });
-            
-            // Clear all data
-            MODEL_PRESETS = {};
-            GUITAR_SPECS = {};
-            currentSpecs = {};
-            baseline = {};
-            dirtyFields.clear();
-            hideSpecs();
-            
-            setTimeout(() => {
-                console.log("🔄 Reloading data...");
-                loadAllData(); // Load both models and options
-                if (btn) {
-                    btn.innerHTML = 'Hard reset (reload options)';
-                    btn.disabled = false;
-                }
-                console.log("✅ Hard reset completed");
-            }, 1000);
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+            const allSelects
