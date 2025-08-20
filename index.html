@@ -746,58 +746,66 @@
         function softReset() {
             console.log("🔄 Starting soft reset...");
             
-            // Method 1: Get elements and force clear with multiple approaches
-            const serialField = document.getElementById('serial');
-            const customerField = document.getElementById('customer');
-            const emailField = document.getElementById('email');
-            const notesField = document.getElementById('notes');
+            // Force clear all form fields with multiple approaches
+            const fieldsToReset = [
+                { id: 'serial', label: 'Serial' },
+                { id: 'customer', label: 'Customer' },
+                { id: 'email', label: 'Email' },
+                { id: 'notes', label: 'Notes' }
+            ];
             
-            if (serialField) {
-                serialField.value = '';
-                serialField.setAttribute('value', '');
-                console.log('Serial field cleared');
-            } else {
-                console.log('Serial field not found!');
-            }
+            fieldsToReset.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    // Multiple clearing approaches to handle stubborn browsers
+                    element.value = '';
+                    element.setAttribute('value', '');
+                    element.removeAttribute('value');
+                    
+                    // For textarea elements
+                    if (element.tagName === 'TEXTAREA') {
+                        element.textContent = '';
+                        element.innerHTML = '';
+                    }
+                    
+                    // Trigger change events to notify any listeners
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    element.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    // Force browser to forget the value
+                    if (element.type === 'text' || element.type === 'email') {
+                        element.autocomplete = 'off';
+                        setTimeout(() => {
+                            element.autocomplete = '';
+                        }, 100);
+                    }
+                    
+                    console.log(`✅ ${field.label} field cleared`);
+                } else {
+                    console.log(`❌ ${field.label} field not found!`);
+                }
+            });
             
-            if (customerField) {
-                customerField.value = '';
-                customerField.setAttribute('value', '');
-                console.log('Customer field cleared');
-            } else {
-                console.log('Customer field not found!');
-            }
-            
-            if (emailField) {
-                emailField.value = '';
-                emailField.setAttribute('value', '');
-                console.log('Email field cleared');
-            } else {
-                console.log('Email field not found!');
-            }
-            
-            if (notesField) {
-                notesField.value = '';
-                notesField.textContent = '';
-                console.log('Notes field cleared');
-            }
-            
-            // Reset select elements by setting innerHTML
-            const modelSelect = document.getElementById('model');
-            if (modelSelect) {
-                modelSelect.innerHTML = '<option value="">Choose a model</option>';
-                modelSelect.value = '';
-            }
-            
-            const rightLeftSelect = document.getElementById('rightLeft');
-            if (rightLeftSelect) {
-                rightLeftSelect.innerHTML = `
+            // Reset select elements
+            const selectsToReset = [
+                { id: 'model', options: '<option value="">Choose a model</option>' },
+                { id: 'rightLeft', options: `
                     <option value="">Select...</option>
                     <option value="RIGHT">RIGHT</option>
                     <option value="LEFT">LEFT</option>
-                `;
-                rightLeftSelect.value = '';
-            }
+                ` }
+            ];
+            
+            selectsToReset.forEach(select => {
+                const element = document.getElementById(select.id);
+                if (element) {
+                    element.innerHTML = select.options;
+                    element.value = '';
+                    element.selectedIndex = 0;
+                    element.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log(`✅ ${select.id} select reset`);
+                }
+            });
             
             // Clear all specification dropdowns and highlights
             const allSelects = document.querySelectorAll('select[id^="spec-"]');
@@ -807,7 +815,14 @@
                 if (select.options.length > 0) {
                     select.selectedIndex = 0;
                 }
+                select.dispatchEvent(new Event('change', { bubbles: true }));
             });
+            
+            // Force form reset (additional safety measure)
+            const form = document.querySelector('form');
+            if (form) {
+                form.reset();
+            }
             
             // Clear tracking data
             currentSpecs = {};
@@ -815,7 +830,14 @@
             dirtyFields.clear();
             hideSpecs();
             
+            // Clear status message
+            const statusDiv = document.getElementById('statusMessage');
+            if (statusDiv) {
+                statusDiv.classList.add('hidden');
+            }
+            
             console.log("✅ Soft reset completed - all fields should be cleared");
+            showStatus("✅ Form reset completed", 'success');
         }
 
         function hardReset() {
@@ -827,45 +849,67 @@
                 btn.disabled = true;
             }
             
-            // Force clear all form fields directly with multiple methods
-            const serialField = document.getElementById('serial');
-            const customerField = document.getElementById('customer');
-            const emailField = document.getElementById('email');
-            const notesField = document.getElementById('notes');
+            // Force clear all form fields with aggressive clearing
+            const fieldsToReset = [
+                { id: 'serial', label: 'Serial' },
+                { id: 'customer', label: 'Customer' },
+                { id: 'email', label: 'Email' },
+                { id: 'notes', label: 'Notes' }
+            ];
             
-            if (serialField) {
-                serialField.value = '';
-                serialField.setAttribute('value', '');
-                serialField.removeAttribute('value');
-                console.log('Hard reset - Serial field cleared');
-            }
-            
-            if (customerField) {
-                customerField.value = '';
-                customerField.setAttribute('value', '');
-                customerField.removeAttribute('value');
-                console.log('Hard reset - Customer field cleared');
-            }
-            
-            if (emailField) {
-                emailField.value = '';
-                emailField.setAttribute('value', '');
-                emailField.removeAttribute('value');
-                console.log('Hard reset - Email field cleared');
-            }
-            
-            if (notesField) {
-                notesField.value = '';
-                notesField.textContent = '';
-                notesField.innerHTML = '';
-                console.log('Hard reset - Notes field cleared');
-            }
+            fieldsToReset.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    // Ultra-aggressive clearing for hard reset
+                    element.value = '';
+                    element.defaultValue = '';
+                    element.setAttribute('value', '');
+                    element.removeAttribute('value');
+                    element.setAttribute('data-original-value', '');
+                    
+                    // For textarea elements
+                    if (element.tagName === 'TEXTAREA') {
+                        element.textContent = '';
+                        element.innerHTML = '';
+                        element.defaultValue = '';
+                    }
+                    
+                    // Disable and re-enable to force browser to forget
+                    element.disabled = true;
+                    setTimeout(() => {
+                        element.disabled = false;
+                    }, 10);
+                    
+                    // Clear autocomplete temporarily
+                    const originalAutocomplete = element.autocomplete;
+                    element.autocomplete = 'off';
+                    
+                    // Force blur and focus to trigger browser refresh
+                    element.blur();
+                    setTimeout(() => {
+                        element.focus();
+                        element.blur();
+                        element.autocomplete = originalAutocomplete;
+                    }, 50);
+                    
+                    // Trigger all relevant events
+                    ['input', 'change', 'blur', 'keyup'].forEach(eventType => {
+                        element.dispatchEvent(new Event(eventType, { bubbles: true }));
+                    });
+                    
+                    console.log(`✅ Hard reset - ${field.label} field cleared`);
+                } else {
+                    console.log(`❌ Hard reset - ${field.label} field not found!`);
+                }
+            });
             
             // Reset model dropdown to loading state
             const modelSelect = document.getElementById('model');
             if (modelSelect) {
                 modelSelect.innerHTML = '<option value="">🔄 Loading models...</option>';
                 modelSelect.value = '';
+                modelSelect.selectedIndex = 0;
+                modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
             // Reset right/left dropdown
@@ -877,6 +921,8 @@
                     <option value="LEFT">LEFT</option>
                 `;
                 rightLeftSelect.value = '';
+                rightLeftSelect.selectedIndex = 0;
+                rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
             // Clear all specification dropdowns and highlights
@@ -886,6 +932,28 @@
                 select.value = '';
                 if (select.options.length > 0) {
                     select.selectedIndex = 0;
+                }
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            
+            // Force form reset as additional safety
+            const form = document.querySelector('form');
+            if (form) {
+                form.reset();
+            }
+            
+            // Nuclear option: temporarily remove and re-add form elements
+            fieldsToReset.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element && element.value !== '') {
+                    console.log(`⚠️ Field ${field.id} still has value "${element.value}" - trying nuclear reset`);
+                    const parent = element.parentNode;
+                    const nextSibling = element.nextSibling;
+                    const clone = element.cloneNode(true);
+                    clone.value = '';
+                    clone.defaultValue = '';
+                    parent.removeChild(element);
+                    parent.insertBefore(clone, nextSibling);
                 }
             });
             
@@ -897,6 +965,12 @@
             dirtyFields.clear();
             hideSpecs();
             
+            // Clear status message
+            const statusDiv = document.getElementById('statusMessage');
+            if (statusDiv) {
+                statusDiv.classList.add('hidden');
+            }
+            
             setTimeout(() => {
                 console.log("🔄 Reloading data...");
                 loadAllData(); // Load both models and options
@@ -905,6 +979,7 @@
                     btn.disabled = false;
                 }
                 console.log("✅ Hard reset completed");
+                showStatus("✅ Hard reset completed - data reloaded", 'success');
             }, 1000);
         }
 
