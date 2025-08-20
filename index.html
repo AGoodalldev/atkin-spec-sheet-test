@@ -9,21 +9,29 @@
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 10mm 8mm; 
+                margin: 8mm 6mm; 
             }
             * { 
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
                 color-adjust: exact !important;
+                box-sizing: border-box !important;
             }
             body { 
                 background: white !important; 
                 background-image: none !important;
-                font-size: 9px !important;
-                line-height: 1.2 !important;
-                transform: scale(0.85) !important;
+                font-size: 7px !important;
+                line-height: 1.1 !important;
+                transform: scale(0.7) !important;
                 transform-origin: top left !important;
+                width: 142.86% !important; /* Compensate for 0.7 scale */
+                height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
+            
+            /* Hide all non-essential elements */
             .print-hidden { 
                 display: none !important; 
             }
@@ -33,82 +41,108 @@
                 height: auto !important;
                 overflow: visible !important;
                 page-break-inside: avoid !important;
+                page-break-after: avoid !important;
+            }
+            
+            /* Main container - ultra compact */
+            .p-6 { 
+                padding: 2px !important; 
+                margin: 0 !important;
+            }
+            
+            .rounded-2xl.shadow-xl {
+                margin: 0 !important;
+                padding: 3px !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
             }
             
             /* Ensure highlights print */
             .highlight-changed {
-                border: 2px solid #f97316 !important;
+                border: 1px solid #f97316 !important;
                 background-color: #fef3c7 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             
-            /* Compact layout for print - more aggressive */
-            .p-6 { padding: 4px !important; }
-            .space-y-4 > * + * { margin-top: 4px !important; }
-            .gap-4 { gap: 2px !important; }
-            .px-4 { padding-left: 2px !important; padding-right: 2px !important; }
-            .py-3 { padding-top: 2px !important; padding-bottom: 2px !important; }
-            .text-2xl { font-size: 14px !important; }
-            .text-lg { font-size: 10px !important; }
-            .text-sm { font-size: 8px !important; }
-            .min-h-[140px] { min-height: 40px !important; }
-            .rounded-2xl { border-radius: 2px !important; }
-            .mb-1 { margin-bottom: 1px !important; }
-            .mb-2 { margin-bottom: 2px !important; }
+            /* Ultra compact spacing */
+            .space-y-4 > * + * { margin-top: 2px !important; }
+            .gap-4 { gap: 1px !important; }
+            .px-4 { padding-left: 1px !important; padding-right: 1px !important; }
+            .py-3 { padding-top: 1px !important; padding-bottom: 1px !important; }
+            .text-2xl { font-size: 10px !important; line-height: 1.1 !important; }
+            .text-lg { font-size: 8px !important; line-height: 1.1 !important; }
+            .text-sm { font-size: 6px !important; line-height: 1.1 !important; }
+            .min-h-[140px] { 
+                min-height: 25px !important; 
+                height: 25px !important;
+                max-height: 25px !important;
+            }
+            .rounded-2xl { border-radius: 0 !important; }
+            .mb-1 { margin-bottom: 0px !important; }
+            .mb-2 { margin-bottom: 1px !important; }
             
-            /* Make grid more compact */
+            /* Super compact grids */
             .grid.md\\:grid-cols-4 { 
                 display: grid !important; 
                 grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 3px !important;
-            }
-            .grid.md\\:grid-cols-2 { 
-                display: grid !important; 
-                grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 2px !important;
+                gap: 1px !important;
+                margin: 1px 0 !important;
             }
             
-            /* Force grid layout - more compact */
+            /* Specs grid - fit more columns */
             #specsGrid {
                 display: grid !important;
-                grid-template-columns: repeat(4, 1fr) !important;
-                gap: 2px !important;
-                column-gap: 4px !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 1px !important;
+                column-gap: 2px !important;
+                margin: 1px 0 !important;
             }
             
-            /* Ensure each spec field takes up proper space */
+            /* Prevent page breaks */
             #specsGrid > div {
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
-                margin-bottom: 1px !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             
-            /* Print title styling */
+            /* Compact titles */
             h1 { 
                 text-align: center !important; 
-                margin-bottom: 8px !important; 
+                margin: 0 0 3px 0 !important; 
                 border-bottom: 1px solid #000 !important; 
-                padding-bottom: 3px !important; 
-                font-size: 14px !important;
+                padding: 1px 0 2px 0 !important; 
+                font-size: 10px !important;
+                line-height: 1.1 !important;
             }
             
-            /* Section headers */
             h2 { 
-                font-size: 10px !important; 
+                font-size: 7px !important; 
                 font-weight: bold !important; 
-                margin-top: 6px !important; 
-                margin-bottom: 3px !important; 
+                margin: 2px 0 1px 0 !important; 
                 border-bottom: 1px solid #ccc !important; 
-                padding-bottom: 1px !important; 
+                padding: 0 0 1px 0 !important; 
+                line-height: 1.1 !important;
             }
             
-            /* Input and select styling for print */
+            /* Ultra compact form elements */
             input, select, textarea {
                 border: 1px solid #333 !important;
                 background: white !important;
-                font-size: 8px !important;
-                padding: 1px 2px !important;
+                font-size: 6px !important;
+                padding: 0px 1px !important;
+                margin: 0 !important;
+                height: auto !important;
+                line-height: 1.1 !important;
+            }
+            
+            label {
+                font-size: 6px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: 1.1 !important;
             }
             
             /* Ensure form values are visible */
@@ -117,25 +151,34 @@
                 background: white !important;
             }
             
-            /* Print-specific spacing */
-            .print-spacing {
-                page-break-inside: avoid !important;
+            /* Notes section - minimal height */
+            textarea {
+                height: 25px !important;
+                min-height: 25px !important;
+                max-height: 25px !important;
+                resize: none !important;
             }
             
-            /* Mobile-specific fixes */
-            @media print and (max-width: 768px) {
+            /* Remove all unnecessary spacing */
+            .bg-gray-50 {
+                padding: 1px !important;
+                margin: 0 !important;
+            }
+            
+            /* iOS Safari specific fixes */
+            @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: scale(0.75) !important;
-                    font-size: 8px !important;
+                    transform: scale(0.6) !important;
+                    width: 166.67% !important; /* Compensate for 0.6 scale */
+                    font-size: 6px !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(3, 1fr) !important;
+                    grid-template-columns: repeat(6, 1fr) !important;
                 }
                 
-                .grid.md\\:grid-cols-4 {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                }
+                .text-2xl { font-size: 8px !important; }
+                h1 { font-size: 8px !important; }
             }
         }
         
