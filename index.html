@@ -744,46 +744,90 @@
         }
 
         function softReset() {
-            const fields = ['serial', 'customer', 'email', 'notes', 'model', 'rightLeft'];
-            fields.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.value = '';
-                    // Trigger change event to ensure proper cleanup
-                    element.dispatchEvent(new Event('change'));
+            console.log("🔄 Starting soft reset...");
+            
+            // Method 1: Direct value setting
+            document.getElementById('serial').value = '';
+            document.getElementById('customer').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('notes').value = '';
+            
+            // Method 2: Reset select elements by setting innerHTML
+            const modelSelect = document.getElementById('model');
+            if (modelSelect) {
+                modelSelect.innerHTML = '<option value="">Choose a model</option>';
+                modelSelect.value = '';
+            }
+            
+            const rightLeftSelect = document.getElementById('rightLeft');
+            if (rightLeftSelect) {
+                rightLeftSelect.innerHTML = `
+                    <option value="">Select...</option>
+                    <option value="RIGHT">RIGHT</option>
+                    <option value="LEFT">LEFT</option>
+                `;
+                rightLeftSelect.value = '';
+            }
+            
+            // Clear all specification dropdowns and highlights
+            const allSelects = document.querySelectorAll('select[id^="spec-"]');
+            allSelects.forEach(select => {
+                select.classList.remove('highlight-changed');
+                select.value = '';
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
                 }
             });
             
-            // Clear all highlights from specification fields
-            dirtyFields.forEach(field => {
-                const selectElement = document.getElementById(`spec-${field}`);
-                if (selectElement) {
-                    selectElement.classList.remove('highlight-changed');
-                    selectElement.value = ''; // Reset dropdown to "Select..."
-                }
-            });
-            
+            // Clear tracking data
             currentSpecs = {};
             baseline = {};
             dirtyFields.clear();
             hideSpecs();
             
-            showStatus('Form reset successfully - all fields cleared', 'success');
+            console.log("✅ Soft reset completed - all fields should be cleared");
         }
 
         function hardReset() {
+            console.log("🔄 Starting hard reset...");
+            
             const btn = document.getElementById('hardResetBtn');
             if (btn) {
                 btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
                 btn.disabled = true;
             }
             
-            // Clear all form fields first
-            const fields = ['serial', 'customer', 'email', 'notes', 'model', 'rightLeft'];
-            fields.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.value = '';
+            // Force clear all form fields directly
+            document.getElementById('serial').value = '';
+            document.getElementById('customer').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('notes').value = '';
+            
+            // Reset model dropdown to loading state
+            const modelSelect = document.getElementById('model');
+            if (modelSelect) {
+                modelSelect.innerHTML = '<option value="">🔄 Loading models...</option>';
+                modelSelect.value = '';
+            }
+            
+            // Reset right/left dropdown
+            const rightLeftSelect = document.getElementById('rightLeft');
+            if (rightLeftSelect) {
+                rightLeftSelect.innerHTML = `
+                    <option value="">Select...</option>
+                    <option value="RIGHT">RIGHT</option>
+                    <option value="LEFT">LEFT</option>
+                `;
+                rightLeftSelect.value = '';
+            }
+            
+            // Clear all specification dropdowns and highlights
+            const allSelects = document.querySelectorAll('select[id^="spec-"]');
+            allSelects.forEach(select => {
+                select.classList.remove('highlight-changed');
+                select.value = '';
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
                 }
             });
             
@@ -796,11 +840,13 @@
             hideSpecs();
             
             setTimeout(() => {
+                console.log("🔄 Reloading data...");
                 loadAllData(); // Load both models and options
                 if (btn) {
                     btn.innerHTML = 'Hard reset (reload options)';
                     btn.disabled = false;
                 }
+                console.log("✅ Hard reset completed");
             }, 1000);
         }
 
