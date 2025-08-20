@@ -332,12 +332,8 @@
                         Edit spec sheet (Google Sheets)
                     </a>
                     
-                    <button onclick="softReset()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
-                        Soft reset
-                    </button>
-                    
-                    <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200" title="Reload OPTIONS & MODELS from Google Sheets (cache-busted)">
-                        Hard reset (reload options)
+                    <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200" title="Clear all fields and reload data from Google Sheets">
+                        Reset form
                     </button>
                 </div>
             </div>
@@ -975,11 +971,11 @@
                 console.log("🔄 Reloading data...");
                 loadAllData(); // Load both models and options
                 if (btn) {
-                    btn.innerHTML = 'Hard reset (reload options)';
+                    btn.innerHTML = 'Reset form';
                     btn.disabled = false;
                 }
-                console.log("✅ Hard reset completed");
-                showStatus("✅ Hard reset completed - data reloaded", 'success');
+                console.log("✅ Form reset completed");
+                showStatus("✅ Form reset completed - data reloaded", 'success');
             }, 1000);
         }
 
