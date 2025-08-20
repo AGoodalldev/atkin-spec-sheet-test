@@ -167,22 +167,22 @@
                 margin: 0 !important;
             }
             
-            /* iOS Safari specific fixes - simple layout, no flexbox */
+            /* iOS Safari specific fixes - very compact single page */
             @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: scale(0.9) !important;
-                    width: 111.11% !important; /* Compensate for 0.9 scale */
-                    font-size: 11px !important;
+                    transform: scale(0.85) !important;
+                    width: 117.65% !important; /* Compensate for 0.85 scale */
+                    font-size: 10px !important;
                     margin: 0 !important;
                     padding: 0 !important;
                 }
                 
                 .p-6 {
-                    padding: 6px !important;
+                    padding: 4px !important;
                 }
                 
                 .rounded-2xl.shadow-xl {
-                    padding: 6px !important;
+                    padding: 4px !important;
                 }
                 
                 /* Remove all flexbox - use normal flow */
@@ -191,64 +191,65 @@
                 }
                 
                 .space-y-4 > * + * {
-                    margin-top: 4px !important;
+                    margin-top: 3px !important;
                 }
                 
-                /* Header section - compact */
+                /* Header section - very compact */
                 .bg-gray-50 {
-                    margin-bottom: 4px !important;
-                    padding: 4px !important;
+                    margin-bottom: 3px !important;
+                    padding: 3px !important;
                 }
                 
-                /* Specifications grid - compact but readable */
+                /* Specifications grid - more compact */
                 #specsSection {
-                    margin: 4px 0 !important;
+                    margin: 3px 0 !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 3px !important;
-                    row-gap: 2px !important;
+                    grid-template-columns: repeat(5, 1fr) !important;
+                    gap: 2px !important;
+                    row-gap: 1px !important;
                 }
                 
                 /* Notes section - smaller */
                 textarea {
-                    height: 40px !important;
-                    min-height: 40px !important;
-                    max-height: 40px !important;
+                    height: 30px !important;
+                    min-height: 30px !important;
+                    max-height: 30px !important;
                 }
                 
                 .grid.md\\:grid-cols-4 {
                     grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 3px !important;
+                    gap: 2px !important;
                 }
                 
-                .text-2xl { font-size: 14px !important; }
+                .text-2xl { font-size: 12px !important; }
                 h1 { 
-                    font-size: 14px !important; 
-                    margin: 0 0 4px 0 !important;
-                    padding: 2px 0 !important;
+                    font-size: 12px !important; 
+                    margin: 0 0 3px 0 !important;
+                    padding: 1px 0 !important;
                 }
                 h2 { 
-                    font-size: 11px !important; 
-                    margin: 2px 0 3px 0 !important;
+                    font-size: 10px !important; 
+                    margin: 2px 0 2px 0 !important;
                 }
                 
                 input, select, textarea, label {
-                    font-size: 9px !important;
-                    padding: 2px 3px !important;
+                    font-size: 8px !important;
+                    padding: 1px 2px !important;
                     margin: 0 !important;
-                    line-height: 1.3 !important;
+                    line-height: 1.2 !important;
                 }
                 
-                /* Compact margins */
+                /* Very compact margins */
                 @page {
-                    margin: 10mm !important;
+                    margin: 8mm !important;
                 }
                 
                 /* Ensure no forced heights that cause overflow */
                 html, body {
                     height: auto !important;
+                    overflow: visible !important;
                 }
                 
                 /* Prevent page breaks within sections */
@@ -257,13 +258,26 @@
                     break-inside: avoid !important;
                 }
                 
-                /* Spec field compact spacing */
+                /* Spec field very compact spacing */
                 #specsGrid > div {
-                    margin-bottom: 1px !important;
+                    margin-bottom: 0px !important;
                 }
                 
                 label {
-                    margin-bottom: 1px !important;
+                    margin-bottom: 0px !important;
+                    display: block !important;
+                }
+                
+                /* Force single page */
+                * {
+                    page-break-after: avoid !important;
+                    page-break-before: avoid !important;
+                }
+                
+                /* Ensure container doesn't create extra space */
+                .max-w-4xl {
+                    max-width: none !important;
+                    margin: 0 !important;
                 }
             }
         }
