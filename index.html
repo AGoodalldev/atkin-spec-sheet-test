@@ -167,56 +167,61 @@
                 margin: 0 !important;
             }
             
-            /* iOS Safari specific fixes - more readable size */
+            /* iOS Safari specific fixes - much more readable */
             @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: scale(0.75) !important;
-                    width: 133.33% !important; /* Compensate for 0.75 scale */
-                    font-size: 8px !important;
+                    transform: scale(0.85) !important;
+                    width: 117.65% !important; /* Compensate for 0.85 scale */
+                    font-size: 10px !important;
                     margin: 0 !important;
                     padding: 0 !important;
                 }
                 
                 .p-6 {
-                    padding: 3px !important;
+                    padding: 4px !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(5, 1fr) !important;
-                    gap: 2px !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 3px !important;
                 }
                 
                 .grid.md\\:grid-cols-4 {
                     grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 2px !important;
+                    gap: 3px !important;
                 }
                 
-                .text-2xl { font-size: 11px !important; }
+                .text-2xl { font-size: 14px !important; }
                 h1 { 
-                    font-size: 11px !important; 
-                    margin: 0 0 3px 0 !important;
+                    font-size: 14px !important; 
+                    margin: 0 0 4px 0 !important;
                     padding: 2px 0 !important;
                 }
                 h2 { 
-                    font-size: 8px !important; 
-                    margin: 3px 0 2px 0 !important;
+                    font-size: 11px !important; 
+                    margin: 4px 0 3px 0 !important;
                 }
                 
                 input, select, textarea, label {
-                    font-size: 7px !important;
-                    padding: 1px 2px !important;
+                    font-size: 9px !important;
+                    padding: 2px 3px !important;
                     margin: 0 !important;
-                    line-height: 1.2 !important;
+                    line-height: 1.3 !important;
                 }
                 
                 textarea {
-                    height: 25px !important;
-                    min-height: 25px !important;
-                    max-height: 25px !important;
+                    height: 35px !important;
+                    min-height: 35px !important;
+                    max-height: 35px !important;
                 }
                 
                 .rounded-2xl.shadow-xl {
-                    padding: 3px !important;
+                    padding: 4px !important;
+                }
+                
+                /* Reduce margins on page */
+                @page {
+                    margin: 5mm !important;
                 }
             }
         }
