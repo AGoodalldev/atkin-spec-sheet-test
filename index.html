@@ -170,53 +170,53 @@
             /* iOS Safari specific fixes - more readable size */
             @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: scale(0.65) !important;
-                    width: 153.85% !important; /* Compensate for 0.65 scale */
-                    font-size: 7px !important;
+                    transform: scale(0.75) !important;
+                    width: 133.33% !important; /* Compensate for 0.75 scale */
+                    font-size: 8px !important;
                     margin: 0 !important;
                     padding: 0 !important;
                 }
                 
                 .p-6 {
-                    padding: 2px !important;
+                    padding: 3px !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(6, 1fr) !important;
-                    gap: 1px !important;
+                    grid-template-columns: repeat(5, 1fr) !important;
+                    gap: 2px !important;
                 }
                 
                 .grid.md\\:grid-cols-4 {
                     grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 1px !important;
+                    gap: 2px !important;
                 }
                 
-                .text-2xl { font-size: 9px !important; }
+                .text-2xl { font-size: 11px !important; }
                 h1 { 
-                    font-size: 9px !important; 
-                    margin: 0 0 2px 0 !important;
-                    padding: 1px 0 !important;
+                    font-size: 11px !important; 
+                    margin: 0 0 3px 0 !important;
+                    padding: 2px 0 !important;
                 }
                 h2 { 
-                    font-size: 7px !important; 
-                    margin: 2px 0 1px 0 !important;
+                    font-size: 8px !important; 
+                    margin: 3px 0 2px 0 !important;
                 }
                 
                 input, select, textarea, label {
-                    font-size: 6px !important;
-                    padding: 0px 1px !important;
+                    font-size: 7px !important;
+                    padding: 1px 2px !important;
                     margin: 0 !important;
-                    line-height: 1.1 !important;
+                    line-height: 1.2 !important;
                 }
                 
                 textarea {
-                    height: 20px !important;
-                    min-height: 20px !important;
-                    max-height: 20px !important;
+                    height: 25px !important;
+                    min-height: 25px !important;
+                    max-height: 25px !important;
                 }
                 
                 .rounded-2xl.shadow-xl {
-                    padding: 2px !important;
+                    padding: 3px !important;
                 }
             }
         }
@@ -746,13 +746,43 @@
         function softReset() {
             console.log("🔄 Starting soft reset...");
             
-            // Method 1: Direct value setting
-            document.getElementById('serial').value = '';
-            document.getElementById('customer').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('notes').value = '';
+            // Method 1: Get elements and force clear with multiple approaches
+            const serialField = document.getElementById('serial');
+            const customerField = document.getElementById('customer');
+            const emailField = document.getElementById('email');
+            const notesField = document.getElementById('notes');
             
-            // Method 2: Reset select elements by setting innerHTML
+            if (serialField) {
+                serialField.value = '';
+                serialField.setAttribute('value', '');
+                console.log('Serial field cleared');
+            } else {
+                console.log('Serial field not found!');
+            }
+            
+            if (customerField) {
+                customerField.value = '';
+                customerField.setAttribute('value', '');
+                console.log('Customer field cleared');
+            } else {
+                console.log('Customer field not found!');
+            }
+            
+            if (emailField) {
+                emailField.value = '';
+                emailField.setAttribute('value', '');
+                console.log('Email field cleared');
+            } else {
+                console.log('Email field not found!');
+            }
+            
+            if (notesField) {
+                notesField.value = '';
+                notesField.textContent = '';
+                console.log('Notes field cleared');
+            }
+            
+            // Reset select elements by setting innerHTML
             const modelSelect = document.getElementById('model');
             if (modelSelect) {
                 modelSelect.innerHTML = '<option value="">Choose a model</option>';
@@ -797,11 +827,39 @@
                 btn.disabled = true;
             }
             
-            // Force clear all form fields directly
-            document.getElementById('serial').value = '';
-            document.getElementById('customer').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('notes').value = '';
+            // Force clear all form fields directly with multiple methods
+            const serialField = document.getElementById('serial');
+            const customerField = document.getElementById('customer');
+            const emailField = document.getElementById('email');
+            const notesField = document.getElementById('notes');
+            
+            if (serialField) {
+                serialField.value = '';
+                serialField.setAttribute('value', '');
+                serialField.removeAttribute('value');
+                console.log('Hard reset - Serial field cleared');
+            }
+            
+            if (customerField) {
+                customerField.value = '';
+                customerField.setAttribute('value', '');
+                customerField.removeAttribute('value');
+                console.log('Hard reset - Customer field cleared');
+            }
+            
+            if (emailField) {
+                emailField.value = '';
+                emailField.setAttribute('value', '');
+                emailField.removeAttribute('value');
+                console.log('Hard reset - Email field cleared');
+            }
+            
+            if (notesField) {
+                notesField.value = '';
+                notesField.textContent = '';
+                notesField.innerHTML = '';
+                console.log('Hard reset - Notes field cleared');
+            }
             
             // Reset model dropdown to loading state
             const modelSelect = document.getElementById('model');
