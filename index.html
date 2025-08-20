@@ -170,17 +170,64 @@
             /* iOS Safari specific fixes */
             @media print and (-webkit-min-device-pixel-ratio: 0) {
                 body {
-                    transform: scale(0.6) !important;
-                    width: 166.67% !important; /* Compensate for 0.6 scale */
-                    font-size: 6px !important;
+                    transform: scale(0.5) !important;
+                    width: 200% !important; /* Compensate for 0.5 scale */
+                    font-size: 5px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+                
+                .p-6 {
+                    padding: 1px !important;
                 }
                 
                 #specsGrid {
-                    grid-template-columns: repeat(6, 1fr) !important;
+                    grid-template-columns: repeat(8, 1fr) !important;
+                    gap: 0.5px !important;
                 }
                 
-                .text-2xl { font-size: 8px !important; }
-                h1 { font-size: 8px !important; }
+                .grid.md\\:grid-cols-4 {
+                    grid-template-columns: repeat(6, 1fr) !important;
+                    gap: 0.5px !important;
+                }
+                
+                .text-2xl { font-size: 6px !important; }
+                h1 { 
+                    font-size: 6px !important; 
+                    margin: 0 0 1px 0 !important;
+                    padding: 0 !important;
+                }
+                h2 { 
+                    font-size: 5px !important; 
+                    margin: 1px 0 0 0 !important;
+                }
+                
+                input, select, textarea, label {
+                    font-size: 4px !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    line-height: 1 !important;
+                }
+                
+                textarea {
+                    height: 15px !important;
+                    min-height: 15px !important;
+                    max-height: 15px !important;
+                }
+                
+                /* Remove all spacing on iOS */
+                * {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+                
+                .rounded-2xl.shadow-xl {
+                    padding: 1px !important;
+                }
+                
+                .bg-gray-50 {
+                    padding: 0 !important;
+                }
             }
         }
         
@@ -707,10 +754,14 @@
         }
 
         function softReset() {
-            const fields = ['customer', 'email', 'notes', 'model', 'rightLeft'];
+            const fields = ['serial', 'customer', 'email', 'notes', 'model', 'rightLeft'];
             fields.forEach(id => {
                 const element = document.getElementById(id);
-                if (element) element.value = '';
+                if (element) {
+                    element.value = '';
+                    // Trigger change event to ensure proper cleanup
+                    element.dispatchEvent(new Event('change'));
+                }
             });
             
             // Clear all highlights from specification fields
@@ -718,6 +769,7 @@
                 const selectElement = document.getElementById(`spec-${field}`);
                 if (selectElement) {
                     selectElement.classList.remove('highlight-changed');
+                    selectElement.value = ''; // Reset dropdown to "Select..."
                 }
             });
             
@@ -726,7 +778,7 @@
             dirtyFields.clear();
             hideSpecs();
             
-            showStatus('Form reset successfully - all highlights cleared', 'success');
+            showStatus('Form reset successfully - all fields cleared', 'success');
         }
 
         function hardReset() {
@@ -735,6 +787,15 @@
                 btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
                 btn.disabled = true;
             }
+            
+            // Clear all form fields first
+            const fields = ['serial', 'customer', 'email', 'notes', 'model', 'rightLeft'];
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = '';
+                }
+            });
             
             // Clear all data
             MODEL_PRESETS = {};
