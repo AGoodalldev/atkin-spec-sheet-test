@@ -58,12 +58,14 @@
                 border-radius: 0 !important;
             }
             
-            /* Ensure highlights print */
+            /* Ensure highlights print - subtle outline instead of thick border */
             .highlight-changed {
-                border: 1px solid #f97316 !important;
+                border: none !important;
+                outline: 1px solid #f97316 !important;
                 background-color: #fef3c7 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                box-sizing: border-box !important;
             }
             
             /* Ultra compact spacing */
