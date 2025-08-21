@@ -183,6 +183,23 @@
                 print-color-adjust: exact !important;
             }
             
+            /* RIGHT/LEFT color coding for print */
+            #rightLeft.right-selected {
+                background-color: #dcfce7 !important;
+                border-color: #16a34a !important;
+                color: #15803d !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            #rightLeft.left-selected {
+                background-color: #fef2f2 !important;
+                border-color: #dc2626 !important;
+                color: #dc2626 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
             /* Print spacing for sections */
             .print-spacing {
                 margin: 6px 0 !important;
@@ -274,6 +291,23 @@
                 }
             }
         }
+
+        function handleRightLeftChange(event) {
+            const value = event.target.value;
+            const selectElement = event.target;
+            
+            // Remove existing classes
+            selectElement.classList.remove('right-selected', 'left-selected');
+            
+            // Add appropriate class based on selection
+            if (value === 'RIGHT') {
+                selectElement.classList.add('right-selected');
+                console.log('🟢 RIGHT selected - green styling applied');
+            } else if (value === 'LEFT') {
+                selectElement.classList.add('left-selected');
+                console.log('🔴 LEFT selected - red styling applied');
+            }
+        }
         
         .loading-spinner {
             border: 2px solid #f3f3f3;
@@ -298,6 +332,19 @@
         .highlight-changed:focus {
             border: 2px solid #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
+        }
+        
+        /* RIGHT/LEFT color coding */
+        #rightLeft.right-selected {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #15803d !important;
+        }
+        
+        #rightLeft.left-selected {
+            background-color: #fef2f2 !important;
+            border-color: #dc2626 !important;
+            color: #dc2626 !important;
         }
         
         /* Guitar background styling */
@@ -417,6 +464,11 @@
             const modelSelect = document.getElementById('model');
             if (modelSelect) {
                 modelSelect.addEventListener('change', handleModelChange);
+            }
+            
+            const rightLeftSelect = document.getElementById('rightLeft');
+            if (rightLeftSelect) {
+                rightLeftSelect.addEventListener('change', handleRightLeftChange);
             }
         }
 
@@ -977,7 +1029,7 @@
                     <option value="LEFT">LEFT</option>
                 `;
                 rightLeftSelect.value = '';
-                rightLeftSelect.selectedIndex = 0;
+                rightLeftSelect.classList.remove('right-selected', 'left-selected');
                 rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
