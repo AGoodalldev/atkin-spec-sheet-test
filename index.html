@@ -9,7 +9,7 @@
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 10mm; 
+                margin: 8mm; 
             }
             
             * { 
@@ -24,8 +24,8 @@
                 background: white !important; 
                 background-image: none !important;
                 font-family: 'Times New Roman', Times, serif !important;
-                font-size: 10px !important;
-                line-height: 1.3 !important;
+                font-size: 11px !important;
+                line-height: 1.4 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 height: auto !important;
@@ -40,7 +40,7 @@
                 display: none !important; 
             }
             
-            /* Main container - constrained but efficient */
+            /* Main container - use more space */
             .p-6 { 
                 padding: 0 !important; 
                 margin: 0 !important;
@@ -57,7 +57,7 @@
             
             .rounded-2xl.shadow-xl {
                 margin: 0 !important;
-                padding: 8px !important;
+                padding: 10px !important;
                 box-shadow: none !important;
                 border: 2px solid #000 !important;
                 border-radius: 0 !important;
@@ -67,36 +67,36 @@
                 width: 100% !important;
             }
             
-            /* Title styling - compact but readable */
+            /* Title styling - slightly larger */
             h1 { 
                 text-align: center !important; 
-                margin: 0 0 6px 0 !important; 
+                margin: 0 0 8px 0 !important; 
                 border-bottom: 3px solid #000 !important; 
-                padding: 3px 0 4px 0 !important; 
-                font-size: 16px !important;
+                padding: 4px 0 6px 0 !important; 
+                font-size: 18px !important;
                 font-weight: bold !important;
-                line-height: 1.2 !important;
+                line-height: 1.3 !important;
                 color: #000 !important;
                 font-family: 'Times New Roman', Times, serif !important;
             }
             
             h2 { 
-                font-size: 13px !important; 
+                font-size: 14px !important; 
                 font-weight: bold !important; 
-                margin: 6px 0 4px 0 !important; 
+                margin: 8px 0 6px 0 !important; 
                 border-bottom: 2px solid #666 !important; 
-                padding: 2px 0 3px 0 !important; 
-                line-height: 1.2 !important;
+                padding: 3px 0 4px 0 !important; 
+                line-height: 1.3 !important;
                 color: #000 !important;
                 font-family: 'Times New Roman', Times, serif !important;
             }
             
-            /* Header form fields - 4 columns, moderate spacing */
+            /* Header form fields - 4 columns, more spacing */
             .grid.md\\:grid-cols-4 { 
                 display: grid !important; 
                 grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 8px !important;
-                margin: 5px 0 !important;
+                gap: 10px !important;
+                margin: 6px 0 !important;
             }
             
             /* Single column for right/left */
@@ -104,12 +104,12 @@
                 grid-template-columns: 1fr 3fr !important; 
             }
             
-            /* Specifications grid - 3 columns, balanced */
+            /* Specifications grid - 3 columns, more spaced */
             #specsGrid {
                 display: grid !important;
                 grid-template-columns: repeat(3, 1fr) !important;
-                gap: 6px !important;
-                margin: 5px 0 !important;
+                gap: 8px !important;
+                margin: 6px 0 !important;
             }
             
             /* Prevent page breaks in spec items */
@@ -117,62 +117,62 @@
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
                 margin: 0 !important;
-                padding: 2px !important;
+                padding: 3px !important;
             }
             
-            /* Form elements styling - readable but compact */
+            /* Form elements styling - larger and more readable */
             input, select, textarea {
                 border: 1px solid #333 !important;
                 background: white !important;
-                font-size: 9px !important;
+                font-size: 10px !important;
                 font-family: 'Times New Roman', Times, serif !important;
-                padding: 2px 4px !important;
+                padding: 3px 5px !important;
                 margin: 0 !important;
                 height: auto !important;
-                line-height: 1.3 !important;
+                line-height: 1.4 !important;
                 color: #000 !important;
-                min-height: 18px !important;
+                min-height: 22px !important;
                 width: 100% !important;
             }
             
             label {
-                font-size: 9px !important;
+                font-size: 10px !important;
                 font-weight: bold !important;
-                margin: 0 0 2px 0 !important;
+                margin: 0 0 3px 0 !important;
                 padding: 0 !important;
-                line-height: 1.3 !important;
+                line-height: 1.4 !important;
                 display: block !important;
                 color: #000 !important;
                 font-family: 'Times New Roman', Times, serif !important;
             }
             
-            /* Notes section - larger but controlled */
+            /* Notes section - larger for better page fill */
             textarea {
-                height: 80px !important;
-                min-height: 80px !important;
-                max-height: 80px !important;
+                height: 100px !important;
+                min-height: 100px !important;
+                max-height: 100px !important;
                 resize: none !important;
                 width: 100% !important;
                 font-family: 'Times New Roman', Times, serif !important;
-                margin: 4px 0 !important;
+                margin: 6px 0 !important;
             }
             
-            /* Container spacing - balanced */
+            /* Container spacing - more generous */
             .bg-gray-50 {
-                padding: 6px !important;
-                margin: 4px 0 !important;
+                padding: 8px !important;
+                margin: 6px 0 !important;
                 background: #f5f5f5 !important;
                 border: 1px solid #ccc !important;
                 border-radius: 0 !important;
             }
             
-            /* Spacing classes - moderate */
-            .space-y-4 > * + * { margin-top: 5px !important; }
-            .gap-4 { gap: 5px !important; }
-            .px-4 { padding-left: 4px !important; padding-right: 4px !important; }
-            .py-3 { padding-top: 3px !important; padding-bottom: 3px !important; }
-            .mb-1 { margin-bottom: 2px !important; }
-            .mb-2 { margin-bottom: 4px !important; }
+            /* Spacing classes - increased */
+            .space-y-4 > * + * { margin-top: 7px !important; }
+            .gap-4 { gap: 6px !important; }
+            .px-4 { padding-left: 5px !important; padding-right: 5px !important; }
+            .py-3 { padding-top: 4px !important; padding-bottom: 4px !important; }
+            .mb-1 { margin-bottom: 3px !important; }
+            .mb-2 { margin-bottom: 5px !important; }
             .rounded-2xl { border-radius: 0 !important; }
             
             /* Highlight changed fields */
@@ -185,14 +185,14 @@
             
             /* Print spacing for sections */
             .print-spacing {
-                margin: 5px 0 !important;
+                margin: 6px 0 !important;
             }
             
-            /* Status message styling - compact */
+            /* Status message styling */
             #statusMessage {
-                font-size: 9px !important;
-                padding: 3px !important;
-                margin: 3px 0 !important;
+                font-size: 10px !important;
+                padding: 4px !important;
+                margin: 4px 0 !important;
                 border: 1px solid #2563eb !important;
                 background: #dbeafe !important;
                 color: #1e40af !important;
