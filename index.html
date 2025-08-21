@@ -1029,7 +1029,7 @@
                     <option value="LEFT">LEFT</option>
                 `;
                 rightLeftSelect.value = '';
-                rightLeftSelect.classList.remove('right-selected', 'left-selected');
+                rightLeftSelect.selectedIndex = 0;
                 rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
