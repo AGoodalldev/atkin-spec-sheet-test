@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atkin Custom Spec Sheet (workshop version only)</title>
+    <title>Atkin Custom Spec Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
@@ -183,6 +183,23 @@
                 print-color-adjust: exact !important;
             }
             
+            /* RIGHT/LEFT color coding for print */
+            #rightLeft.right-selected {
+                background-color: #dcfce7 !important;
+                border-color: #16a34a !important;
+                color: #15803d !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            #rightLeft.left-selected {
+                background-color: #fef2f2 !important;
+                border-color: #dc2626 !important;
+                color: #dc2626 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
             /* Print spacing for sections */
             .print-spacing {
                 margin: 6px 0 !important;
@@ -332,7 +349,7 @@
     <div class="p-6 background-overlay">
         <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm max-w-4xl mx-auto">
             <div class="p-6 space-y-4">
-                <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet (workshop version only)</h1>
+                <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet</h1>
                 
                 <!-- Status Messages -->
                 <div id="statusMessage" class="hidden"></div>
@@ -430,6 +447,28 @@
             const modelSelect = document.getElementById('model');
             if (modelSelect) {
                 modelSelect.addEventListener('change', handleModelChange);
+            }
+            
+            const rightLeftSelect = document.getElementById('rightLeft');
+            if (rightLeftSelect) {
+                rightLeftSelect.addEventListener('change', handleRightLeftChange);
+            }
+        }
+
+        function handleRightLeftChange(event) {
+            const value = event.target.value;
+            const selectElement = event.target;
+            
+            // Remove existing classes
+            selectElement.classList.remove('right-selected', 'left-selected');
+            
+            // Add appropriate class based on selection
+            if (value === 'RIGHT') {
+                selectElement.classList.add('right-selected');
+                console.log('🟢 RIGHT selected - green styling applied');
+            } else if (value === 'LEFT') {
+                selectElement.classList.add('left-selected');
+                console.log('🔴 LEFT selected - red styling applied');
             }
         }
 
@@ -812,103 +851,6 @@
             }, 100);
         }
 
-        function softReset() {
-            console.log("🔄 Starting soft reset...");
-            
-            // Force clear all form fields with multiple approaches
-            const fieldsToReset = [
-                { id: 'serial', label: 'Serial' },
-                { id: 'customer', label: 'Customer' },
-                { id: 'email', label: 'Email' },
-                { id: 'notes', label: 'Notes' }
-            ];
-            
-            fieldsToReset.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element) {
-                    // Multiple clearing approaches to handle stubborn browsers
-                    element.value = '';
-                    element.setAttribute('value', '');
-                    element.removeAttribute('value');
-                    
-                    // For textarea elements
-                    if (element.tagName === 'TEXTAREA') {
-                        element.textContent = '';
-                        element.innerHTML = '';
-                    }
-                    
-                    // Trigger change events to notify any listeners
-                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                    element.dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                    // Force browser to forget the value
-                    if (element.type === 'text' || element.type === 'email') {
-                        element.autocomplete = 'off';
-                        setTimeout(() => {
-                            element.autocomplete = '';
-                        }, 100);
-                    }
-                    
-                    console.log(`✅ ${field.label} field cleared`);
-                } else {
-                    console.log(`❌ ${field.label} field not found!`);
-                }
-            });
-            
-            // Reset select elements
-            const selectsToReset = [
-                { id: 'model', options: '<option value="">Choose a model</option>' },
-                { id: 'rightLeft', options: `
-                    <option value="">Select...</option>
-                    <option value="RIGHT">RIGHT</option>
-                    <option value="LEFT">LEFT</option>
-                ` }
-            ];
-            
-            selectsToReset.forEach(select => {
-                const element = document.getElementById(select.id);
-                if (element) {
-                    element.innerHTML = select.options;
-                    element.value = '';
-                    element.selectedIndex = 0;
-                    element.dispatchEvent(new Event('change', { bubbles: true }));
-                    console.log(`✅ ${select.id} select reset`);
-                }
-            });
-            
-            // Clear all specification dropdowns and highlights
-            const allSelects = document.querySelectorAll('select[id^="spec-"]');
-            allSelects.forEach(select => {
-                select.classList.remove('highlight-changed');
-                select.value = '';
-                if (select.options.length > 0) {
-                    select.selectedIndex = 0;
-                }
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            
-            // Force form reset (additional safety measure)
-            const form = document.querySelector('form');
-            if (form) {
-                form.reset();
-            }
-            
-            // Clear tracking data
-            currentSpecs = {};
-            baseline = {};
-            dirtyFields.clear();
-            hideSpecs();
-            
-            // Clear status message
-            const statusDiv = document.getElementById('statusMessage');
-            if (statusDiv) {
-                statusDiv.classList.add('hidden');
-            }
-            
-            console.log("✅ Soft reset completed - all fields should be cleared");
-            showStatus("✅ Form reset completed", 'success');
-        }
-
         function hardReset() {
             console.log("🔄 Starting hard reset...");
             
@@ -981,7 +923,7 @@
                 modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
-            // Reset right/left dropdown
+            // Reset right/left dropdown with color clearing
             const rightLeftSelect = document.getElementById('rightLeft');
             if (rightLeftSelect) {
                 rightLeftSelect.innerHTML = `
@@ -990,6 +932,7 @@
                     <option value="LEFT">LEFT</option>
                 `;
                 rightLeftSelect.value = '';
+                rightLeftSelect.classList.remove('right-selected', 'left-selected');
                 rightLeftSelect.selectedIndex = 0;
                 rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
