@@ -813,62 +813,81 @@
         }
 
         // ✅ NEW: Save the current specs as a brand-new model in the Models tab
-        async function saveAsNewModel() {
-            try {
-                if (!dataLoaded) { showStatus("⚠️ Data not loaded yet", "warning"); return; }
-                if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
-                    showStatus("Select a model first, then adjust specs before saving.", "warning");
-                    return;
-                }
+      <script>
+async function saveAsNewModel() {
+  try {
+    if (!dataLoaded) {
+      showStatus("⚠️ Data not loaded yet", "warning");
+      return;
+    }
+    if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
+      showStatus("Select a model first, then adjust specs before saving.", "warning");
+      return;
+    }
 
-                const modelName = prompt("Enter a name for the new model:");
-                if (!modelName || !modelName.trim()) {
-                    showStatus("Model name is required.", "error");
-                    return;
-                }
+    const name = prompt("Enter a name for the new model:");
+    if (!name || !name.trim()) {
+      showStatus("Model name is required.", "error");
+      return;
+    }
 
-                // Collect header fields (safe if missing)
-                const serial   = (document.getElementById("serial")    || {}).value || "";
-                const customer = (document.getElementById("customer")  || {}).value || "";
-                const email    = (document.getElementById("email")     || {}).value || "";
-                const handed   = (document.getElementById("rightLeft") || {}).value || "";
-                const notes    = (document.getElementById("notes")     || {}).value || "";
+    // Collect header fields (safe if missing)
+    const serial   = (document.getElementById("serial")    || {}).value || "";
+    const customer = (document.getElementById("customer")  || {}).value || "";
+    const email    = (document.getElementById("email")     || {}).value || "";
+    const handed   = (document.getElementById("rightLeft") || {}).value || "";
+    const notes    = (document.getElementById("notes")     || {}).value || "";
 
-                const specsToSave = {
-                    ...currentSpecs,
-                    Serial: serial,
-                    Customer: customer,
-                    Email: email,
-                    "RIGHT / LEFT": handed,
-                    Notes: notes
-                };
+    const payloadObj = {
+      modelName: name.trim(),
+      specs: {
+        ...currentSpecs,
+        Serial: serial,
+        Customer: customer,
+        Email: email,
+        "RIGHT / LEFT": handed,
+        Notes: notes
+      }
+    };
 
-                showStatus("📡 Saving new model...", "info");
+    // Put JSON into the hidden form field
+    const form    = document.getElementById("gasForm");
+    const input   = document.getElementById("gasPayload");
+    if (!form || !input) {
+      showStatus("Internal form not found.", "error");
+      return;
+    }
+    // Ensure form action matches your latest GAS URL
+    if (form.action !== GAS_BASE) form.action = GAS_BASE;
 
-                const res = await fetch(GAS_BASE, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ modelName: modelName.trim(), specs: specsToSave })
-                });
-                const result = await res.json();
-                if (!result.ok) throw new Error(result.error || "Save failed");
+    input.value = JSON.stringify(payloadObj);
 
-                showStatus(`✅ Model “${modelName}” saved`, "success");
+    // Submit the form to the hidden iframe (CORS-safe)
+    showStatus("📡 Saving new model...", "info");
+    form.submit();
 
-                // Reload models so new one appears
-                await loadModelsData();
-
-                // Auto-select the new model (if present)
-                const modelSelect = document.getElementById("model");
-                if (modelSelect) {
-                    modelSelect.value = modelName.trim();
-                    modelSelect.dispatchEvent(new Event("change", { bubbles: true }));
-                }
-            } catch (err) {
-                console.error(err);
-                showStatus(`❌ Error: ${err.message}`, "error");
-            }
+    // Give Apps Script a moment to append the row, then reload models
+    setTimeout(async () => {
+      try {
+        await loadModelsData(); // refresh dropdown
+        const sel = document.getElementById("model");
+        if (sel) {
+          sel.value = name.trim();
+          sel.dispatchEvent(new Event("change", { bubbles: true }));
         }
+        showStatus(`✅ Model “${name}” saved`, "success");
+      } catch (e) {
+        console.error(e);
+        showStatus("Saved, but failed to reload models. Try refresh.", "warning");
+      }
+    }, 1200);
+  } catch (err) {
+    console.error(err);
+    showStatus(`❌ Save failed: ${err.message}`, "error");
+  }
+}
+</script>
+
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', init);
