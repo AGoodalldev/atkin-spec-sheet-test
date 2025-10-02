@@ -9,46 +9,100 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ---------- Single A4 page print ---------- */
-    @media print {
-      @page { size: A4 portrait; margin: 8mm; }
+    /* ---------- SINGLE A4 FIT (drop-in) ---------- */
+@media print {
+  /* Tuning knobs */
+  :root{
+    --pg-margin: 6mm;      /* was 8mm; lowering buys height quickly */
+    --sheet-pad: 4mm;      /* inner padding of the card */
+    --base-font: 10px;     /* global print font-size */
+    --line: 1.25;          /* global line-height */
+    --gap: 6px;            /* grid gap between fields */
+    --field-pad-v: 2px;    /* input/select vertical padding */
+    --field-pad-h: 3px;    /* input/select horizontal padding */
+    --notes-h: 80px;       /* force Notes to a fixed, short height */
+  }
 
-      html, body {
-        width: 210mm !important;
-        height: 297mm !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-        background: #fff !important;
-        -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-      }
+  @page { size: A4 portrait; margin: var(--pg-margin); }
 
-      /* Remove screen constraints that cause narrow layout on print */
-      .max-w-4xl, .mx-auto { max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }
+  html, body {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+    font-size: var(--base-font) !important;
+    line-height: var(--line) !important;
+    -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+  }
 
-      /* The actual printable sheet: page width minus @page margins */
-      .a4-sheet {
-        width: calc(210mm - 16mm) !important;     /* 210 - (8+8) */
-        min-height: calc(297mm - 16mm) !important;/* 297 - (8+8) */
-        box-sizing: border-box !important;
-        margin: 0 !important;
-        padding: 6mm !important;
-        border: 1px solid #000 !important;
-        border-radius: 0 !important;
-        background: #fff !important;
-        box-shadow: none !important;
-      }
+  /* Make the sheet fit inside the page box (page width - margins) */
+  .max-w-4xl, .mx-auto { max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }
 
-      .print-hidden { display: none !important; }
-      h1 { font-size: 18px !important; margin: 0 0 6px !important; border-bottom: 3px solid #000 !important; padding-bottom: 4px !important; }
-      h2 { font-size: 14px !important; margin: 6px 0 4px !important; border-bottom: 2px solid #666 !important; padding-bottom: 3px !important; }
-      label { font-weight: 700; font-size: 10px; }
-      input, select, textarea { font-size: 10px !important; border: 1px solid #333 !important; background: #fff !important; padding: 3px 5px !important; }
-      #specsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      #specsGrid > div, .grid, .bg-gray-50, .space-y-4 > * { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .highlight-changed { border: 2px solid #f97316 !important; background: #fef3c7 !important; }
-    }
+  .a4-sheet{
+    width: calc(210mm - (2 * var(--pg-margin))) !important;
+    min-height: calc(297mm - (2 * var(--pg-margin))) !important;
+    padding: var(--sheet-pad) !important;
+    border: 1px solid #000 !important;
+    background: #fff !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-hidden{ display: none !important; }
+
+  h1{
+    font-size: 18px !important;
+    margin: 0 0 4mm !important;
+    border-bottom: 3px solid #000 !important;
+    padding-bottom: 3mm !important;
+  }
+  h2{
+    font-size: 13px !important;
+    margin: 3mm 0 2mm !important;
+    border-bottom: 2px solid #666 !important;
+    padding-bottom: 2mm !important;
+  }
+
+  /* Make fields more compact */
+  label { font-weight: 700; font-size: 10px !important; }
+  input, select, textarea {
+    font-size: 10px !important;
+    padding: var(--field-pad-v) var(--field-pad-h) !important;
+    border: 1px solid #333 !important;
+    background: #fff !important;
+  }
+
+  /* More columns = less vertical height */
+  #specsGrid{
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* 3 columns for height savings */
+    gap: var(--gap) !important;
+  }
+
+  /* Keep blocks from breaking across pages */
+  #specsGrid > div, .grid, .bg-gray-50, .space-y-4 > *{
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Notes: cap height so it can never push onto page 2 */
+  #notes{
+    height: var(--notes-h) !important;
+    min-height: var(--notes-h) !important;
+    max-height: var(--notes-h) !important;
+    resize: none !important;
+  }
+
+  /* highlight still visible on print but lighter */
+  .highlight-changed{
+    border: 2px solid #f97316 !important;
+    background: #fef3c7 !important;
+  }
+}
 
     /* Non-print helpers */
     .highlight-changed { border: 2px solid #f97316; background: #fef3c7; box-shadow: 0 0 0 3px rgba(249,115,22,.1); }
