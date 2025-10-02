@@ -181,6 +181,8 @@
         if (name && name !== 'NA' && name.trim() !== '') { MODEL_PRESETS[name] = obj; count++; }
       }
       populateModelDropdown();
+  console.log("MODEL_PRESETS loaded:", Object.keys(MODEL_PRESETS).length, "models");
+
       return count;
     }
 
