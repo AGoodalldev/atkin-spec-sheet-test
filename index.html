@@ -335,33 +335,73 @@
     }
 
     // ✅ Save via hidden iframe + postMessage confirmation
-    async function saveAsNewModel(){
-      try{
-        if (!dataLoaded){ showStatus("⚠️ Data not loaded yet", "warning"); return; }
-        if (!currentSpecs || Object.keys(currentSpecs).length===0){ showStatus("Select a model first, then adjust specs before saving.", "warning"); return; }
+    <script>
+async function saveAsNewModel(){
+  try{
+    if (!dataLoaded){ showStatus("⚠️ Data not loaded yet", "warning"); return; }
+    if (!currentSpecs || Object.keys(currentSpecs).length===0){ showStatus("Select a model first, then adjust specs before saving.", "warning"); return; }
 
-        const modelName = prompt("Enter a name for the new model:");
-        if (!modelName || !modelName.trim()){ showStatus("Model name is required.", "error"); return; }
+    const modelName = prompt("Enter a name for the new model:");
+    if (!modelName || !modelName.trim()){ showStatus("Model name is required.", "error"); return; }
 
-        const serial   = (document.getElementById("serial")    || {}).value || "";
-        const customer = (document.getElementById("customer")  || {}).value || "";
-        const email    = (document.getElementById("email")     || {}).value || "";
-        const handed   = (document.getElementById("rightLeft") || {}).value || "";
-        const notes    = (document.getElementById("notes")     || {}).value || "";
+    const serial   = (document.getElementById("serial")    || {}).value || "";
+    const customer = (document.getElementById("customer")  || {}).value || "";
+    const email    = (document.getElementById("email")     || {}).value || "";
+    const handed   = (document.getElementById("rightLeft") || {}).value || "";
+    const notes    = (document.getElementById("notes")     || {}).value || "";
 
-        const specsToSave = { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": handed, Notes: notes };
+    const specsToSave = { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": handed, Notes: notes };
 
-        showStatus("📡 Saving new model...", "info");
+    showStatus("📡 Saving new model...", "info");
 
-        // Submit to GAS through hidden form (bypasses CORS)
-        document.getElementById('gasPayload').value = JSON.stringify({ modelName: modelName.trim(), specs: specsToSave });
-        document.getElementById('gasForm').submit();
-        // Result will be received in window.message listener above
-      }catch(err){
-        console.error(err);
-        showStatus(`❌ Error: ${err.message}`,"error");
+    // 1) Primary path: iframe (no CORS issues), relies on postMessage from GAS
+    const payload = { modelName: modelName.trim(), specs: specsToSave };
+    document.getElementById('gasPayload').value = JSON.stringify(payload);
+    document.getElementById('gasForm').submit();
+
+    // 2) Fallback: if no message received in 4s, force a CORS-safe form POST via fetch
+    let heardBack = false;
+    const onMsg = async (evt) => {
+      const msg = evt.data || {};
+      if (msg && msg.type === 'saveModel') {
+        heardBack = true;
+        window.removeEventListener('message', onMsg);
+        if (msg.ok) {
+          showStatus(`✅ Model “${msg.name}” saved`, 'success');
+          await loadModelsData(); populateModelDropdown();
+          const modelSelect = document.getElementById('model');
+          if (modelSelect) { modelSelect.value = msg.name; modelSelect.dispatchEvent(new Event('change', { bubbles:true })); }
+        } else {
+          showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`, 'error');
+        }
       }
-    }
-  </script>
+    };
+    window.addEventListener('message', onMsg);
+
+    setTimeout(async () => {
+      if (heardBack) return; // iframe worked
+      // Fallback (opaque response is fine; server still writes)
+      try {
+        const fd = new FormData();
+        fd.append('payload', JSON.stringify(payload));
+        await fetch(GAS_BASE, { method: 'POST', body: fd, mode: 'no-cors' });
+        showStatus('✅ Saved (fallback). Refreshing models…','success');
+        await loadModelsData(); populateModelDropdown();
+        const modelSelect = document.getElementById('model');
+        if (modelSelect) { modelSelect.value = modelName.trim(); modelSelect.dispatchEvent(new Event('change', { bubbles:true })); }
+      } catch (e) {
+        console.error(e);
+        showStatus('❌ Fallback save failed.', 'error');
+      } finally {
+        window.removeEventListener('message', onMsg);
+      }
+    }, 4000);
+
+  }catch(err){
+    console.error(err);
+    showStatus(`❌ Error: ${err.message}`,"error");
+  }
+}
+</script>
 </body>
 </html>
