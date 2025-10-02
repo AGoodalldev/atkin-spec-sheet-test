@@ -415,6 +415,11 @@
                     <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 no-underline">
                         Edit spec sheet (Google Sheets)
                     </a>
+
+                    <!-- ✅ NEW: Save as New Model -->
+                    <button onclick="saveAsNewModel()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-green-100 hover:bg-green-200">
+                        Save as New Model
+                    </button>
                     
                     <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200" title="Clear all fields and reload data from Google Sheets">
                         Reset form
@@ -533,7 +538,7 @@
             }
         }
 
-        // Load options data - THIS WAS MISSING!
+        // Load options data
         async function loadOptionsData() {
             console.log("📡 Loading specification options...");
             
@@ -664,12 +669,7 @@
             
             specsGrid.innerHTML = '';
             
-            console.log("🔧 Populating specs for model:", modelData);
-            console.log("🎯 Using OPTIONS data:", Object.keys(GUITAR_SPECS).length, "fields available");
-            console.log("📄 Model data fields:", Object.keys(modelData));
-            console.log("📄 OPTIONS data fields:", Object.keys(GUITAR_SPECS));
-            
-            // Field mapping for better display names
+            // Field mapping for better display names (optional)
             const fieldMapping = {
                 'SCALE': 'Scale Length',
                 'NUT WIDTH': 'Nut Width', 
@@ -698,301 +698,176 @@
                 'BODY JOIN': 'Body Join'
             };
             
-            let fieldOptions = {};
-            
-            // Use the loaded OPTIONS data
-            if (GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0) {
-                console.log("🎯 Using OPTIONS tab data for spec dropdowns");
-                
-                Object.keys(GUITAR_SPECS).forEach(field => {
-                    const options = GUITAR_SPECS[field];
-                    if (Array.isArray(options) && options.length > 0) {
-                        fieldOptions[field] = options.filter(opt => opt && opt.trim() !== '' && opt !== '-');
-                        console.log(`📋 Field "${field}": ${fieldOptions[field].length} options`);
-                    }
-                });
-            } else {
-                console.log("⚠️ OPTIONS data not available - falling back to model scanning");
-                
-                // Fallback: scan all models for unique values
-                Object.values(MODEL_PRESETS).forEach(model => {
-                    Object.keys(model).forEach(field => {
-                        if (!fieldOptions[field]) fieldOptions[field] = [];
-                        if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
-                            if (!fieldOptions[field].includes(model[field])) {
-                                fieldOptions[field].push(model[field]);
-                            }
-                        }
-                    });
-                });
-                
-                // Sort the fallback options
-                Object.keys(fieldOptions).forEach(field => {
-                    fieldOptions[field].sort();
-                });
-            }
-            
-            console.log("🔍 Available spec fields:", Object.keys(fieldOptions));
-            
-            // Create dropdowns for all available OPTIONS fields (for full customization)
-            Object.keys(fieldOptions).forEach(field => {
-                if (fieldOptions[field] && fieldOptions[field].length > 0) {
-                    const fieldDiv = document.createElement('div');
-                    const options = fieldOptions[field];
-                    
-                    // Try to get a display name from fieldMapping, otherwise use the field name
-                    const displayName = fieldMapping[field] || field;
-                    
-                    // Look for the model value - try exact match first, then case-insensitive
-                    let currentValue = modelData[field] || '';
-                    if (!currentValue) {
-                        // Try to find a case-insensitive match
-                        const modelFieldKeys = Object.keys(modelData);
-                        const matchingKey = modelFieldKeys.find(key => 
-                            key.toLowerCase() === field.toLowerCase()
-                        );
-                        if (matchingKey) {
-                            currentValue = modelData[matchingKey];
-                            console.log(`🔄 Field name mapping: "${field}" → "${matchingKey}" = "${currentValue}"`);
-                        }
-                    }
-                    
-                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, baseline value: "${currentValue}"`);
-                    
-                    // Check if the baseline value exists in the options
-                    const baselineExists = currentValue && options.includes(currentValue);
-                    
-                    fieldDiv.innerHTML = `
-                        <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
-                        <div id="container-${field}">
-                            <select id="spec-${field}" 
-                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
-                                    onchange="handleSpecChange('${field}', this.value)">
-                                <option value="">Select...</option>
-                                ${options.map(option => {
-                                    const isBaseline = option === currentValue;
-                                    const selected = isBaseline ? 'selected' : '';
-                                    return `<option value="${option}" ${selected}>${option}</option>`;
-                                }).join('')}
-                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected>${currentValue}</option>` : ''}
-                            </select>
-                        </div>
+            // Use OPTIONS data if available to build selects; otherwise show read-only values
+            const fields = new Set([
+                ...Object.keys(modelData),
+                ...Object.keys(GUITAR_SPECS || {})
+            ]);
+
+            fields.forEach(field => {
+                const wrapper = document.createElement('div');
+                const display = fieldMapping[field] || field;
+                const modelValue = modelData[field] || '';
+                const options = GUITAR_SPECS[field];
+
+                if (Array.isArray(options) && options.length) {
+                    // Select (editable)
+                    const optsHtml = [
+                        '<option value="">Select...</option>',
+                        ...options.map(o => `<option value="${o}" ${o===modelValue?'selected':''}>${o}</option>`),
+                        ...(modelValue && !options.includes(modelValue) ? [`<option value="${modelValue}" selected>${modelValue}</option>`] : [])
+                    ].join('');
+                    wrapper.innerHTML = `
+                        <label class="text-sm font-medium text-gray-700 mb-1 block" for="spec-${field}">${display}</label>
+                        <select id="spec-${field}" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
+                                onchange="handleSpecChange('${field}', this.value)">
+                            ${optsHtml}
+                        </select>
                     `;
-                    specsGrid.appendChild(fieldDiv);
-                    
-                    // Set the current value in our tracking
-                    currentSpecs[field] = currentValue;
+                    currentSpecs[field] = modelValue;
+                } else {
+                    // Read-only fallback
+                    wrapper.innerHTML = `
+                        <label class="text-sm font-medium text-gray-700 mb-1 block">${display}</label>
+                        <input type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm bg-white" value="${modelValue}" readonly />
+                    `;
+                    currentSpecs[field] = modelValue;
                 }
+
+                specsGrid.appendChild(wrapper);
             });
-            
-            const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
-            console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
-            console.log(`🎯 Model has data for ${Object.keys(modelData).length} fields, created dropdowns for ${specsGrid.children.length} fields`);
         }
 
         function handleSpecChange(field, value) {
-            // Don't remove dots here - let the onblur handle it
-            
             currentSpecs[field] = value;
-            
             const baseValue = baseline[field] || '';
-            const selectElement = document.getElementById(`spec-${field}`);
-            
-            console.log(`🔧 Spec changed: ${field} = "${value}" (baseline: "${baseValue}")`);
-            
-            if (selectElement) {
-                if (value !== baseValue && value !== '') {
-                    // Field was changed from baseline - highlight it
-                    dirtyFields.add(field);
-                    selectElement.classList.add('highlight-changed');
-                    console.log(`🟡 Highlighted field: ${field}`);
-                } else {
-                    // Field matches baseline or is empty - remove highlight
-                    dirtyFields.delete(field);
-                    selectElement.classList.remove('highlight-changed');
-                    console.log(`⚪ Removed highlight from field: ${field}`);
-                }
+            const el = document.getElementById(`spec-${field}`);
+            if (!el) return;
+            if (value !== '' && value !== baseValue) {
+                dirtyFields.add(field);
+                el.classList.add('highlight-changed');
+            } else {
+                dirtyFields.delete(field);
+                el.classList.remove('highlight-changed');
             }
-            
-            // Update status to show number of changes
-            const changeCount = dirtyFields.size;
-            if (changeCount > 0) {
-                showStatus(`${changeCount} specification${changeCount === 1 ? '' : 's'} modified from baseline`, 'info');
-            }
+            const n = dirtyFields.size;
+            if (n > 0) showStatus(`${n} specification${n===1?'':'s'} modified from baseline`, 'info');
         }
 
         function printPdf() {
-            // Show all specs before printing (if a model is selected)
             const selectedModel = document.getElementById('model').value;
-            if (selectedModel) {
-                showSpecs();
-            }
-            
-            // Brief delay to ensure layout is ready
+            if (selectedModel) showSpecs();
             setTimeout(() => {
-                // Get serial number for title
                 const serialNumber = document.getElementById('serial').value.trim();
-                const originalTitle = document.querySelector('h1').textContent;
-                
-                // Update title with serial number if available
-                if (serialNumber) {
-                    document.querySelector('h1').textContent = `Atkin Custom Spec Sheet - Serial: ${serialNumber}`;
-                } else {
-                    document.querySelector('h1').textContent = 'Atkin Custom Spec Sheet';
-                }
-                
-                // Print the page
+                const h1 = document.querySelector('h1');
+                const originalTitle = h1.textContent;
+                h1.textContent = serialNumber ? `Atkin Custom Spec Sheet - Serial: ${serialNumber}` : 'Atkin Custom Spec Sheet';
                 window.print();
-                
-                // Restore original title after print dialog
-                setTimeout(() => {
-                    document.querySelector('h1').textContent = originalTitle;
-                }, 500);
+                setTimeout(() => { h1.textContent = originalTitle; }, 500);
             }, 100);
         }
 
         function hardReset() {
             console.log("🔄 Starting hard reset...");
-            
             const btn = document.getElementById('hardResetBtn');
-            if (btn) {
-                btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
-                btn.disabled = true;
-            }
+            if (btn) { btn.innerHTML = '<div class="loading-spinner"></div> Reloading...'; btn.disabled = true; }
             
-            // Force clear all form fields with aggressive clearing
-            const fieldsToReset = [
-                { id: 'serial', label: 'Serial' },
-                { id: 'customer', label: 'Customer' },
-                { id: 'email', label: 'Email' },
-                { id: 'notes', label: 'Notes' }
-            ];
-            
-            fieldsToReset.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element) {
-                    // Ultra-aggressive clearing for hard reset
-                    element.value = '';
-                    element.defaultValue = '';
-                    element.setAttribute('value', '');
-                    element.removeAttribute('value');
-                    element.setAttribute('data-original-value', '');
-                    
-                    // For textarea elements
-                    if (element.tagName === 'TEXTAREA') {
-                        element.textContent = '';
-                        element.innerHTML = '';
-                        element.defaultValue = '';
-                    }
-                    
-                    // Disable and re-enable to force browser to forget
-                    element.disabled = true;
-                    setTimeout(() => {
-                        element.disabled = false;
-                    }, 10);
-                    
-                    // Clear autocomplete temporarily
-                    const originalAutocomplete = element.autocomplete;
-                    element.autocomplete = 'off';
-                    
-                    // Force blur and focus to trigger browser refresh
-                    element.blur();
-                    setTimeout(() => {
-                        element.focus();
-                        element.blur();
-                        element.autocomplete = originalAutocomplete;
-                    }, 50);
-                    
-                    // Trigger all relevant events
-                    ['input', 'change', 'blur', 'keyup'].forEach(eventType => {
-                        element.dispatchEvent(new Event(eventType, { bubbles: true }));
-                    });
-                    
-                    console.log(`✅ Hard reset - ${field.label} field cleared`);
-                } else {
-                    console.log(`❌ Hard reset - ${field.label} field not found!`);
-                }
-            });
-            
-            // Reset model dropdown to loading state
+            const ids = ['serial','customer','email','notes'];
+            ids.forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+
             const modelSelect = document.getElementById('model');
             if (modelSelect) {
                 modelSelect.innerHTML = '<option value="">🔄 Loading models...</option>';
                 modelSelect.value = '';
-                modelSelect.selectedIndex = 0;
                 modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
-            // Reset right/left dropdown with color clearing
+
             const rightLeftSelect = document.getElementById('rightLeft');
             if (rightLeftSelect) {
-                rightLeftSelect.innerHTML = `
-                    <option value="">Select...</option>
-                    <option value="RIGHT">RIGHT</option>
-                    <option value="LEFT">LEFT</option>
-                `;
                 rightLeftSelect.value = '';
-                rightLeftSelect.classList.remove('right-selected', 'left-selected');
-                rightLeftSelect.selectedIndex = 0;
+                rightLeftSelect.classList.remove('right-selected','left-selected');
                 rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
-            // Clear all specification dropdowns and highlights
-            const allSelects = document.querySelectorAll('select[id^="spec-"]');
-            allSelects.forEach(select => {
-                select.classList.remove('highlight-changed');
-                select.value = '';
-                if (select.options.length > 0) {
-                    select.selectedIndex = 0;
-                }
-                select.dispatchEvent(new Event('change', { bubbles: true }));
+
+            document.querySelectorAll('select[id^="spec-"]').forEach(sel=>{
+                sel.classList.remove('highlight-changed');
+                sel.value='';
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
             });
-            
-            // Force form reset as additional safety
-            const form = document.querySelector('form');
-            if (form) {
-                form.reset();
-            }
-            
-            // Nuclear option: temporarily remove and re-add form elements
-            fieldsToReset.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element && element.value !== '') {
-                    console.log(`⚠️ Field ${field.id} still has value "${element.value}" - trying nuclear reset`);
-                    const parent = element.parentNode;
-                    const nextSibling = element.nextSibling;
-                    const clone = element.cloneNode(true);
-                    clone.value = '';
-                    clone.defaultValue = '';
-                    parent.removeChild(element);
-                    parent.insertBefore(clone, nextSibling);
-                }
-            });
-            
-            // Clear all data
+
             MODEL_PRESETS = {};
             GUITAR_SPECS = {};
             currentSpecs = {};
             baseline = {};
             dirtyFields.clear();
             hideSpecs();
-            
-            // Clear status message
+
             const statusDiv = document.getElementById('statusMessage');
-            if (statusDiv) {
-                statusDiv.classList.add('hidden');
-            }
-            
+            if (statusDiv) statusDiv.classList.add('hidden');
+
             setTimeout(() => {
-                console.log("🔄 Reloading data...");
-                loadAllData(); // Load both models and options
-                if (btn) {
-                    btn.innerHTML = 'Reset form';
-                    btn.disabled = false;
-                }
-                console.log("✅ Form reset completed");
+                loadAllData();
+                if (btn) { btn.innerHTML = 'Reset form'; btn.disabled = false; }
                 showStatus("✅ Form reset completed - data reloaded", 'success');
             }, 1000);
+        }
+
+        // ✅ NEW: Save the current specs as a brand-new model in the Models tab
+        async function saveAsNewModel() {
+            try {
+                if (!dataLoaded) { showStatus("⚠️ Data not loaded yet", "warning"); return; }
+                if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
+                    showStatus("Select a model first, then adjust specs before saving.", "warning");
+                    return;
+                }
+
+                const modelName = prompt("Enter a name for the new model:");
+                if (!modelName || !modelName.trim()) {
+                    showStatus("Model name is required.", "error");
+                    return;
+                }
+
+                // Collect header fields (safe if missing)
+                const serial   = (document.getElementById("serial")    || {}).value || "";
+                const customer = (document.getElementById("customer")  || {}).value || "";
+                const email    = (document.getElementById("email")     || {}).value || "";
+                const handed   = (document.getElementById("rightLeft") || {}).value || "";
+                const notes    = (document.getElementById("notes")     || {}).value || "";
+
+                const specsToSave = {
+                    ...currentSpecs,
+                    Serial: serial,
+                    Customer: customer,
+                    Email: email,
+                    "RIGHT / LEFT": handed,
+                    Notes: notes
+                };
+
+                showStatus("📡 Saving new model...", "info");
+
+                const res = await fetch(GAS_BASE, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ modelName: modelName.trim(), specs: specsToSave })
+                });
+                const result = await res.json();
+                if (!result.ok) throw new Error(result.error || "Save failed");
+
+                showStatus(`✅ Model “${modelName}” saved`, "success");
+
+                // Reload models so new one appears
+                await loadModelsData();
+
+                // Auto-select the new model (if present)
+                const modelSelect = document.getElementById("model");
+                if (modelSelect) {
+                    modelSelect.value = modelName.trim();
+                    modelSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+            } catch (err) {
+                console.error(err);
+                showStatus(`❌ Error: ${err.message}`, "error");
+            }
         }
 
         // Initialize when page loads
