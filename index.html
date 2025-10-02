@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atkin Custom Spec Sheet (Workshop Only Version)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="data:,"> <!-- prevents favicon 404 -->
   <style>
-    /* (all your existing CSS here unchanged) */
+    /* ✅ keep all your existing CSS here (unchanged for brevity) */
   </style>
 </head>
 <body class="bg-gray-50 guitar-background">
@@ -91,6 +92,29 @@
     let dirtyFields = new Set();
     let dataLoaded = false;
 
+    // ✅ init() is required
+    function init() {
+      console.log("🚀 Starting Atkin Spec Sheet...");
+      setupEventListeners();
+      loadAllData();
+    }
+
+    function setupEventListeners() {
+      const modelSelect = document.getElementById('model');
+      if (modelSelect) modelSelect.addEventListener('change', handleModelChange);
+
+      const rightLeftSelect = document.getElementById('rightLeft');
+      if (rightLeftSelect) rightLeftSelect.addEventListener('change', handleRightLeftChange);
+    }
+
+    function handleRightLeftChange(event) {
+      const value = event.target.value;
+      const selectElement = event.target;
+      selectElement.classList.remove('right-selected', 'left-selected');
+      if (value === 'RIGHT') selectElement.classList.add('right-selected');
+      if (value === 'LEFT') selectElement.classList.add('left-selected');
+    }
+
     // ✅ Save as New Model
     async function saveAsNewModel() {
       if (!dataLoaded) {
@@ -102,11 +126,13 @@
         showStatus("❌ Model name is required", "error");
         return;
       }
+
       const serial = document.getElementById('serial').value.trim();
       const customer = document.getElementById('customer').value.trim();
       const email = document.getElementById('email').value.trim();
       const rightLeft = document.getElementById('rightLeft').value.trim();
       const notes = document.getElementById('notes').value.trim();
+
       const fullSpecs = { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": rightLeft, Notes: notes };
 
       try {
@@ -128,7 +154,9 @@
       }
     }
 
-    // (keep all your existing JS functions here: init, loadModelsData, loadOptionsData, populateSpecs, printPdf, hardReset, etc.)
+    // --- keep the rest of your functions (loadAllData, loadModelsData, loadOptionsData, populateSpecs, handleSpecChange, printPdf, hardReset, showStatus, etc.) ---
+    // Just make sure they are still included below here!
+
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
