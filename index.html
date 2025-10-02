@@ -2,24 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (fine for dev) -->
+  <!-- Tailwind (fine for dev; for prod, build locally per Tailwind docs) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     /* ========= A4 single-page print control ========= */
-
-    .a4-sheet {
-      max-width: 900px;           /* for screen preview */
-      margin-left: auto;
-      margin-right: auto;
-    }
-
     @media print {
       @page {
-        size: A4 portrait;        /* 210mm × 297mm */
+        size: A4 portrait;        /* 210 × 297 mm */
         margin: 8mm;
       }
 
@@ -28,32 +24,73 @@
         height: 297mm !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: visible !important;
+        overflow: hidden !important;                 /* prevent spilling */
         -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
         font-family: Arial, Helvetica, sans-serif !important;
-        font-size: 11px !important;
-        line-height: 1.4 !important;
+        font-size: 10.5px !important;                /* slightly smaller */
+        line-height: 1.35 !important;
         background: #fff !important;
       }
 
-      /* The main card fits inside the page box */
+      /* Main card: fixed height + border-box so padding is included */
       .a4-sheet {
-        width: 194mm !important;                 /* 210 - (8 + 8) */
-        min-height: calc(297mm - 16mm) !important;
-        padding: 6mm !important;
+        width: 194mm !important;                     /* 210 - (8 + 8) */
+        height: calc(297mm - 16mm) !important;       /* exact page content height */
+        padding: 5mm !important;                     /* tighter padding */
         box-sizing: border-box !important;
-        box-shadow: none !important;
         border: 1px solid #000 !important;
         background: #fff !important;
         border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: hidden !important;                 /* hard cap */
       }
 
-      /* Remove outside spacing that can push to page 2 */
+      /* Remove any outside spacing that adds height */
       .background-overlay, .p-6 { margin: 0 !important; padding: 0 !important; }
 
-      /* Keep blocks intact across the page */
-      #specsGrid > div, .grid, .bg-gray-50, .space-y-4 > * {
+      /* Typography/spacing */
+      h1 {
+        margin: 0 0 3mm 0 !important;
+        text-align: center !important;
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 3mm !important;
+        font-size: 17px !important;
+      }
+      h2 {
+        margin: 2.5mm 0 2mm 0 !important;
+        border-bottom: 1.5px solid #666 !important;
+        padding-bottom: 2mm !important;
+        font-size: 13px !important;
+      }
+      label { font-weight: 700; font-size: 9.5px !important; }
+      input, select, textarea {
+        font-size: 9.5px !important;
+        border: 1px solid #333 !important;
+        padding: 2.5mm 3mm !important;
+      }
+
+      /* Pack specs: 3 columns on print to save vertical space */
+      #specsGrid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 3mm !important;
+      }
+
+      /* Cap the notes area so it never pushes to a second page */
+      #notes {
+        height: 35mm !important;
+        min-height: 35mm !important;
+        max-height: 35mm !important;
+        resize: none !important;
+        overflow: hidden !important;
+      }
+
+      /* Avoid internal breaks */
+      #specsGrid > div,
+      .grid,
+      .bg-gray-50,
+      .space-y-4 > * {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
       }
@@ -61,18 +98,21 @@
       /* Hide controls */
       .print-hidden { display: none !important; }
 
-      /* Tighten spacing */
-      .px-4 { padding-left: 3mm !important; padding-right: 3mm !important; }
-      .py-3 { padding-top: 3mm !important; padding-bottom: 3mm !important; }
-      h1 { margin: 0 0 4mm 0 !important; text-align: center; border-bottom: 3px solid #000; padding-bottom: 4mm; font-size: 18px !important; }
-      h2 { margin: 3mm 0 2mm 0 !important; border-bottom: 2px solid #666; padding-bottom: 2mm; font-size: 14px !important; }
-      label { font-weight: 700; font-size: 10px !important; }
-      input, select, textarea { font-size: 10px !important; border: 1px solid #333 !important; background: #fff !important; padding: 3px 5px !important; }
-      .highlight-changed { border: 2px solid #f97316 !important; background: #fef3c7 !important; }
-    }
+      /* Visual for changed fields */
+      .highlight-changed {
+        border: 2px solid #f97316 !important;
+        background: #fef3c7 !important;
+      }
 
-    /* Optional class we toggle during print on some browsers */
-    .print-a4 .a4-sheet { width: 194mm; }
+      /* Final safety net: when .fit-a4 is present, shrink just a hair */
+      .fit-a4 {
+        zoom: 0.96;                 /* Chrome-friendly shrink */
+        transform-origin: top left; /* (zoom ignored by Firefox; transform helps) */
+        /* For Firefox, if needed:
+           transform: scale(0.98); width: calc(210mm / 0.98); height: calc(297mm / 0.98);
+        */
+      }
+    }
 
     /* Non-print helpers */
     .highlight-changed {
@@ -83,15 +123,16 @@
     #rightLeft.right-selected { background: #dcfce7 !important; border-color: #16a34a !important; color: #15803d !important; }
     #rightLeft.left-selected  { background: #fef2f2 !important; border-color: #dc2626 !important; color: #dc2626 !important; }
 
+    /* Background aesthetics (screen only) */
     .guitar-bg {
       background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
-      background-size: cover; background-attachment: fixed;
+      background-size: cover; background-position: center; background-attachment: fixed;
     }
-    .background-overlay { background: rgba(255,255,255,.6); min-height: 100vh; }
+    .backdrop { background: rgba(255,255,255,.6); min-height: 100vh; }
   </style>
 </head>
 <body class="guitar-bg">
-  <div class="p-6 background-overlay">
+  <div class="p-6 backdrop">
     <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm max-w-4xl mx-auto a4-sheet">
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet (Workshop)</h1>
@@ -99,20 +140,20 @@
         <!-- Status -->
         <div id="statusMessage" class="hidden"></div>
 
-        <!-- Header -->
+        <!-- Header fields -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
-              <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+              <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
             <div>
               <label for="customer" class="block text-sm text-gray-700 mb-1">Customer Name</label>
-              <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+              <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
             <div>
               <label for="email" class="block text-sm text-gray-700 mb-1">Contact Email</label>
-              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
             <div>
               <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
@@ -148,9 +189,7 @@
 
         <!-- Actions -->
         <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-          <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">
-            Download PDF
-          </button>
+          <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">Download PDF</button>
 
           <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116"
              target="_blank" rel="noreferrer"
@@ -167,26 +206,30 @@
           </button>
         </div>
 
-        <!-- Hidden form + iframe for CORS-safe POST to GAS -->
+        <!-- Hidden CORS-safe POST form to GAS -->
         <form id="gasForm" method="POST" target="gasFrame" class="hidden">
           <input type="hidden" name="payload" id="gasPayload" />
         </form>
+        <!-- Silent iframe that receives GAS response and relays via postMessage -->
         <iframe
-          id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
-          sandbox="allow-forms allow-scripts" referrerpolicy="no-referrer"
-          srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>">
-        </iframe>
+          id="gasFrame"
+          name="gasFrame"
+          class="hidden"
+          style="display:none;"
+          sandbox="allow-forms allow-scripts"
+          referrerpolicy="no-referrer"
+          srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"
+        ></iframe>
       </div>
     </div>
   </div>
 
   <script>
-    /* ===================== CONFIG ===================== */
-    // ⬇️ USE YOUR LIVE /exec URL
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
+    /*** CONFIG — set to your live GAS /exec URL ***/
+    const GAS_BASE = "YOUR_APPS_SCRIPT_EXEC_URL_HERE"; // e.g. https://script.google.com/macros/s/AKfy.../exec
     document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ===================== STATE ===================== */
+    /*** State ***/
     let MODEL_PRESETS = {};
     let GUITAR_SPECS = {};
     let baseline = {};
@@ -194,15 +237,18 @@
     let dirtyFields = new Set();
     let dataLoaded = false;
 
-    /* ===================== BOOT ===================== */
+    /*** Boot ***/
+    console.log("Using GAS_BASE:", GAS_BASE);
     window.addEventListener('DOMContentLoaded', init);
 
+    /*** Init ***/
     function init() {
       bindUI();
       loadAllData();
-      // Log replies coming from GAS iframe (save results)
       window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
+        if (evt?.data?.type === 'saveModel') {
+          console.log('↩️ saveModel reply:', evt.data);
+        }
       });
     }
 
@@ -214,7 +260,7 @@
       document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
     }
 
-    /* ===================== STATUS ===================== */
+    /*** Status ***/
     function showStatus(message, type = 'info') {
       const div = document.getElementById('statusMessage');
       const tone = {
@@ -227,10 +273,13 @@
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 3000);
+
+      if (type === 'info' || type === 'success') {
+        setTimeout(() => div.classList.add('hidden'), 3000);
+      }
     }
 
-    /* ===================== DATA LOADING ===================== */
+    /*** Data Loading ***/
     async function loadAllData() {
       try {
         showStatus('Loading data...', 'info');
@@ -244,10 +293,10 @@
     }
 
     async function loadModelsData() {
-      const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
+      const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
+      const res = await fetch(url);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-
       MODEL_PRESETS = Object.fromEntries(
         Object.entries(json.data || {}).filter(([name]) => name && name.trim() && name !== 'NA')
       );
@@ -255,7 +304,8 @@
     }
 
     async function loadOptionsData() {
-      const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
+      const url = `${GAS_BASE}?kind=options&_cb=${Date.now()}`;
+      const res = await fetch(url);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'options error');
       GUITAR_SPECS = json.data || {};
@@ -265,12 +315,13 @@
       const select = document.getElementById('model');
       select.innerHTML = '';
       select.appendChild(new Option('Choose a model', ''));
+
       const names = Object.keys(MODEL_PRESETS).sort();
       for (const n of names) select.appendChild(new Option(n, n));
       console.log(`✅ Model dropdown populated with ${names.length} models`);
     }
 
-    /* ===================== UI HANDLERS ===================== */
+    /*** UI handlers ***/
     function handleRightLeftChange(e) {
       const el = e.target;
       el.classList.remove('right-selected', 'left-selected');
@@ -299,8 +350,9 @@
       const grid = document.getElementById('specsGrid');
       grid.innerHTML = '';
 
-      // Combine fields from OPTIONS + the model itself
+      // Combine fields from model + OPTIONS, keep order readable
       const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+
       for (const field of fields) {
         const wrapper = document.createElement('div');
         const value = modelData[field] ?? '';
@@ -335,7 +387,7 @@
     function handleSpecChange(field, value) {
       currentSpecs[field] = value;
       const base = baseline[field] ?? '';
-      const sel  = document.getElementById(`spec-${field}`);
+      const sel = document.getElementById(`spec-${field}`);
       if (!sel) return;
 
       if (value && value !== base) {
@@ -345,12 +397,14 @@
         dirtyFields.delete(field);
         sel.classList.remove('highlight-changed');
       }
+
       const n = dirtyFields.size;
       if (n > 0) showStatus(`${n} spec${n===1?'':'s'} modified`, 'info');
     }
 
-    /* ===================== PRINT (single A4) ===================== */
+    /*** Print (single A4, forced) ***/
     function printPdf() {
+      // ensure specs are visible if a model is selected
       const selectedModel = document.getElementById('model')?.value;
       if (selectedModel) document.getElementById('specsSection')?.classList.remove('hidden');
 
@@ -360,20 +414,20 @@
         const serial = (document.getElementById('serial')?.value || '').trim();
         h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
 
-        document.documentElement.classList.add('print-a4');
-        document.body.classList.add('print-a4');
+        // add fit class for print
+        document.body.classList.add('fit-a4');
 
         window.print();
 
+        // restore
         setTimeout(() => {
+          document.body.classList.remove('fit-a4');
           h1.textContent = originalTitle;
-          document.documentElement.classList.remove('print-a4');
-          document.body.classList.remove('print-a4');
         }, 300);
-      }, 100);
+      }, 80);
     }
 
-    /* ===================== RESET ===================== */
+    /*** Reset ***/
     function hardReset() {
       const btn = document.getElementById('hardResetBtn');
       btn.disabled = true; btn.textContent = 'Reloading…';
@@ -393,7 +447,7 @@
       }, 600);
     }
 
-    /* ===================== SAVE NEW MODEL (CORS-safe) ===================== */
+    /*** Save new model (CORS-safe via hidden iframe, with fallback) ***/
     async function saveAsNewModel() {
       try {
         if (!dataLoaded)   return showStatus('⚠️ Data not loaded yet', 'warning');
@@ -417,7 +471,6 @@
 
         showStatus('📡 Saving new model...', 'info');
 
-        // Primary: hidden iframe (Apps Script responds with postMessage)
         let heardBack = false;
         const onMsg = async (evt) => {
           const msg = evt?.data || {};
@@ -436,10 +489,11 @@
         };
         window.addEventListener('message', onMsg);
 
+        // primary path: post via hidden form → GAS responds with postMessage
         document.getElementById('gasPayload').value = JSON.stringify(payload);
         document.getElementById('gasForm').submit();
 
-        // Fallback: if iframe reply doesn’t arrive, do opaque no-cors POST
+        // fallback after 4s: opaque fetch form post (still writes to sheet)
         setTimeout(async () => {
           if (heardBack) return;
           try {
