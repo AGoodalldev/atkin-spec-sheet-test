@@ -873,5 +873,14 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    <!-- Hidden target for Apps Script form POST (bypasses CORS) -->
+<iframe name="gas_iframe" id="gas_iframe" style="display:none;"></iframe>
+
+<form id="gasForm" action="https://script.google.com/macros/s/AKfycbyGIrBuCdPzaXImxhDlquFu0TNer51IQ3QyUKzuHTRwvlmhEyzI2Bkzu_gHzZFnfMlR/exec"
+      method="POST" target="gas_iframe" style="display:none;">
+  <!-- Apps Script will see this as the raw body (text/plain) -->
+  <input type="hidden" name="payload" id="gasPayload">
+</form>
+
 </body>
 </html>
