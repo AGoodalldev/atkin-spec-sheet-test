@@ -306,50 +306,58 @@
     }
 
     // ===== CORS-safe Save as New Model (form → iframe) =====
-    async function saveAsNewModel() {
-      try {
-        if (!dataLoaded) { showStatus("⚠️ Data not loaded yet","warning"); return; }
-        if (!currentSpecs || Object.keys(currentSpecs).length===0) { showStatus("Select a model first, then adjust specs before saving.","warning"); return; }
-
-        const name = prompt("Enter a name for the new model:");
-        if (!name || !name.trim()) { showStatus("Model name is required.","error"); return; }
-
-        const serial   = (document.getElementById("serial")    || {}).value || "";
-        const customer = (document.getElementById("customer")  || {}).value || "";
-        const email    = (document.getElementById("email")     || {}).value || "";
-        const handed   = (document.getElementById("rightLeft") || {}).value || "";
-        const notes    = (document.getElementById("notes")     || {}).value || "";
-
-        const payloadObj = {
-          modelName: name.trim(),
-          specs: { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": handed, Notes: notes }
-        };
-
-        const form  = document.getElementById("gasForm");
-        const input = document.getElementById("gasPayload");
-        if (!form || !input) { showStatus("Internal form not found.","error"); return; }
-        if (form.action !== GAS_BASE) form.action = GAS_BASE; // sync to latest deployment
-        input.value = JSON.stringify(payloadObj);
-
-        showStatus("📡 Saving new model...", "info");
-        form.submit();
-
-        setTimeout(async ()=>{
-          try{
-            await loadModelsData();
-            const sel = document.getElementById("model");
-            if (sel){ sel.value = name.trim(); sel.dispatchEvent(new Event("change",{bubbles:true})); }
-            showStatus(`✅ Model “${name}” saved`, "success");
-          }catch(err){
-            console.error(err);
-            showStatus("Saved, but failed to reload models. Refresh if not visible.", "warning");
-          }
-        }, 1200);
-      } catch (err) {
-        console.error(err);
-        showStatus(`❌ Save failed: ${err.message}`, "error");
-      }
+    <script>
+async function saveAsNewModel() {
+  try {
+    if (!dataLoaded) { showStatus("⚠️ Data not loaded yet", "warning"); return; }
+    if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
+      showStatus("Select a model first, then adjust specs before saving.", "warning");
+      return;
     }
+
+    const name = prompt("Enter a name for the new model:");
+    if (!name || !name.trim()) { showStatus("Model name is required.", "error"); return; }
+
+    // Header fields (optional)
+    const serial   = (document.getElementById("serial")    || {}).value || "";
+    const customer = (document.getElementById("customer")  || {}).value || "";
+    const email    = (document.getElementById("email")     || {}).value || "";
+    const handed   = (document.getElementById("rightLeft") || {}).value || "";
+    const notes    = (document.getElementById("notes")     || {}).value || "";
+
+    const payload = JSON.stringify({
+      modelName: name.trim(),
+      specs: { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": handed, Notes: notes }
+    });
+
+    showStatus("📡 Saving new model...", "info");
+
+    // CORS-safe: no-preflight, opaque response. We don't need the body.
+    await fetch(GAS_BASE, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" }, // simple content type → no preflight
+      body: payload
+    });
+
+    // Give Apps Script a moment to append, then refresh models
+    setTimeout(async () => {
+      await loadModelsData();
+      const sel = document.getElementById("model");
+      if (sel) {
+        sel.value = name.trim();
+        sel.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      showStatus(`✅ Model “${name}” saved`, "success");
+    }, 1200);
+
+  } catch (err) {
+    console.error(err);
+    showStatus(`❌ Save failed: ${err.message}`, "error");
+  }
+}
+</script>
+
   </script>
 </body>
 </html>
