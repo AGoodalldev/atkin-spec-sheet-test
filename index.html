@@ -159,7 +159,32 @@
     // ===== Configuration =====
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbw22pzJrPIsHUHIcLEhBFP5h5KiRTPTOA7aNUTYH7SkXqYeWBelssACVFeB6Xa_rCE/exec";
     console.log("Using GAS_BASE:", GAS_BASE);
-
+// Listen for save-completion messages coming from the GAS iframe
+window.addEventListener('message', async (evt) => {
+  // Be permissive on origin because Apps Script can bounce between domains
+  const msg = evt.data || {};
+  if (msg && msg.type === 'saveModel') {
+    if (msg.ok) {
+      showStatus(`✅ Model “${msg.name}” saved`, 'success');
+      // Refresh models and select the new one
+      try {
+        await loadModelsData();
+        populateModelDropdown();
+        const modelSelect = document.getElementById('model');
+        if (modelSelect) {
+          modelSelect.value = msg.name;
+          modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } catch (e) {
+        showStatus('Saved, but failed to refresh models list.', 'warning');
+        console.error(e);
+      }
+    } else {
+      showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`, 'error');
+    }
+  }
+});
+f
     // ===== State =====
     let MODEL_PRESETS = {};
     let GUITAR_SPECS = {};
@@ -430,55 +455,45 @@
 
     // ===== Save As New Model (CORS-safe via hidden form -> iframe) =====
     async function saveAsNewModel() {
-      try {
-        if (!dataLoaded) { showStatus("⚠️ Data not loaded yet", "warning"); return; }
-        if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
-          showStatus("Select a model first, then adjust specs before saving.", "warning");
-          return;
-        }
-
-        const modelName = prompt("Enter a name for the new model:");
-        if (!modelName || !modelName.trim()) { showStatus("Model name is required.", "error"); return; }
-
-        const serial   = (document.getElementById("serial")    || {}).value || "";
-        const customer = (document.getElementById("customer")  || {}).value || "";
-        const email    = (document.getElementById("email")     || {}).value || "";
-        const handed   = (document.getElementById("rightLeft") || {}).value || "";
-        const notes    = (document.getElementById("notes")     || {}).value || "";
-
-        const specsToSave = {
-          ...currentSpecs,
-          Serial: serial,
-          Customer: customer,
-          Email: email,
-          "RIGHT / LEFT": handed,
-          Notes: notes
-        };
-
-        // Send via hidden form to avoid CORS preflight issues
-        const payloadEl = document.getElementById('gasPayload');
-        const formEl = document.getElementById('gasForm');
-        payloadEl.value = JSON.stringify({ modelName: modelName.trim(), specs: specsToSave });
-
-        showStatus("📡 Saving new model...", "info");
-        formEl.submit();
-
-        // We can’t read cross-origin iframe response; assume success then refresh models.
-        setTimeout(async () => {
-          await loadModelsData();
-          populateModelDropdown();
-          const modelSelect = document.getElementById("model");
-          if (modelSelect) {
-            modelSelect.value = modelName.trim();
-            modelSelect.dispatchEvent(new Event("change", { bubbles: true }));
-          }
-          showStatus(`✅ Model “${modelName}” saved`, "success");
-        }, 900);
-      } catch (err) {
-        console.error(err);
-        showStatus(`❌ Error: ${err.message}`, "error");
-      }
+  try {
+    if (!dataLoaded) { showStatus("⚠️ Data not loaded yet", "warning"); return; }
+    if (!currentSpecs || Object.keys(currentSpecs).length === 0) {
+      showStatus("Select a model first, then adjust specs before saving.", "warning");
+      return;
     }
+
+    const modelName = prompt("Enter a name for the new model:");
+    if (!modelName || !modelName.trim()) { showStatus("Model name is required.", "error"); return; }
+
+    const serial   = (document.getElementById("serial")    || {}).value || "";
+    const customer = (document.getElementById("customer")  || {}).value || "";
+    const email    = (document.getElementById("email")     || {}).value || "";
+    const handed   = (document.getElementById("rightLeft") || {}).value || "";
+    const notes    = (document.getElementById("notes")     || {}).value || "";
+
+    const specsToSave = {
+      ...currentSpecs,
+      Serial: serial,
+      Customer: customer,
+      Email: email,
+      "RIGHT / LEFT": handed,
+      Notes: notes
+    };
+
+    // 🚀 Submit through the hidden form -> iframe
+    showStatus("📡 Saving new model...", "info");
+    const payloadEl = document.getElementById('gasPayload');
+    const formEl = document.getElementById('gasForm');
+    payloadEl.value = JSON.stringify({ modelName: modelName.trim(), specs: specsToSave });
+    formEl.submit();
+
+    // No timeout — we’ll get a postMessage from the iframe (handled above)
+  } catch (err) {
+    console.error(err);
+    showStatus(`❌ Error: ${err.message}`, "error");
+  }
+}
+
 
     document.addEventListener('DOMContentLoaded', init);
   </script>
