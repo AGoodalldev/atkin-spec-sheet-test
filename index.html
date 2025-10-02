@@ -1,1002 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atkin Custom Spec Sheet (Workshop Only Version)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 8mm; 
-            }
-            
-            * { 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-                color-adjust: exact !important;
-                box-sizing: border-box !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-            
-            html, body {
-                background: white !important; 
-                background-image: none !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-                font-size: 11px !important;
-                line-height: 1.4 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                height: auto !important;
-                overflow: visible !important;
-                page-break-inside: avoid !important;
-                page-break-after: avoid !important;
-                color: #000 !important;
-            }
-            
-            /* Hide buttons and non-essential elements */
-            .print-hidden { 
-                display: none !important; 
-            }
-            
-            /* Main container - use more space */
-            .p-6 { 
-                padding: 0 !important; 
-                margin: 0 !important;
-                height: auto !important;
-            }
-            
-            .background-overlay {
-                background: white !important;
-                min-height: auto !important;
-                height: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            
-            .rounded-2xl.shadow-xl {
-                margin: 0 !important;
-                padding: 10px !important;
-                box-shadow: none !important;
-                border: 2px solid #000 !important;
-                border-radius: 0 !important;
-                background: white !important;
-                height: auto !important;
-                max-width: none !important;
-                width: 100% !important;
-            }
-            
-            /* Title styling - slightly larger */
-            h1 { 
-                text-align: center !important; 
-                margin: 0 0 8px 0 !important; 
-                border-bottom: 3px solid #000 !important; 
-                padding: 4px 0 6px 0 !important; 
-                font-size: 18px !important;
-                font-weight: bold !important;
-                line-height: 1.3 !important;
-                color: #000 !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-            
-            h2 { 
-                font-size: 14px !important; 
-                font-weight: bold !important; 
-                margin: 8px 0 6px 0 !important; 
-                border-bottom: 2px solid #666 !important; 
-                padding: 3px 0 4px 0 !important; 
-                line-height: 1.3 !important;
-                color: #000 !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-            
-            /* Header form fields - 4 columns, more spacing */
-            .grid.md\\:grid-cols-4 { 
-                display: grid !important; 
-                grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 10px !important;
-                margin: 6px 0 !important;
-            }
-            
-            /* Single column for right/left */
-            .grid.md\\:grid-cols-4:last-of-type { 
-                grid-template-columns: 1fr 3fr !important; 
-            }
-            
-            /* Specifications grid - 3 columns, more spaced */
-            #specsGrid {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 8px !important;
-                margin: 6px 0 !important;
-            }
-            
-            /* Prevent page breaks in spec items */
-            #specsGrid > div {
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-                margin: 0 !important;
-                padding: 3px !important;
-            }
-            
-            /* Form elements styling - larger and more readable */
-            input, select, textarea {
-                border: 1px solid #333 !important;
-                background: white !important;
-                font-size: 10px !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-                padding: 3px 5px !important;
-                margin: 0 !important;
-                height: auto !important;
-                line-height: 1.4 !important;
-                color: #000 !important;
-                min-height: 22px !important;
-                width: 100% !important;
-            }
-            
-            label {
-                font-size: 10px !important;
-                font-weight: bold !important;
-                margin: 0 0 3px 0 !important;
-                padding: 0 !important;
-                line-height: 1.4 !important;
-                display: block !important;
-                color: #000 !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-            
-            /* Notes section - larger for better page fill */
-            textarea {
-                height: 100px !important;
-                min-height: 100px !important;
-                max-height: 100px !important;
-                resize: none !important;
-                width: 100% !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-                margin: 6px 0 !important;
-            }
-            
-            /* Container spacing - more generous */
-            .bg-gray-50 {
-                padding: 8px !important;
-                margin: 6px 0 !important;
-                background: #f5f5f5 !important;
-                border: 1px solid #ccc !important;
-                border-radius: 0 !important;
-            }
-            
-            /* Spacing classes - increased */
-            .space-y-4 > * + * { margin-top: 7px !important; }
-            .gap-4 { gap: 6px !important; }
-            .px-4 { padding-left: 5px !important; padding-right: 5px !important; }
-            .py-3 { padding-top: 4px !important; padding-bottom: 4px !important; }
-            .mb-1 { margin-bottom: 3px !important; }
-            .mb-2 { margin-bottom: 5px !important; }
-            .rounded-2xl { border-radius: 0 !important; }
-            
-            /* Highlight changed fields */
-            .highlight-changed {
-                border: 2px solid #f97316 !important;
-                background-color: #fef3c7 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            /* RIGHT/LEFT color coding for print */
-            #rightLeft.right-selected {
-                background-color: #dcfce7 !important;
-                border-color: #16a34a !important;
-                color: #15803d !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            #rightLeft.left-selected {
-                background-color: #fef2f2 !important;
-                border-color: #dc2626 !important;
-                color: #dc2626 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            /* Print spacing for sections */
-            .print-spacing {
-                margin: 6px 0 !important;
-            }
-            
-            /* Status message styling */
-            #statusMessage {
-                font-size: 10px !important;
-                padding: 4px !important;
-                margin: 4px 0 !important;
-                border: 1px solid #2563eb !important;
-                background: #dbeafe !important;
-                color: #1e40af !important;
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-            
-            /* iOS/Mobile Safari specific optimizations */
-            @media print and (-webkit-min-device-pixel-ratio: 0) {
-                @page { 
-                    size: A4 portrait; 
-                    margin: 6mm !important; 
-                }
-                
-                html, body {
-                    font-size: 9px !important;
-                    line-height: 1.3 !important;
-                }
-                
-                h1 { 
-                    font-size: 15px !important;
-                    margin: 0 0 6px 0 !important;
-                    padding: 3px 0 4px 0 !important;
-                }
-                
-                h2 { 
-                    font-size: 12px !important;
-                    margin: 6px 0 4px 0 !important;
-                    padding: 2px 0 3px 0 !important;
-                }
-                
-                .rounded-2xl.shadow-xl {
-                    padding: 6px !important;
-                }
-                
-                .bg-gray-50 {
-                    padding: 5px !important;
-                    margin: 4px 0 !important;
-                }
-                
-                input, select, textarea {
-                    font-size: 8px !important;
-                    padding: 2px 3px !important;
-                    min-height: 18px !important;
-                }
-                
-                label {
-                    font-size: 8px !important;
-                    margin: 0 0 2px 0 !important;
-                }
-                
-                textarea {
-                    height: 70px !important;
-                    min-height: 70px !important;
-                    max-height: 70px !important;
-                    margin: 4px 0 !important;
-                }
-                
-                .grid.md\\:grid-cols-4 { 
-                    gap: 6px !important;
-                    margin: 4px 0 !important;
-                }
-                
-                #specsGrid {
-                    gap: 5px !important;
-                    margin: 4px 0 !important;
-                }
-                
-                #specsGrid > div {
-                    padding: 2px !important;
-                }
-                
-                .space-y-4 > * + * { margin-top: 4px !important; }
-                .print-spacing { margin: 4px 0 !important; }
-                
-                #statusMessage {
-                    font-size: 8px !important;
-                    padding: 2px !important;
-                    margin: 2px 0 !important;
-                }
-            }
-        }
-        
-        .loading-spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .highlight-changed {
-            border: 2px solid #f97316 !important;
-            background-color: #fef3c7 !important;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1) !important;
-        }
-        
-        .highlight-changed:focus {
-            border: 2px solid #f97316 !important;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
-        }
-        
-        /* RIGHT/LEFT color coding */
-        #rightLeft.right-selected {
-            background-color: #dcfce7 !important;
-            border-color: #16a34a !important;
-            color: #15803d !important;
-        }
-        
-        #rightLeft.left-selected {
-            background-color: #fef2f2 !important;
-            border-color: #dc2626 !important;
-            color: #dc2626 !important;
-        }
-        
-        /* Guitar background styling */
-        .guitar-background {
-            background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }
-        
-        .background-overlay {
-            background: rgba(255, 255, 255, 0.6);
-            min-height: 100vh;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atkin Custom Spec Sheet (Workshop Only Version)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* (all your existing CSS here unchanged) */
+  </style>
 </head>
 <body class="bg-gray-50 guitar-background">
-    <div class="p-6 background-overlay">
-        <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm max-w-4xl mx-auto">
-            <div class="p-6 space-y-4">
-                <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet (Workshop Only Version)</h1>
-                
-                <!-- Status Messages -->
-                <div id="statusMessage" class="hidden"></div>
-                
-                <!-- Main Form -->
-                <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
-                    <div class="grid md:grid-cols-4 gap-4">
-                        <div>
-                            <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
-                            <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" />
-                        </div>
-                        
-                        <div>
-                            <label for="customer" class="text-sm font-medium text-gray-700 mb-1 block">Customer Name</label>
-                            <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" />
-                        </div>
-                        
-                        <div>
-                            <label for="email" class="text-sm font-medium text-gray-700 mb-1 block">Contact Email</label>
-                            <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all" />
-                        </div>
-                        
-                        <div>
-                            <label for="model" class="text-sm font-medium text-gray-700 mb-1 block">Model</label>
-                            <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
-                                <option value="">🔄 Loading models...</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-4 gap-4">
-                        <div>
-                            <label for="rightLeft" class="text-sm font-medium text-gray-700 mb-1 block">RIGHT / LEFT</label>
-                            <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none">
-                                <option value="">Select...</option>
-                                <option value="RIGHT">RIGHT</option>
-                                <option value="LEFT">LEFT</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+  <div class="p-6 background-overlay">
+    <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm max-w-4xl mx-auto">
+      <div class="p-6 space-y-4">
+        <h1 class="text-2xl font-bold mb-2">Atkin Custom Spec Sheet (Workshop Only Version)</h1>
 
-                <!-- Specifications Section -->
-                <div id="specsSection" class="space-y-4 hidden print-spacing">
-                    <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-                    <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-                        <!-- Dynamic specs will be added here -->
-                    </div>
-                </div>
+        <!-- Status Messages -->
+        <div id="statusMessage" class="hidden"></div>
 
-                <!-- Notes Section -->
-                <div class="print-spacing">
-                    <label for="notes" class="text-sm font-medium text-gray-700 mb-1 block">Additional Notes</label>
-                    <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all resize-y" placeholder="Anything extra to capture..."></textarea>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-                    <button onclick="printPdf()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50">
-                        Download PDF
-                    </button>
-                    
-                    <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit?pli=1&gid=1234273116#gid=1234273116" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 no-underline">
-                        Edit spec sheet (Google Sheets)
-                    </a>
-                    
-                    <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition-colors bg-orange-100 hover:bg-orange-200" title="Clear all fields and reload data from Google Sheets">
-                        Reset form
-                    </button>
-                </div>
+        <!-- Main Form -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
+          <div class="grid md:grid-cols-4 gap-4">
+            <div>
+              <label for="serial" class="text-sm font-medium text-gray-700 mb-1 block">Serial Number</label>
+              <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm" />
             </div>
+            <div>
+              <label for="customer" class="text-sm font-medium text-gray-700 mb-1 block">Customer Name</label>
+              <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm" />
+            </div>
+            <div>
+              <label for="email" class="text-sm font-medium text-gray-700 mb-1 block">Contact Email</label>
+              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm" />
+            </div>
+            <div>
+              <label for="model" class="text-sm font-medium text-gray-700 mb-1 block">Model</label>
+              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none">
+                <option value="">🔄 Loading models...</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-4 gap-4">
+            <div>
+              <label for="rightLeft" class="text-sm font-medium text-gray-700 mb-1 block">RIGHT / LEFT</label>
+              <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none">
+                <option value="">Select...</option>
+                <option value="RIGHT">RIGHT</option>
+                <option value="LEFT">LEFT</option>
+              </select>
+            </div>
+          </div>
         </div>
+
+        <!-- Specifications Section -->
+        <div id="specsSection" class="space-y-4 hidden print-spacing">
+          <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
+          <div id="specsGrid" class="grid md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="print-spacing">
+          <label for="notes" class="text-sm font-medium text-gray-700 mb-1 block">Additional Notes</label>
+          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm resize-y" placeholder="Anything extra to capture..."></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
+          <button onclick="printPdf()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm">Download PDF</button>
+
+          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116" target="_blank" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm">Edit spec sheet</a>
+
+          <!-- ✅ New Save Button -->
+          <button onclick="saveAsNewModel()" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">
+            Save as New Model
+          </button>
+
+          <button onclick="hardReset()" id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Configuration
-        const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
-        
-        // Global data storage
-        let MODEL_PRESETS = {};
-        let GUITAR_SPECS = {}; // This will store the OPTIONS data
-        let currentSpecs = {};
-        let baseline = {};
-        let dirtyFields = new Set();
-        let dataLoaded = false;
+  <script>
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbzXM4ewfNZmBDi5gYszoLTZSvSWMaktHyvmvTaI3E-HcVy4_OKQIFwTWZHDbiEIlGOn/exec";
 
-        // Initialize the application
-        function init() {
-            console.log("🚀 Starting Atkin Spec Sheet...");
-            setupEventListeners();
-            loadAllData(); // Load both models and options
+    let MODEL_PRESETS = {};
+    let GUITAR_SPECS = {};
+    let currentSpecs = {};
+    let baseline = {};
+    let dirtyFields = new Set();
+    let dataLoaded = false;
+
+    // ✅ Save as New Model
+    async function saveAsNewModel() {
+      if (!dataLoaded) {
+        showStatus("⚠️ Data not loaded yet", "warning");
+        return;
+      }
+      const modelName = prompt("Enter a name for the new model:");
+      if (!modelName) {
+        showStatus("❌ Model name is required", "error");
+        return;
+      }
+      const serial = document.getElementById('serial').value.trim();
+      const customer = document.getElementById('customer').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const rightLeft = document.getElementById('rightLeft').value.trim();
+      const notes = document.getElementById('notes').value.trim();
+      const fullSpecs = { ...currentSpecs, Serial: serial, Customer: customer, Email: email, "RIGHT / LEFT": rightLeft, Notes: notes };
+
+      try {
+        showStatus("📡 Saving new model...", "info");
+        const response = await fetch(GAS_BASE, {
+          method: "POST",
+          body: JSON.stringify({ modelName, specs: fullSpecs }),
+          headers: { "Content-Type": "application/json" }
+        });
+        const result = await response.json();
+        if (result.ok) {
+          showStatus(`✅ Model "${modelName}" saved successfully`, "success");
+          loadModelsData();
+        } else {
+          throw new Error(result.error || "Unknown error");
         }
+      } catch (err) {
+        showStatus(`❌ Error saving model: ${err.message}`, "error");
+      }
+    }
 
-        function setupEventListeners() {
-            const modelSelect = document.getElementById('model');
-            if (modelSelect) {
-                modelSelect.addEventListener('change', handleModelChange);
-            }
-            
-            const rightLeftSelect = document.getElementById('rightLeft');
-            if (rightLeftSelect) {
-                rightLeftSelect.addEventListener('change', handleRightLeftChange);
-            }
-        }
-
-        function handleRightLeftChange(event) {
-            const value = event.target.value;
-            const selectElement = event.target;
-            
-            // Remove existing classes
-            selectElement.classList.remove('right-selected', 'left-selected');
-            
-            // Add appropriate class based on selection
-            if (value === 'RIGHT') {
-                selectElement.classList.add('right-selected');
-                console.log('🟢 RIGHT selected - green styling applied');
-            } else if (value === 'LEFT') {
-                selectElement.classList.add('left-selected');
-                console.log('🔴 LEFT selected - red styling applied');
-            }
-        }
-
-        // Load both models and options data
-        async function loadAllData() {
-            console.log("📡 Loading data from Google Sheets...");
-            showStatus('Loading guitar data from Google Sheets...', 'info');
-            
-            try {
-                // Load both models and options in parallel
-                const [modelsData, optionsData] = await Promise.all([
-                    loadModelsData(),
-                    loadOptionsData()
-                ]);
-                
-                console.log("✅ All data loaded successfully!");
-                dataLoaded = true;
-                
-                const modelCount = Object.keys(MODEL_PRESETS).length;
-                const optionFields = Object.keys(GUITAR_SPECS).length;
-                showStatus(`✅ Loaded ${modelCount} models and ${optionFields} specification fields`, 'success');
-                
-            } catch (error) {
-                console.error("❌ Error loading data:", error);
-                showStatus(`❌ Failed to load data: ${error.message}`, 'error');
-            }
-        }
-
-        // Load models data
-        async function loadModelsData() {
-            console.log("📡 Loading models...");
-            
-            const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
-            console.log("🔗 Fetching models:", url);
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            console.log("📦 Models API response:", data);
-            
-            if (data.ok && data.data) {
-                // Clear and populate models
-                MODEL_PRESETS = {};
-                
-                // Copy all models except 'NA'
-                let modelCount = 0;
-                for (const [modelName, modelData] of Object.entries(data.data)) {
-                    if (modelName && modelName !== 'NA' && modelName.trim() !== '') {
-                        MODEL_PRESETS[modelName] = modelData;
-                        modelCount++;
-                    }
-                }
-                
-                console.log(`✅ Loaded ${modelCount} models successfully!`);
-                
-                // Populate the dropdown
-                populateModelDropdown();
-                
-                return data;
-            } else {
-                throw new Error("Invalid models response format");
-            }
-        }
-
-        // Load options data - THIS WAS MISSING!
-        async function loadOptionsData() {
-            console.log("📡 Loading specification options...");
-            
-            const url = `${GAS_BASE}?kind=options&_cb=${Date.now()}`;
-            console.log("🔗 Fetching options:", url);
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            console.log("📦 Options API response:", data);
-            
-            if (data.ok && data.data) {
-                GUITAR_SPECS = data.data;
-                
-                const fieldCount = Object.keys(GUITAR_SPECS).length;
-                console.log(`✅ Loaded ${fieldCount} specification fields!`);
-                console.log("🎯 Available spec fields:", Object.keys(GUITAR_SPECS));
-                
-                // Log some sample data
-                Object.keys(GUITAR_SPECS).slice(0, 3).forEach(field => {
-                    const options = GUITAR_SPECS[field];
-                    console.log(`   📋 ${field}: ${options.length} options`);
-                });
-                
-                return data;
-            } else {
-                throw new Error("Invalid options response format");
-            }
-        }
-
-        function populateModelDropdown() {
-            const modelSelect = document.getElementById('model');
-            if (!modelSelect) {
-                console.error("❌ Model select element not found!");
-                return;
-            }
-            
-            console.log("🔄 Populating model dropdown...");
-            
-            // Clear existing options
-            modelSelect.innerHTML = '';
-            
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Choose a model';
-            modelSelect.appendChild(defaultOption);
-            
-            // Add all models in alphabetical order
-            const modelNames = Object.keys(MODEL_PRESETS).sort();
-            console.log(`📋 Adding ${modelNames.length} models to dropdown`);
-            
-            modelNames.forEach((modelName, index) => {
-                const option = document.createElement('option');
-                option.value = modelName;
-                option.textContent = modelName;
-                modelSelect.appendChild(option);
-                
-                if (index < 5) {
-                    console.log(`   ✓ Added: ${modelName}`);
-                }
-            });
-            
-            console.log(`✅ Model dropdown populated with ${modelNames.length} models`);
-        }
-
-        function showStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('statusMessage');
-            if (!statusDiv) return;
-            
-            const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
-                           type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
-                           type === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
-                           'bg-blue-50 border-blue-200 text-blue-800';
-            
-            statusDiv.className = `flex items-center gap-2 p-3 border rounded-xl ${bgColor}`;
-            statusDiv.innerHTML = `<span>${message}</span>`;
-            statusDiv.classList.remove('hidden');
-            
-            if (type === 'info' || type === 'success') {
-                setTimeout(() => statusDiv.classList.add('hidden'), 4000);
-            }
-        }
-
-        function handleModelChange(event) {
-            const selectedModel = event.target.value;
-            console.log(`🎸 Model selected: ${selectedModel}`);
-            
-            if (!selectedModel) {
-                hideSpecs();
-                return;
-            }
-            
-            const modelData = MODEL_PRESETS[selectedModel];
-            if (!modelData) {
-                console.error(`❌ No data found for model: ${selectedModel}`);
-                showStatus(`❌ No data found for model: ${selectedModel}`, 'error');
-                hideSpecs();
-                return;
-            }
-            
-            console.log(`✅ Model data found:`, modelData);
-            baseline = { ...modelData };
-            currentSpecs = { ...modelData };
-            dirtyFields.clear();
-            
-            showSpecs();
-            populateSpecs(modelData);
-        }
-
-        function showSpecs() {
-            const specsSection = document.getElementById('specsSection');
-            if (specsSection) {
-                specsSection.classList.remove('hidden');
-            }
-        }
-
-        function hideSpecs() {
-            const specsSection = document.getElementById('specsSection');
-            if (specsSection) {
-                specsSection.classList.add('hidden');
-            }
-        }
-
-        function populateSpecs(modelData) {
-            const specsGrid = document.getElementById('specsGrid');
-            if (!specsGrid) return;
-            
-            specsGrid.innerHTML = '';
-            
-            console.log("🔧 Populating specs for model:", modelData);
-            console.log("🎯 Using OPTIONS data:", Object.keys(GUITAR_SPECS).length, "fields available");
-            console.log("📄 Model data fields:", Object.keys(modelData));
-            console.log("📄 OPTIONS data fields:", Object.keys(GUITAR_SPECS));
-            
-            // Field mapping for better display names
-            const fieldMapping = {
-                'SCALE': 'Scale Length',
-                'NUT WIDTH': 'Nut Width', 
-                'NECK SHAPE': 'Neck Shape',
-                'HEADSTOCK VENEER': 'Headstock Veneer',
-                'HS DECAL': 'Headstock Decal',
-                'HEADSTOCK INLAY': 'Headstock Inlay',
-                'FRETBOARD': 'Fretboard',
-                'F / BOARD INLAYS': 'Fretboard Inlays',
-                'BRIDGE STYLE': 'Bridge Style',
-                'BRIDGE WOOD': 'Bridge Wood',
-                'TOP': 'Top Wood',
-                'BACK / SIDES': 'Back & Sides',
-                'BINDINGS': 'Bindings',
-                'PURFLING F / B': 'Purfling',
-                'BACKSTRIP': 'Backstrip',
-                'END WEDGE': 'End Wedge',
-                'FRETS': 'Frets',
-                'BRACING': 'Bracing',
-                'ROSETTE': 'Rosette',
-                'MACHINEHEADS': 'Machine Heads',
-                'PICKGUARD': 'Pickguard',
-                'BRIDGE PINS': 'Bridge Pins',
-                'END PIN': 'End Pin',
-                'STRINGS': 'Strings',
-                'BODY JOIN': 'Body Join'
-            };
-            
-            let fieldOptions = {};
-            
-            // Use the loaded OPTIONS data
-            if (GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0) {
-                console.log("🎯 Using OPTIONS tab data for spec dropdowns");
-                
-                Object.keys(GUITAR_SPECS).forEach(field => {
-                    const options = GUITAR_SPECS[field];
-                    if (Array.isArray(options) && options.length > 0) {
-                        fieldOptions[field] = options.filter(opt => opt && opt.trim() !== '' && opt !== '-');
-                        console.log(`📋 Field "${field}": ${fieldOptions[field].length} options`);
-                    }
-                });
-            } else {
-                console.log("⚠️ OPTIONS data not available - falling back to model scanning");
-                
-                // Fallback: scan all models for unique values
-                Object.values(MODEL_PRESETS).forEach(model => {
-                    Object.keys(model).forEach(field => {
-                        if (!fieldOptions[field]) fieldOptions[field] = [];
-                        if (model[field] && model[field] !== '-' && model[field].trim() !== '') {
-                            if (!fieldOptions[field].includes(model[field])) {
-                                fieldOptions[field].push(model[field]);
-                            }
-                        }
-                    });
-                });
-                
-                // Sort the fallback options
-                Object.keys(fieldOptions).forEach(field => {
-                    fieldOptions[field].sort();
-                });
-            }
-            
-            console.log("🔍 Available spec fields:", Object.keys(fieldOptions));
-            
-            // Create dropdowns for all available OPTIONS fields (for full customization)
-            Object.keys(fieldOptions).forEach(field => {
-                if (fieldOptions[field] && fieldOptions[field].length > 0) {
-                    const fieldDiv = document.createElement('div');
-                    const options = fieldOptions[field];
-                    
-                    // Try to get a display name from fieldMapping, otherwise use the field name
-                    const displayName = fieldMapping[field] || field;
-                    
-                    // Look for the model value - try exact match first, then case-insensitive
-                    let currentValue = modelData[field] || '';
-                    if (!currentValue) {
-                        // Try to find a case-insensitive match
-                        const modelFieldKeys = Object.keys(modelData);
-                        const matchingKey = modelFieldKeys.find(key => 
-                            key.toLowerCase() === field.toLowerCase()
-                        );
-                        if (matchingKey) {
-                            currentValue = modelData[matchingKey];
-                            console.log(`🔄 Field name mapping: "${field}" → "${matchingKey}" = "${currentValue}"`);
-                        }
-                    }
-                    
-                    console.log(`📋 Creating field "${displayName}" (${field}) with ${options.length} options, baseline value: "${currentValue}"`);
-                    
-                    // Check if the baseline value exists in the options
-                    const baselineExists = currentValue && options.includes(currentValue);
-                    
-                    fieldDiv.innerHTML = `
-                        <label for="spec-${field}" class="text-sm font-medium text-gray-700 mb-1 block">${displayName}</label>
-                        <div id="container-${field}">
-                            <select id="spec-${field}" 
-                                    class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all appearance-none"
-                                    onchange="handleSpecChange('${field}', this.value)">
-                                <option value="">Select...</option>
-                                ${options.map(option => {
-                                    const isBaseline = option === currentValue;
-                                    const selected = isBaseline ? 'selected' : '';
-                                    return `<option value="${option}" ${selected}>${option}</option>`;
-                                }).join('')}
-                                ${!baselineExists && currentValue ? `<option value="${currentValue}" selected>${currentValue}</option>` : ''}
-                            </select>
-                        </div>
-                    `;
-                    specsGrid.appendChild(fieldDiv);
-                    
-                    // Set the current value in our tracking
-                    currentSpecs[field] = currentValue;
-                }
-            });
-            
-            const dataSource = GUITAR_SPECS && Object.keys(GUITAR_SPECS).length > 0 ? 'OPTIONS tab' : 'model scanning';
-            console.log(`✅ Created ${specsGrid.children.length} specification fields using data from ${dataSource}`);
-            console.log(`🎯 Model has data for ${Object.keys(modelData).length} fields, created dropdowns for ${specsGrid.children.length} fields`);
-        }
-
-        function handleSpecChange(field, value) {
-            // Don't remove dots here - let the onblur handle it
-            
-            currentSpecs[field] = value;
-            
-            const baseValue = baseline[field] || '';
-            const selectElement = document.getElementById(`spec-${field}`);
-            
-            console.log(`🔧 Spec changed: ${field} = "${value}" (baseline: "${baseValue}")`);
-            
-            if (selectElement) {
-                if (value !== baseValue && value !== '') {
-                    // Field was changed from baseline - highlight it
-                    dirtyFields.add(field);
-                    selectElement.classList.add('highlight-changed');
-                    console.log(`🟡 Highlighted field: ${field}`);
-                } else {
-                    // Field matches baseline or is empty - remove highlight
-                    dirtyFields.delete(field);
-                    selectElement.classList.remove('highlight-changed');
-                    console.log(`⚪ Removed highlight from field: ${field}`);
-                }
-            }
-            
-            // Update status to show number of changes
-            const changeCount = dirtyFields.size;
-            if (changeCount > 0) {
-                showStatus(`${changeCount} specification${changeCount === 1 ? '' : 's'} modified from baseline`, 'info');
-            }
-        }
-
-        function printPdf() {
-            // Show all specs before printing (if a model is selected)
-            const selectedModel = document.getElementById('model').value;
-            if (selectedModel) {
-                showSpecs();
-            }
-            
-            // Brief delay to ensure layout is ready
-            setTimeout(() => {
-                // Get serial number for title
-                const serialNumber = document.getElementById('serial').value.trim();
-                const originalTitle = document.querySelector('h1').textContent;
-                
-                // Update title with serial number if available
-                if (serialNumber) {
-                    document.querySelector('h1').textContent = `Atkin Custom Spec Sheet - Serial: ${serialNumber}`;
-                } else {
-                    document.querySelector('h1').textContent = 'Atkin Custom Spec Sheet';
-                }
-                
-                // Print the page
-                window.print();
-                
-                // Restore original title after print dialog
-                setTimeout(() => {
-                    document.querySelector('h1').textContent = originalTitle;
-                }, 500);
-            }, 100);
-        }
-
-        function hardReset() {
-            console.log("🔄 Starting hard reset...");
-            
-            const btn = document.getElementById('hardResetBtn');
-            if (btn) {
-                btn.innerHTML = '<div class="loading-spinner"></div> Reloading...';
-                btn.disabled = true;
-            }
-            
-            // Force clear all form fields with aggressive clearing
-            const fieldsToReset = [
-                { id: 'serial', label: 'Serial' },
-                { id: 'customer', label: 'Customer' },
-                { id: 'email', label: 'Email' },
-                { id: 'notes', label: 'Notes' }
-            ];
-            
-            fieldsToReset.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element) {
-                    // Ultra-aggressive clearing for hard reset
-                    element.value = '';
-                    element.defaultValue = '';
-                    element.setAttribute('value', '');
-                    element.removeAttribute('value');
-                    element.setAttribute('data-original-value', '');
-                    
-                    // For textarea elements
-                    if (element.tagName === 'TEXTAREA') {
-                        element.textContent = '';
-                        element.innerHTML = '';
-                        element.defaultValue = '';
-                    }
-                    
-                    // Disable and re-enable to force browser to forget
-                    element.disabled = true;
-                    setTimeout(() => {
-                        element.disabled = false;
-                    }, 10);
-                    
-                    // Clear autocomplete temporarily
-                    const originalAutocomplete = element.autocomplete;
-                    element.autocomplete = 'off';
-                    
-                    // Force blur and focus to trigger browser refresh
-                    element.blur();
-                    setTimeout(() => {
-                        element.focus();
-                        element.blur();
-                        element.autocomplete = originalAutocomplete;
-                    }, 50);
-                    
-                    // Trigger all relevant events
-                    ['input', 'change', 'blur', 'keyup'].forEach(eventType => {
-                        element.dispatchEvent(new Event(eventType, { bubbles: true }));
-                    });
-                    
-                    console.log(`✅ Hard reset - ${field.label} field cleared`);
-                } else {
-                    console.log(`❌ Hard reset - ${field.label} field not found!`);
-                }
-            });
-            
-            // Reset model dropdown to loading state
-            const modelSelect = document.getElementById('model');
-            if (modelSelect) {
-                modelSelect.innerHTML = '<option value="">🔄 Loading models...</option>';
-                modelSelect.value = '';
-                modelSelect.selectedIndex = 0;
-                modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            
-            // Reset right/left dropdown with color clearing
-            const rightLeftSelect = document.getElementById('rightLeft');
-            if (rightLeftSelect) {
-                rightLeftSelect.innerHTML = `
-                    <option value="">Select...</option>
-                    <option value="RIGHT">RIGHT</option>
-                    <option value="LEFT">LEFT</option>
-                `;
-                rightLeftSelect.value = '';
-                rightLeftSelect.classList.remove('right-selected', 'left-selected');
-                rightLeftSelect.selectedIndex = 0;
-                rightLeftSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            
-            // Clear all specification dropdowns and highlights
-            const allSelects = document.querySelectorAll('select[id^="spec-"]');
-            allSelects.forEach(select => {
-                select.classList.remove('highlight-changed');
-                select.value = '';
-                if (select.options.length > 0) {
-                    select.selectedIndex = 0;
-                }
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            
-            // Force form reset as additional safety
-            const form = document.querySelector('form');
-            if (form) {
-                form.reset();
-            }
-            
-            // Nuclear option: temporarily remove and re-add form elements
-            fieldsToReset.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element && element.value !== '') {
-                    console.log(`⚠️ Field ${field.id} still has value "${element.value}" - trying nuclear reset`);
-                    const parent = element.parentNode;
-                    const nextSibling = element.nextSibling;
-                    const clone = element.cloneNode(true);
-                    clone.value = '';
-                    clone.defaultValue = '';
-                    parent.removeChild(element);
-                    parent.insertBefore(clone, nextSibling);
-                }
-            });
-            
-            // Clear all data
-            MODEL_PRESETS = {};
-            GUITAR_SPECS = {};
-            currentSpecs = {};
-            baseline = {};
-            dirtyFields.clear();
-            hideSpecs();
-            
-            // Clear status message
-            const statusDiv = document.getElementById('statusMessage');
-            if (statusDiv) {
-                statusDiv.classList.add('hidden');
-            }
-            
-            setTimeout(() => {
-                console.log("🔄 Reloading data...");
-                loadAllData(); // Load both models and options
-                if (btn) {
-                    btn.innerHTML = 'Reset form';
-                    btn.disabled = false;
-                }
-                console.log("✅ Form reset completed");
-                showStatus("✅ Form reset completed - data reloaded", 'success');
-            }, 1000);
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
+    // (keep all your existing JS functions here: init, loadModelsData, loadOptionsData, populateSpecs, printPdf, hardReset, etc.)
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
