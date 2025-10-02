@@ -113,17 +113,15 @@
   <!-- 🔒 CORS-safe posting: hidden iframe + form -->
   <iframe name="gas_iframe" id="gas_iframe" style="display:none;"></iframe>
   <form id="gasForm"
-        action="https://script.google.com/macros/s/AKfycbw22pzJrPIsHUHIcLEhBFP5h5KiRTPTOA7aNUTYH7SkXqYeWBelssACVFeB6Xa_rCE/exec"
-        method="POST"
-        target="gas_iframe"
-        style="display:none;">
-    <input type="hidden" name="payload" id="gasPayload">
-  </form>
+      action="https://script.google.com/macros/s/AKfycbw22pzJrPIsHUHIcLEhBFP5h5KiRTPTOA7aNUTYH7SkXqYeWBelssACVFeB6Xa_rCE/exec"
+      method="POST" target="gas_iframe" style="display:none;">
+  <input type="hidden" name="payload" id="gasPayload">
+</form>
+
 
   <script>
-    // ===== Configuration =====
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbw22pzJrPIsHUHIcLEhBFP5h5KiRTPTOA7aNUTYH7SkXqYeWBelssACVFeB6Xa_rCE/exec";
-    console.log("Using GAS_BASE:", GAS_BASE);
+  const GAS_BASE = "https://script.google.com/macros/s/AKfycbw22pzJrPIsHUHIcLEhBFP5h5KiRTPTOA7aNUTYH7SkXqYeWBelssACVFeB6Xa_rCE/exec";
+</script>
 
     // ===== State =====
     let MODEL_PRESETS = {};
