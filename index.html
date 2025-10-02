@@ -158,17 +158,50 @@
     }
 
     // ===== Load data =====
-    async function loadAllData() {
-      showStatus('Loading guitar data from Google Sheets...', 'info');
-      try {
-        await Promise.all([loadModelsData(), loadOptionsData()]);
-        dataLoaded = true;
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} models and ${Object.keys(GUITAR_SPECS).length} specification fields`, 'success');
-      } catch (e) {
-        console.error(e);
-        showStatus(`❌ Failed to load data: ${e.message}`, 'error');
-      }
-    }
+   async function loadAllData() {
+  console.log("📡 Loading data from Google Sheets...");
+  showStatus('Loading guitar data from Google Sheets...', 'info');
+
+  try {
+    const [modelsData, optionsData] = await Promise.all([
+      loadModelsData(),
+      loadOptionsData()
+    ]);
+
+    // ✅ Force-populate after both are loaded
+    populateModelDropdown();
+
+    function populateModelDropdown() {
+  const modelSelect = document.getElementById('model');
+  if (!modelSelect) {
+    console.error("❌ Model select element not found!");
+    return;
+  }
+
+  // make sure it's usable
+  modelSelect.disabled = false;
+
+  // Clear existing options (including "Loading models...")
+  modelSelect.innerHTML = '';
+
+  // Add default option
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Choose a model';
+  modelSelect.appendChild(defaultOption);
+
+  const names = Object.keys(MODEL_PRESETS).sort();
+  console.log(`📋 Adding ${names.length} models to dropdown`);
+
+  for (const name of names) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    modelSelect.appendChild(opt);
+  }
+
+  console.log(`✅ Model dropdown populated with ${names.length} models`);
+}
 
     async function loadModelsData() {
       const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
