@@ -3,48 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atkin Custom Spec Sheet (Workshop)</title>
+  <title>Atkin Custom Spec Sheet</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* -------- Screen look -------- */
+    /* ---------- Screen styles ---------- */
     .guitar-bg{
       background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
       background-size:cover;background-position:center;background-attachment:fixed;
     }
-    .a4-shell{max-width:900px;margin:0 auto;}
+    .sheet { max-width: 900px; margin: 0 auto; }
     .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
     #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
     #rightLeft.left-selected {background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
     .print-only{display:none;}
 
-    /* -------- A4 print (single page) -------- */
+    /* ---------- Print: single A4 page ---------- */
     @media print{
+      /* Page box */
       @page { size: A4 portrait; margin: 8mm; }
-      html,body{
-        width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;
-        overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+
+      /* Kill themed background everywhere */
+      html, body, .guitar-bg {
+        width:210mm !important; height:297mm !important;
+        margin:0 !important; padding:0 !important;
+        background:#fff !important; background-image:none !important;
+        overflow:visible !important;
       }
-      .a4-shell{
-        width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:6mm!important;
-        box-sizing:border-box!important;border:1px solid #000!important;border-radius:0!important;
-        background:#fff!important;box-shadow:none!important;
+
+      /* Only the sheet keeps color accuracy (badges etc.) */
+      .a4 {
+        -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
       }
-      .print-hidden{display:none!important;}
-      .bg-gray-50,.grid,#specsGrid>div,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important;}
-      input,select,textarea{border:1px solid #bdbdbd!important;box-shadow:none!important}
-      /* handedness: hide select, show badge */
-      #rightLeft{display:none!important;}
-      .print-only{display:inline-block!important}
-      .badge-right{background:#dcfce7!important;color:#14532d!important;border:1px solid #16a34a!important;}
-      .badge-left{background:#fee2e2!important;color:#7f1d1d!important;border:1px solid #dc2626!important;}
-      h1{margin:0 0 4mm 0!important;border-bottom:2px solid #000!important;padding-bottom:2mm!important;text-align:center;}
+
+      /* The printed sheet area */
+      .sheet.a4{
+        width:194mm !important;                      /* 210 - (8 + 8) */
+        min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
+        padding:6mm !important;
+        box-sizing:border-box !important;
+        background:#fff !important;
+        border:1px solid #000 !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+      }
+
+      /* Don’t print UI chrome */
+      .print-hidden{display:none !important;}
+
+      /* Avoid random breaks */
+      .bg-gray-50, .grid, #specsGrid>div, .space-y-4>*{
+        break-inside:avoid !important; page-break-inside:avoid !important;
+      }
+
+      /* Inputs: simple borders on paper */
+      input, select, textarea { border:1px solid #bdbdbd !important; box-shadow:none !important; }
+
+      /* RIGHT/LEFT: hide select, show badge */
+      #rightLeft{display:none !important;}
+      .print-only{display:inline-block !important;}
+      .badge-right{background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important;}
+      .badge-left {background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important;}
+
+      /* Title */
+      h1{margin:0 0 4mm 0 !important; border-bottom:2px solid #000 !important; padding-bottom:2mm !important; text-align:center;}
     }
   </style>
 </head>
+
 <body class="guitar-bg">
   <div class="p-6">
-    <div class="a4-shell rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm">
+    <div class="sheet a4 rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm">
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
 
@@ -120,22 +150,20 @@
   </div>
 
   <script>
-    /* ========= SET THIS ========= */
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec"; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+    /* ====== CONFIG: paste your live /exec URL ====== */
+    const GAS_BASE = "PASTE_YOUR_EXEC_URL_HERE";
+    document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ======== State ======== */
+    /* ====== State ====== */
     let MODEL_PRESETS = {}, GUITAR_SPECS = {};
     let baseline = {}, currentSpecs = {};
     let dirtyFields = new Set(), dataLoaded = false;
 
-    /* ======== Boot ======== */
-    document.getElementById('gasForm').action = GAS_BASE;
+    /* ====== Boot ====== */
     window.addEventListener('DOMContentLoaded', () => {
       bindUI();
       loadAllData();
-      window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('saveModel reply', evt.data);
-      });
+      window.addEventListener('message', e => { if (e?.data?.type === 'saveModel') console.log(e.data); });
       window.addEventListener('beforeprint', syncHandedBadge);
     });
 
@@ -147,68 +175,56 @@
       byId('rightLeft').addEventListener('change', e => { styleHand(e.target.value); syncHandedBadge(); });
     }
 
-    /* ======== Helpers ======== */
+    /* ====== Helpers ====== */
     const byId = id => document.getElementById(id);
     function showStatus(msg, type='info'){
-      const div = byId('statusMessage');
+      const el = byId('statusMessage');
       const tone = {success:'bg-green-50 border-green-200 text-green-800',warning:'bg-amber-50 border-amber-200 text-amber-800',error:'bg-red-50 border-red-200 text-red-700',info:'bg-blue-50 border-blue-200 text-blue-800'}[type];
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-      div.textContent = msg; div.classList.remove('hidden');
-      if (type!=='error') setTimeout(()=>div.classList.add('hidden'), 3000);
+      el.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`; el.textContent = msg; el.classList.remove('hidden');
+      if (type !== 'error') setTimeout(()=>el.classList.add('hidden'), 3000);
     }
     function styleHand(v){
-      const s = byId('rightLeft');
-      s.classList.remove('right-selected','left-selected');
-      if (v==='RIGHT') s.classList.add('right-selected');
-      if (v==='LEFT')  s.classList.add('left-selected');
+      const s = byId('rightLeft'); s.classList.remove('right-selected','left-selected');
+      if (v==='RIGHT') s.classList.add('right-selected'); if (v==='LEFT') s.classList.add('left-selected');
     }
     function syncHandedBadge(){
-      const v = (byId('rightLeft')?.value || '');
-      const b = byId('handedBadge'); if (!b) return;
+      const v = (byId('rightLeft')?.value || ''); const b = byId('handedBadge'); if (!b) return;
       b.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
       if (v==='RIGHT'){ b.textContent='RIGHT'; b.classList.add('badge-right'); }
       else if (v==='LEFT'){ b.textContent='LEFT'; b.classList.add('badge-left'); }
       else { b.textContent=''; }
     }
 
-    /* ======== Data ======== */
+    /* ====== Data ====== */
     async function loadAllData(){
       try{
         showStatus('Loading data…');
         const [m,o] = await Promise.all([fetchJSON('models'), fetchJSON('options')]);
-        MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
+        MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n]) => n && n.trim() && n !== 'NA'));
         GUITAR_SPECS  = o || {};
         populateModelDropdown();
         dataLoaded = true;
-        showStatus(`Loaded ${Object.keys(MODEL_PRESETS).length} models`, 'success');
-      }catch(e){
-        console.error(e);
-        showStatus('Failed to load models/options. Check GAS_BASE & deployment.', 'error');
-      }
+        showStatus('Data loaded','success');
+      }catch(err){ console.error(err); showStatus('Failed to load data (check GAS_BASE and deployment).','error'); }
     }
     async function fetchJSON(kind){
-      const url = `${GAS_BASE}?kind=${encodeURIComponent(kind)}&_cb=${Date.now()}`;
-      const res = await fetch(url);
+      const res = await fetch(`${GAS_BASE}?kind=${encodeURIComponent(kind)}&_cb=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || `Bad ${kind} response`);
       return json.data;
     }
     function populateModelDropdown(){
-      const sel = byId('model');
-      sel.innerHTML = '';
-      sel.appendChild(new Option('Choose a model', ''));
-      for (const name of Object.keys(MODEL_PRESETS).sort()){
-        sel.appendChild(new Option(name, name));
-      }
+      const sel = byId('model'); sel.innerHTML=''; sel.appendChild(new Option('Choose a model',''));
+      for (const n of Object.keys(MODEL_PRESETS).sort()) sel.appendChild(new Option(n,n));
     }
 
-    /* ======== Specs UI ======== */
+    /* ====== Specs UI ====== */
     function handleModelChange(e){
       const name = e.target.value;
       if (!name){ hideSpecs(); return; }
       const data = MODEL_PRESETS[name];
-      if (!data){ showStatus(`No data for ${name}`, 'error'); hideSpecs(); return; }
+      if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
       baseline = {...data}; currentSpecs = {...data}; dirtyFields.clear();
       showSpecs(); buildSpecsUI(data);
     }
@@ -250,10 +266,9 @@
       const sel = byId(`spec-${field}`); if (!sel) return;
       if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
       else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      if (dirtyFields.size) showStatus(`${dirtyFields.size} spec${dirtyFields.size===1?'':'s'} modified`, 'info');
     }
 
-    /* ======== Print ======== */
+    /* ====== Print ====== */
     function printPdf(){
       if (byId('model')?.value) showSpecs();
       syncHandedBadge();
@@ -266,27 +281,27 @@
       }, 80);
     }
 
-    /* ======== Reset ======== */
+    /* ====== Reset ====== */
     async function hardReset(){
-      const btn = byId('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
-      ['serial','customer','email','notes'].forEach(id => { const el = byId(id); if (el) el.value=''; });
-      const modelSel = byId('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const hand = byId('rightLeft'); hand.value=''; styleHand(''); syncHandedBadge('');
+      const btn = byId('hardResetBtn'); btn.disabled=true; btn.textContent='Reloading…';
+      ['serial','customer','email','notes'].forEach(id=>{ const el=byId(id); if (el) el.value=''; });
+      const m = byId('model'); m.value=''; m.dispatchEvent(new Event('change'));
+      const h = byId('rightLeft'); h.value=''; styleHand(''); syncHandedBadge();
       MODEL_PRESETS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
       await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('Form reset complete','success');
     }
 
-    /* ======== Save (CORS-safe via iframe) ======== */
+    /* ====== Save (CORS-safe) ====== */
     async function saveAsNewModel(){
       try{
-        if (!dataLoaded) return showStatus('Data not loaded yet', 'warning');
-        if (!Object.keys(currentSpecs).length) return showStatus('Pick a model then tweak specs', 'warning');
+        if (!dataLoaded) return showStatus('Data not loaded yet','warning');
+        if (!Object.keys(currentSpecs).length) return showStatus('Pick a model then tweak specs','warning');
 
-        const name = prompt('Enter a name for the new model:');
-        if (!name || !name.trim()) return showStatus('Model name is required', 'error');
+        const modelName = prompt('Enter a name for the new model:');
+        if (!modelName || !modelName.trim()) return showStatus('Model name is required','error');
 
         const payload = {
-          modelName: name.trim(),
+          modelName: modelName.trim(),
           specs: {
             ...currentSpecs,
             Serial: byId('serial')?.value || '',
@@ -305,12 +320,14 @@
           if (msg.type === 'saveModel'){
             heardBack = true; window.removeEventListener('message', onMsg);
             if (msg.ok){
-              showStatus(`Saved “${msg.name}”`, 'success');
-              await loadModelsDataOnly();
+              showStatus(`Saved “${msg.name}”`,'success');
+              const m = await fetchJSON('models');
+              MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
+              populateModelDropdown();
               byId('model').value = msg.name;
               byId('model').dispatchEvent(new Event('change'));
             }else{
-              showStatus(`Save failed: ${msg.error || 'Unknown error'}`, 'error');
+              showStatus(`Save failed: ${msg.error || 'Unknown error'}`,'error');
             }
           }
         };
@@ -319,32 +336,22 @@
         byId('gasPayload').value = JSON.stringify(payload);
         byId('gasForm').submit();
 
-        // Fallback after 4s (opaque no-cors)
         setTimeout(async ()=>{
           if (heardBack) return;
           try{
             const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
             await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
             showStatus('Saved (fallback). Refreshing…','success');
-            await loadModelsDataOnly();
+            const m = await fetchJSON('models');
+            MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
+            populateModelDropdown();
             byId('model').value = payload.modelName;
             byId('model').dispatchEvent(new Event('change'));
-          }catch(e){
-            console.error(e); showStatus('Fallback save failed', 'error');
-          }finally{
-            window.removeEventListener('message', onMsg);
-          }
+          }catch(e){ console.error(e); showStatus('Fallback save failed','error'); }
+          finally{ window.removeEventListener('message', onMsg); }
         }, 4000);
 
-      }catch(err){
-        console.error(err); showStatus(err.message, 'error');
-      }
-    }
-
-    async function loadModelsDataOnly(){
-      const m = await fetchJSON('models');
-      MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
-      populateModelDropdown();
+      }catch(err){ console.error(err); showStatus(err.message,'error'); }
     }
   </script>
 </body>
