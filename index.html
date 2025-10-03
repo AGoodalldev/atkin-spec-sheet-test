@@ -5,119 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (fine for dev; swap to a built CSS in production) -->
+  <!-- Tailwind (dev only) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ---------- Screen helpers ---------- */
-    .guitar-bg{
+    /* Screen */
+    .guitar-bg {
       background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
-      background-size:cover; background-position:center; background-attachment:fixed;
+      background-size:cover;background-position:center;background-attachment:fixed;
     }
-    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
-    #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
-    #rightLeft.left-selected {background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
+    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;}
     .print-only{display:none;}
+    #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
+    #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
 
-    /* ---------- A4 single page base ---------- */
-    .a4-shell{max-width:900px;margin:0 auto;}
+    /* ======== Print A4 Single Page ======== */
+    @media print {
+      @page { size: A4 portrait; margin: 8mm; }
 
-   /* ======== A4 SINGLE-PAGE, CHROME-FRIENDLY ======== */
-@media print {
-  /* Page box */
-  @page {
-    size: A4 portrait;          /* 210mm × 297mm */
-    margin: 10mm;               /* choose 8–12mm; matches container below */
-  }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: visible !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+      }
 
-  /* Reset the world */
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    overflow: visible !important;
-    background: #fff !important;
-    -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-  }
+      .guitar-bg, .p-6 { margin:0!important; padding:0!important; background:transparent!important; }
 
-  /* Remove any outer spacing that would push the page */
-  .guitar-bg,
-  .p-6 {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: transparent !important; /* keep outer bg off paper */
-  }
+      .a4-shell {
+        width: calc(210mm - 16mm) !important;   /* page width minus margins */
+        min-height: calc(297mm - 16mm) !important;
+        padding: 4mm !important;
+        box-sizing: border-box !important;
+        background: #fff !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
 
-  /* The actual sheet/card that must fit inside A4 */
-  .a4-shell {
-    /* Inner width = page width – 2×@page margin */
-    width: calc(210mm - 20mm) !important;     /* = 190mm when margin is 10mm */
-    min-height: calc(297mm - 20mm) !important;
-    padding: 6mm !important;                  /* INTERNAL padding (safe) */
-    box-sizing: border-box !important;
+      /* Tighter spacing */
+      h1 { font-size: 16px !important; margin: 0 0 3mm !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align:center; }
+      h2 { font-size: 13px !important; margin: 2mm 0 !important; }
+      .space-y-4 > * { margin: 2mm 0 !important; }
 
-    /* Remove anything decorative that eats space or shrinks content */
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: #fff !important;
+      label { font-size: 9px !important; font-weight: 700 !important; margin-bottom: 1mm !important; }
+      input, select, textarea {
+        font-size: 9px !important;
+        padding: 1.5mm 2mm !important;
+        height: auto !important;
+        line-height: 1.2 !important;
+        border: 1px solid #bbb !important;
+      }
 
-    /* As a last-resort safety net for printers that add a hairline margin */
-    zoom: 0.98;                 /* WebKit; shrinks ~2% if your content barely overflows */
-    transform: none !important; /* avoid transform-induced cropping */
-  }
+      /* Grid condensed for specs */
+      #specsGrid { grid-template-columns: repeat(3,1fr) !important; gap: 4mm !important; }
 
-  /* Keep blocks from splitting across pages (we only want 1 page anyway) */
-  .bg-gray-50,
-  .grid,
-  #specsGrid > div,
-  .space-y-4 > * {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
+      /* Prevent breaks inside */
+      .bg-gray-50, .grid, #specsGrid>div { break-inside: avoid !important; page-break-inside: avoid !important; }
 
-  /* Inputs/labels a bit tighter on paper so everything fits comfortably */
-  label { font-size: 10px !important; font-weight: 700 !important; }
-  input, select, textarea {
-    font-size: 10px !important;
-    line-height: 1.2 !important;
-    padding: 2.5mm 3mm !important;      /* smaller height than on screen */
-    height: auto !important;
-    border: 1px solid #bbb !important;
-    box-shadow: none !important;
-    background: #fff !important;
-  }
+      /* Hide UI controls */
+      .print-hidden { display: none !important; }
+      #rightLeft { display: none !important; }
+      .print-only { display: inline-block !important; }
 
-  /* Title */
-  h1 {
-    font-size: 18px !important;
-    margin: 0 0 4mm 0 !important;
-    padding: 0 0 2mm 0 !important;
-    border-bottom: 2px solid #000 !important;
-    text-align: center !important;
-  }
-
-  /* Hide on-paper controls; show the handedness badge */
-  .print-hidden { display: none !important; }
-  #rightLeft { display: none !important; }
-  .print-only { display: inline-block !important; }
-
-  /* RIGHT/LEFT badge tints (text-only look) */
-  .badge-right { background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
-  .badge-left  { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
-}
-
-
-    /* ----- Optional “squeeze” knobs if you ever spill to page 2 -----
-    @media print{
-      body{ font-size:10px!important; line-height:1.3!important; }
-      #specsGrid{ grid-template-columns:repeat(3,1fr)!important; gap:6px!important; }
-      input,select,textarea{ padding:2px 4px!important; min-height:18px!important; }
-      textarea{ min-height:70px!important; }
+      /* RIGHT/LEFT badge */
+      .badge-right { background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
+      .badge-left  { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
     }
-    ------------------------------------------------------------------ */
   </style>
 </head>
 <body class="guitar-bg">
@@ -126,44 +84,24 @@
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
 
-        <!-- Status -->
-        <div id="statusMessage" class="hidden"></div>
-
         <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
-            <div>
-              <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
-              <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-            <div>
-              <label for="customer" class="block text-sm text-gray-700 mb-1">Customer Name</label>
-              <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-            <div>
-              <label for="email" class="block text-sm text-gray-700 mb-1">Contact Email</label>
-              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-            <div>
-              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
-                <option value="">🔄 Loading models...</option>
-              </select>
-            </div>
+            <div><label for="serial">Serial Number</label><input id="serial" type="text" class="w-full border rounded-2xl px-4 py-2"></div>
+            <div><label for="customer">Customer Name</label><input id="customer" type="text" class="w-full border rounded-2xl px-4 py-2"></div>
+            <div><label for="email">Contact Email</label><input id="email" type="email" class="w-full border rounded-2xl px-4 py-2"></div>
+            <div><label for="model">Model</label><select id="model" class="w-full border rounded-2xl px-4 py-2"><option>Loading…</option></select></div>
           </div>
-
           <div class="grid md:grid-cols-4 gap-4">
             <div>
-              <label for="rightLeft" class="block text-sm text-gray-700 mb-1">RIGHT / LEFT</label>
+              <label for="rightLeft">RIGHT / LEFT</label>
               <div class="flex items-center gap-3">
-                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
-                  <option value="">Select...</option>
+                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-2">
+                  <option value="">Select…</option>
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
-                <!-- print-only status -->
-                <span id="handedBadge"
-                      class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent items-center justify-center"></span>
+                <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border"></span>
               </div>
             </div>
           </div>
@@ -171,297 +109,38 @@
 
         <!-- Specs -->
         <div id="specsSection" class="space-y-4 hidden">
-          <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-          <div id="specsGrid" class="grid md:grid-cols-2 gap-4"
-               style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
+          <h2 class="font-semibold">Specifications</h2>
+          <div id="specsGrid" class="grid md:grid-cols-2 gap-4"></div>
         </div>
 
         <!-- Notes -->
         <div>
-          <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20"
-                    placeholder="Anything extra to capture..."></textarea>
+          <label for="notes">Additional Notes</label>
+          <textarea id="notes" class="w-full min-h-[100px] border rounded-2xl px-4 py-2"></textarea>
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-          <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">
-            Download PDF
-          </button>
-
-          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116"
-             target="_blank" rel="noreferrer"
-             class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 no-underline">
-            Edit spec sheet (Google Sheets)
-          </a>
-
-          <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">
-            Save as New Model
-          </button>
-
-          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">
-            Reset form
-          </button>
+        <div class="flex gap-3 print-hidden">
+          <button id="btnPrint" class="border px-3 py-2 rounded">Print PDF</button>
         </div>
-
-        <!-- CORS-safe POST to GAS via hidden iframe -->
-        <form id="gasForm" method="POST" target="gasFrame" class="hidden">
-          <input type="hidden" name="payload" id="gasPayload" />
-        </form>
-        <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
-                sandbox="allow-forms allow-scripts"
-                referrerpolicy="no-referrer"
-                srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"></iframe>
       </div>
     </div>
   </div>
 
   <script>
-    /* ================= CONFIG ================= */
-    // Use your current GAS Web app URL (the /exec one)
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
-    document.getElementById('gasForm').action = GAS_BASE;
-
-    /* ================= State ================= */
-    let MODEL_PRESETS = {};
-    let GUITAR_SPECS = {};
-    let baseline = {};
-    let currentSpecs = {};
-    let dirtyFields = new Set();
-    let dataLoaded = false;
-
-    /* ================= Boot ================= */
-    window.addEventListener('DOMContentLoaded', () => {
-      bindUI();
-      loadAllData();
-      // (optional) listen for save response from GAS
-      window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
-      });
-      // Keep badge synced for print
-      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
-    });
-
-    function bindUI(){
-      document.getElementById('btnPrint').addEventListener('click', printPdf);
-      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
-      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
-      document.getElementById('model').addEventListener('change', handleModelChange);
-      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
-    }
-
-    /* ================= Status ================= */
-    function showStatus(message, type='info'){
-      const div = document.getElementById('statusMessage');
-      const tone = {
-        success:'bg-green-50 border-green-200 text-green-800',
-        warning:'bg-amber-50 border-amber-200 text-amber-800',
-        error:'bg-red-50 border-red-200 text-red-700',
-        info:'bg-blue-50 border-blue-200 text-blue-800'
-      }[type] || 'bg-blue-50 border-blue-200 text-blue-800';
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-      div.textContent = message;
-      div.classList.remove('hidden');
-      if (type==='info' || type==='success') setTimeout(()=>div.classList.add('hidden'), 3000);
-    }
-
-    /* ================= Data load ================= */
-    async function loadAllData(){
-      try{
-        showStatus('Loading data...', 'info');
-        await Promise.all([loadModelsData(), loadOptionsData()]);
-        dataLoaded = true;
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} models and ${Object.keys(GUITAR_SPECS).length} spec fields`, 'success');
-      }catch(err){
-        console.error(err); showStatus(`❌ Failed to load: ${err.message}`, 'error');
-      }
-    }
-
-    async function loadModelsData(){
-      const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(
-        Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA')
-      );
-      populateModelDropdown();
-    }
-
-    async function loadOptionsData(){
-      const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'options error');
-      GUITAR_SPECS = json.data || {};
-    }
-
-    function populateModelDropdown(){
-      const select = document.getElementById('model');
-      select.innerHTML = '';
-      select.appendChild(new Option('Choose a model',''));
-      for (const n of Object.keys(MODEL_PRESETS).sort()) select.appendChild(new Option(n,n));
-    }
-
-    /* ================= UI ================= */
-    function handleRightLeftChange(e){
-      const val = e.target.value;
-      e.target.classList.remove('right-selected','left-selected');
-      if (val==='RIGHT') e.target.classList.add('right-selected');
-      if (val==='LEFT')  e.target.classList.add('left-selected');
-      updateHandedBadge(val);
-    }
-
+    /* Print helper */
     function updateHandedBadge(val){
       const badge = document.getElementById('handedBadge');
-      if (!badge) return;
       badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
-      if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
-      else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
-      else { badge.textContent=''; }
+      if(val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
+      else if(val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
+      else badge.textContent='';
     }
 
-    function handleModelChange(e){
-      const name = e.target.value;
-      if (!name){ hideSpecs(); return; }
-      const data = MODEL_PRESETS[name];
-      if (!data){ showStatus(`No data for ${name}`, 'error'); hideSpecs(); return; }
-      baseline = {...data}; currentSpecs = {...data}; dirtyFields.clear();
-      showSpecs(); buildSpecsUI(data);
-    }
-
-    function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
-    function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
-
-    function buildSpecsUI(modelData){
-      const grid = document.getElementById('specsGrid');
-      grid.innerHTML = '';
-      const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
-      for (const field of fields){
-        const wrapper = document.createElement('div');
-        const value = modelData[field] ?? '';
-        const options = GUITAR_SPECS[field];
-
-        if (Array.isArray(options) && options.length){
-          const sel = document.createElement('select');
-          sel.id = `spec-${field}`;
-          sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
-          sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
-          sel.appendChild(new Option('Select...',''));
-          for (const opt of options) sel.appendChild(new Option(opt,opt));
-          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
-          sel.value = value || '';
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
-          wrapper.appendChild(sel);
-        }else{
-          const inp = document.createElement('input');
-          inp.type='text'; inp.readOnly = true; inp.value = value || '';
-          inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
-          wrapper.appendChild(inp);
-        }
-        grid.appendChild(wrapper);
-        currentSpecs[field] = value || '';
-      }
-    }
-
-    function handleSpecChange(field, value){
-      currentSpecs[field] = value;
-      const base = baseline[field] ?? '';
-      const sel = document.getElementById(`spec-${field}`);
-      if (!sel) return;
-      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
-      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      const n = dirtyFields.size;
-      if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`, 'info');
-    }
-
-    /* ================= Print ================= */
-    function printPdf(){
-      const selectedModel = document.getElementById('model')?.value;
-      if (selectedModel) showSpecs();
-      updateHandedBadge(document.getElementById('rightLeft')?.value || '');
-
-      setTimeout(()=>{
-        const h1 = document.querySelector('h1');
-        const original = h1.textContent;
-        const serial = (document.getElementById('serial').value || '').trim();
-        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
-        window.print();
-        setTimeout(()=>{ h1.textContent = original; }, 250);
-      }, 80);
-    }
-
-    /* ================= Reset ================= */
-    function hardReset(){
-      const btn = document.getElementById('hardResetBtn'); btn.disabled=true; btn.textContent='Reloading…';
-      for (const id of ['serial','customer','email','notes']){ const el=document.getElementById(id); if (el) el.value=''; }
-      const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
-      MODEL_PRESETS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
-      setTimeout(async ()=>{ await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success'); }, 600);
-    }
-
-    /* ================= Save Model (CORS-safe) ================= */
-    async function saveAsNewModel(){
-      try{
-        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet', 'warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.', 'warning');
-
-        const modelName = prompt('Enter a name for the new model:');
-        if (!modelName || !modelName.trim()) return showStatus('Model name is required.', 'error');
-
-        const payload = {
-          modelName: modelName.trim(),
-          specs: {
-            ...currentSpecs,
-            Serial: (document.getElementById('serial')||{}).value || '',
-            Customer: (document.getElementById('customer')||{}).value || '',
-            Email: (document.getElementById('email')||{}).value || '',
-            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
-            Notes: (document.getElementById('notes')||{}).value || ''
-          }
-        };
-
-        showStatus('📡 Saving new model…','info');
-
-        let heardBack = false;
-        const onMsg = async (evt)=>{
-          const msg = evt?.data || {};
-          if (msg.type === 'saveModel'){
-            heardBack = true; window.removeEventListener('message', onMsg);
-            if (msg.ok){
-              showStatus(`✅ Model “${msg.name}” saved`,'success');
-              await loadModelsData();
-              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
-            }else{
-              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
-            }
-          }
-        };
-        window.addEventListener('message', onMsg);
-
-        document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasForm').submit();
-
-        // Fallback if the postMessage doesn’t arrive (opaque, but writes server-side)
-        setTimeout(async ()=>{
-          if (heardBack) return;
-          try{
-            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
-            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
-            showStatus('✅ Saved (fallback). Refreshing models…','success');
-            await loadModelsData();
-            const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
-          }catch(e){
-            console.error(e); showStatus('❌ Fallback save failed.','error');
-          }finally{
-            window.removeEventListener('message', onMsg);
-          }
-        }, 4000);
-
-      }catch(err){
-        console.error(err); showStatus(`❌ Error: ${err.message}`,'error');
-      }
-    }
+    document.getElementById('btnPrint').addEventListener('click', ()=>{
+      updateHandedBadge(document.getElementById('rightLeft').value);
+      setTimeout(()=>window.print(),100);
+    });
   </script>
 </body>
 </html>
