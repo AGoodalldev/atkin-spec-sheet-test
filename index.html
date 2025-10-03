@@ -22,53 +22,93 @@
     /* ---------- A4 single page base ---------- */
     .a4-shell{max-width:900px;margin:0 auto;}
 
-    /* ---------- PRINT RULES (fit exactly one A4) ---------- */
-    @media print{
-      @page{ size:A4 portrait; margin:8mm; }
+   /* ======== A4 SINGLE-PAGE, CHROME-FRIENDLY ======== */
+@media print {
+  /* Page box */
+  @page {
+    size: A4 portrait;          /* 210mm × 297mm */
+    margin: 10mm;               /* choose 8–12mm; matches container below */
+  }
 
-      html,body{
-        width:210mm!important; height:297mm!important;
-        margin:0!important; padding:0!important; overflow:visible!important;
-        -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important;
-      }
+  /* Reset the world */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    overflow: visible !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+  }
 
-      /* Kill background image and any outer padding for print */
-      .guitar-bg{ background:#fff!important; background-image:none!important; }
-      .p-6{ padding:0!important; margin:0!important; }
+  /* Remove any outer spacing that would push the page */
+  .guitar-bg,
+  .p-6 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important; /* keep outer bg off paper */
+  }
 
-      /* The printable card */
-      .a4-shell{
-        margin:0!important;
-        width:194mm!important;                             /* 210 - (8 + 8) */
-        min-height:calc(297mm - 16mm)!important;           /* 297 - (8 + 8) */
-        padding:6mm!important; box-sizing:border-box!important;
-        background:#fff!important; box-shadow:none!important;
-        border:1px solid #000!important; border-radius:0!important;
-      }
+  /* The actual sheet/card that must fit inside A4 */
+  .a4-shell {
+    /* Inner width = page width – 2×@page margin */
+    width: calc(210mm - 20mm) !important;     /* = 190mm when margin is 10mm */
+    min-height: calc(297mm - 20mm) !important;
+    padding: 6mm !important;                  /* INTERNAL padding (safe) */
+    box-sizing: border-box !important;
 
-      /* Keep sections intact on one page */
-      .bg-gray-50, .grid, #specsGrid>div, .space-y-4>*{
-        break-inside:avoid!important; page-break-inside:avoid!important;
-      }
+    /* Remove anything decorative that eats space or shrinks content */
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
 
-      /* Softer field borders on paper + hide the select badge swap */
-      input,select,textarea{ border:1px solid #bbb!important; box-shadow:none!important; }
-      #rightLeft{ display:none!important; }
-      .print-only{ display:inline-flex!important; }
+    /* As a last-resort safety net for printers that add a hairline margin */
+    zoom: 0.98;                 /* WebKit; shrinks ~2% if your content barely overflows */
+    transform: none !important; /* avoid transform-induced cropping */
+  }
 
-      .badge-right{
-        background:#dcfce7!important; color:#14532d!important; border:1px solid #16a34a!important;
-      }
-      .badge-left{
-        background:#fee2e2!important; color:#7f1d1d!important; border:1px solid #dc2626!important;
-      }
+  /* Keep blocks from splitting across pages (we only want 1 page anyway) */
+  .bg-gray-50,
+  .grid,
+  #specsGrid > div,
+  .space-y-4 > * {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
 
-      /* Title */
-      h1{
-        margin:0 0 4mm 0!important; text-align:center;
-        border-bottom:2px solid #000!important; padding-bottom:2mm!important;
-      }
-    }
+  /* Inputs/labels a bit tighter on paper so everything fits comfortably */
+  label { font-size: 10px !important; font-weight: 700 !important; }
+  input, select, textarea {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    padding: 2.5mm 3mm !important;      /* smaller height than on screen */
+    height: auto !important;
+    border: 1px solid #bbb !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+
+  /* Title */
+  h1 {
+    font-size: 18px !important;
+    margin: 0 0 4mm 0 !important;
+    padding: 0 0 2mm 0 !important;
+    border-bottom: 2px solid #000 !important;
+    text-align: center !important;
+  }
+
+  /* Hide on-paper controls; show the handedness badge */
+  .print-hidden { display: none !important; }
+  #rightLeft { display: none !important; }
+  .print-only { display: inline-block !important; }
+
+  /* RIGHT/LEFT badge tints (text-only look) */
+  .badge-right { background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
+  .badge-left  { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
+}
+
 
     /* ----- Optional “squeeze” knobs if you ever spill to page 2 -----
     @media print{
