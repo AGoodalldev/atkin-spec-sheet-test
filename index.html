@@ -211,19 +211,24 @@
 
     /* ================= Status ================= */
     function showStatus(message, type = 'info') {
-      const div = document.getElementById('statusMessage');
-      const tone = {
-        success: 'bg-green-50 border-green-200 text-green-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        error:   'bg-red-50 border-red-200 text-red-700',
-        info:    'bg-blue-50 border-blue-200 text-blue-800'
-      }[type] || 'bg-blue-50 border-blue-200 text-blue-800';
+  const div = document.getElementById('statusMessage');
+  const tone = {
+    success: 'bg-green-50 border-green-200 text-green-800',
+    warning: 'bg-amber-50 border-amber-200 text-amber-800',
+    // 👇 make "info" use amber instead of blue
+    info:    'bg-amber-50 border-amber-200 text-amber-800',
+    error:   'bg-red-50 border-red-200 text-red-700'
+  }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
 
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-      div.textContent = message;
-      div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3000);
-    }
+  div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
+  div.textContent = message;
+  div.classList.remove('hidden');
+
+  if (type === 'info' || type === 'success') {
+    setTimeout(() => div.classList.add('hidden'), 3000);
+  }
+}
+
 
     /* ================= Data load ================= */
     async function loadAllData(){
