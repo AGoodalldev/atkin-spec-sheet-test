@@ -4,77 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
-
-  <!-- Tailwind (dev only) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Screen */
-    .guitar-bg {
+    /* -------- Screen look -------- */
+    .guitar-bg{
       background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
       background-size:cover;background-position:center;background-attachment:fixed;
     }
-    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;}
-    .print-only{display:none;}
+    .a4-shell{max-width:900px;margin:0 auto;}
+    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
     #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
-    #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
+    #rightLeft.left-selected {background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
+    .print-only{display:none;}
 
-    /* ======== Print A4 Single Page ======== */
-    @media print {
+    /* -------- A4 print (single page) -------- */
+    @media print{
       @page { size: A4 portrait; margin: 8mm; }
-
-      html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 210mm !important;
-        height: 297mm !important;
-        overflow: visible !important;
-        background: #fff !important;
-        -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+      html,body{
+        width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;
+        overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
       }
-
-      .guitar-bg, .p-6 { margin:0!important; padding:0!important; background:transparent!important; }
-
-      .a4-shell {
-        width: calc(210mm - 16mm) !important;   /* page width minus margins */
-        min-height: calc(297mm - 16mm) !important;
-        padding: 4mm !important;
-        box-sizing: border-box !important;
-        background: #fff !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
+      .a4-shell{
+        width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:6mm!important;
+        box-sizing:border-box!important;border:1px solid #000!important;border-radius:0!important;
+        background:#fff!important;box-shadow:none!important;
       }
-
-      /* Tighter spacing */
-      h1 { font-size: 16px !important; margin: 0 0 3mm !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align:center; }
-      h2 { font-size: 13px !important; margin: 2mm 0 !important; }
-      .space-y-4 > * { margin: 2mm 0 !important; }
-
-      label { font-size: 9px !important; font-weight: 700 !important; margin-bottom: 1mm !important; }
-      input, select, textarea {
-        font-size: 9px !important;
-        padding: 1.5mm 2mm !important;
-        height: auto !important;
-        line-height: 1.2 !important;
-        border: 1px solid #bbb !important;
-      }
-
-      /* Grid condensed for specs */
-      #specsGrid { grid-template-columns: repeat(3,1fr) !important; gap: 4mm !important; }
-
-      /* Prevent breaks inside */
-      .bg-gray-50, .grid, #specsGrid>div { break-inside: avoid !important; page-break-inside: avoid !important; }
-
-      /* Hide UI controls */
-      .print-hidden { display: none !important; }
-      #rightLeft { display: none !important; }
-      .print-only { display: inline-block !important; }
-
-      /* RIGHT/LEFT badge */
-      .badge-right { background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
-      .badge-left  { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
+      .print-hidden{display:none!important;}
+      .bg-gray-50,.grid,#specsGrid>div,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important;}
+      input,select,textarea{border:1px solid #bdbdbd!important;box-shadow:none!important}
+      /* handedness: hide select, show badge */
+      #rightLeft{display:none!important;}
+      .print-only{display:inline-block!important}
+      .badge-right{background:#dcfce7!important;color:#14532d!important;border:1px solid #16a34a!important;}
+      .badge-left{background:#fee2e2!important;color:#7f1d1d!important;border:1px solid #dc2626!important;}
+      h1{margin:0 0 4mm 0!important;border-bottom:2px solid #000!important;padding-bottom:2mm!important;text-align:center;}
     }
   </style>
 </head>
@@ -84,24 +48,42 @@
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
 
+        <!-- Status -->
+        <div id="statusMessage" class="hidden"></div>
+
         <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
-            <div><label for="serial">Serial Number</label><input id="serial" type="text" class="w-full border rounded-2xl px-4 py-2"></div>
-            <div><label for="customer">Customer Name</label><input id="customer" type="text" class="w-full border rounded-2xl px-4 py-2"></div>
-            <div><label for="email">Contact Email</label><input id="email" type="email" class="w-full border rounded-2xl px-4 py-2"></div>
-            <div><label for="model">Model</label><select id="model" class="w-full border rounded-2xl px-4 py-2"><option>Loading…</option></select></div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1" for="serial">Serial Number</label>
+              <input id="serial" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1" for="customer">Customer Name</label>
+              <input id="customer" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1" for="email">Contact Email</label>
+              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1" for="model">Model</label>
+              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
+                <option>Loading…</option>
+              </select>
+            </div>
           </div>
+
           <div class="grid md:grid-cols-4 gap-4">
             <div>
-              <label for="rightLeft">RIGHT / LEFT</label>
+              <label class="block text-sm text-gray-700 mb-1" for="rightLeft">RIGHT / LEFT</label>
               <div class="flex items-center gap-3">
-                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-2">
+                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
                   <option value="">Select…</option>
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
-                <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border"></span>
+                <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
             </div>
           </div>
@@ -109,38 +91,261 @@
 
         <!-- Specs -->
         <div id="specsSection" class="space-y-4 hidden">
-          <h2 class="font-semibold">Specifications</h2>
-          <div id="specsGrid" class="grid md:grid-cols-2 gap-4"></div>
+          <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
+          <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
         </div>
 
         <!-- Notes -->
         <div>
-          <label for="notes">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[100px] border rounded-2xl px-4 py-2"></textarea>
+          <label class="block text-sm text-gray-700 mb-1" for="notes">Additional Notes</label>
+          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20"></textarea>
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3 print-hidden">
-          <button id="btnPrint" class="border px-3 py-2 rounded">Print PDF</button>
+        <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
+          <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">Print PDF</button>
+          <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">Save as New Model</button>
+          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
         </div>
+
+        <!-- Hidden CORS-safe POST to GAS -->
+        <form id="gasForm" method="POST" target="gasFrame" class="hidden">
+          <input type="hidden" name="payload" id="gasPayload" />
+        </form>
+        <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
+          sandbox="allow-forms allow-scripts" referrerpolicy="no-referrer"
+          srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"></iframe>
       </div>
     </div>
   </div>
 
   <script>
-    /* Print helper */
-    function updateHandedBadge(val){
-      const badge = document.getElementById('handedBadge');
-      badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
-      if(val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
-      else if(val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
-      else badge.textContent='';
+    /* ========= SET THIS ========= */
+    const GAS_BASE = "PASTE_YOUR_EXEC_URL_HERE"; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+
+    /* ======== State ======== */
+    let MODEL_PRESETS = {}, GUITAR_SPECS = {};
+    let baseline = {}, currentSpecs = {};
+    let dirtyFields = new Set(), dataLoaded = false;
+
+    /* ======== Boot ======== */
+    document.getElementById('gasForm').action = GAS_BASE;
+    window.addEventListener('DOMContentLoaded', () => {
+      bindUI();
+      loadAllData();
+      window.addEventListener('message', evt => {
+        if (evt?.data?.type === 'saveModel') console.log('saveModel reply', evt.data);
+      });
+      window.addEventListener('beforeprint', syncHandedBadge);
+    });
+
+    function bindUI(){
+      byId('btnPrint').addEventListener('click', printPdf);
+      byId('btnSaveModel').addEventListener('click', saveAsNewModel);
+      byId('hardResetBtn').addEventListener('click', hardReset);
+      byId('model').addEventListener('change', handleModelChange);
+      byId('rightLeft').addEventListener('change', e => { styleHand(e.target.value); syncHandedBadge(); });
     }
 
-    document.getElementById('btnPrint').addEventListener('click', ()=>{
-      updateHandedBadge(document.getElementById('rightLeft').value);
-      setTimeout(()=>window.print(),100);
-    });
+    /* ======== Helpers ======== */
+    const byId = id => document.getElementById(id);
+    function showStatus(msg, type='info'){
+      const div = byId('statusMessage');
+      const tone = {success:'bg-green-50 border-green-200 text-green-800',warning:'bg-amber-50 border-amber-200 text-amber-800',error:'bg-red-50 border-red-200 text-red-700',info:'bg-blue-50 border-blue-200 text-blue-800'}[type];
+      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
+      div.textContent = msg; div.classList.remove('hidden');
+      if (type!=='error') setTimeout(()=>div.classList.add('hidden'), 3000);
+    }
+    function styleHand(v){
+      const s = byId('rightLeft');
+      s.classList.remove('right-selected','left-selected');
+      if (v==='RIGHT') s.classList.add('right-selected');
+      if (v==='LEFT')  s.classList.add('left-selected');
+    }
+    function syncHandedBadge(){
+      const v = (byId('rightLeft')?.value || '');
+      const b = byId('handedBadge'); if (!b) return;
+      b.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
+      if (v==='RIGHT'){ b.textContent='RIGHT'; b.classList.add('badge-right'); }
+      else if (v==='LEFT'){ b.textContent='LEFT'; b.classList.add('badge-left'); }
+      else { b.textContent=''; }
+    }
+
+    /* ======== Data ======== */
+    async function loadAllData(){
+      try{
+        showStatus('Loading data…');
+        const [m,o] = await Promise.all([fetchJSON('models'), fetchJSON('options')]);
+        MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
+        GUITAR_SPECS  = o || {};
+        populateModelDropdown();
+        dataLoaded = true;
+        showStatus(`Loaded ${Object.keys(MODEL_PRESETS).length} models`, 'success');
+      }catch(e){
+        console.error(e);
+        showStatus('Failed to load models/options. Check GAS_BASE & deployment.', 'error');
+      }
+    }
+    async function fetchJSON(kind){
+      const url = `${GAS_BASE}?kind=${encodeURIComponent(kind)}&_cb=${Date.now()}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || `Bad ${kind} response`);
+      return json.data;
+    }
+    function populateModelDropdown(){
+      const sel = byId('model');
+      sel.innerHTML = '';
+      sel.appendChild(new Option('Choose a model', ''));
+      for (const name of Object.keys(MODEL_PRESETS).sort()){
+        sel.appendChild(new Option(name, name));
+      }
+    }
+
+    /* ======== Specs UI ======== */
+    function handleModelChange(e){
+      const name = e.target.value;
+      if (!name){ hideSpecs(); return; }
+      const data = MODEL_PRESETS[name];
+      if (!data){ showStatus(`No data for ${name}`, 'error'); hideSpecs(); return; }
+      baseline = {...data}; currentSpecs = {...data}; dirtyFields.clear();
+      showSpecs(); buildSpecsUI(data);
+    }
+    function showSpecs(){ byId('specsSection').classList.remove('hidden'); }
+    function hideSpecs(){ byId('specsSection').classList.add('hidden'); }
+    function buildSpecsUI(modelData){
+      const grid = byId('specsGrid'); grid.innerHTML = '';
+      const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+      for (const field of fields){
+        const wrap = document.createElement('div');
+        const value = modelData[field] ?? '';
+        const options = GUITAR_SPECS[field];
+
+        if (Array.isArray(options) && options.length){
+          const sel = document.createElement('select');
+          sel.id = `spec-${field}`;
+          sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
+          sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
+          sel.appendChild(new Option('Select…',''));
+          options.forEach(o=>sel.appendChild(new Option(o,o)));
+          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
+          sel.value = value || '';
+          wrap.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
+          wrap.appendChild(sel);
+        }else{
+          const inp = document.createElement('input');
+          inp.value = value || ''; inp.readOnly = true;
+          inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
+          wrap.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
+          wrap.appendChild(inp);
+        }
+        grid.appendChild(wrap);
+        currentSpecs[field] = value || '';
+      }
+    }
+    function handleSpecChange(field, value){
+      currentSpecs[field] = value;
+      const base = baseline[field] ?? '';
+      const sel = byId(`spec-${field}`); if (!sel) return;
+      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
+      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
+      if (dirtyFields.size) showStatus(`${dirtyFields.size} spec${dirtyFields.size===1?'':'s'} modified`, 'info');
+    }
+
+    /* ======== Print ======== */
+    function printPdf(){
+      if (byId('model')?.value) showSpecs();
+      syncHandedBadge();
+      setTimeout(()=>{
+        const h1 = document.querySelector('h1'); const original = h1.textContent;
+        const serial = (byId('serial').value || '').trim();
+        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
+        window.print();
+        setTimeout(()=>{ h1.textContent = original; }, 250);
+      }, 80);
+    }
+
+    /* ======== Reset ======== */
+    async function hardReset(){
+      const btn = byId('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
+      ['serial','customer','email','notes'].forEach(id => { const el = byId(id); if (el) el.value=''; });
+      const modelSel = byId('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
+      const hand = byId('rightLeft'); hand.value=''; styleHand(''); syncHandedBadge('');
+      MODEL_PRESETS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
+      await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('Form reset complete','success');
+    }
+
+    /* ======== Save (CORS-safe via iframe) ======== */
+    async function saveAsNewModel(){
+      try{
+        if (!dataLoaded) return showStatus('Data not loaded yet', 'warning');
+        if (!Object.keys(currentSpecs).length) return showStatus('Pick a model then tweak specs', 'warning');
+
+        const name = prompt('Enter a name for the new model:');
+        if (!name || !name.trim()) return showStatus('Model name is required', 'error');
+
+        const payload = {
+          modelName: name.trim(),
+          specs: {
+            ...currentSpecs,
+            Serial: byId('serial')?.value || '',
+            Customer: byId('customer')?.value || '',
+            Email: byId('email')?.value || '',
+            'RIGHT / LEFT': byId('rightLeft')?.value || '',
+            Notes: byId('notes')?.value || ''
+          }
+        };
+
+        showStatus('Saving…');
+
+        let heardBack = false;
+        const onMsg = async (evt)=>{
+          const msg = evt?.data || {};
+          if (msg.type === 'saveModel'){
+            heardBack = true; window.removeEventListener('message', onMsg);
+            if (msg.ok){
+              showStatus(`Saved “${msg.name}”`, 'success');
+              await loadModelsDataOnly();
+              byId('model').value = msg.name;
+              byId('model').dispatchEvent(new Event('change'));
+            }else{
+              showStatus(`Save failed: ${msg.error || 'Unknown error'}`, 'error');
+            }
+          }
+        };
+        window.addEventListener('message', onMsg);
+
+        byId('gasPayload').value = JSON.stringify(payload);
+        byId('gasForm').submit();
+
+        // Fallback after 4s (opaque no-cors)
+        setTimeout(async ()=>{
+          if (heardBack) return;
+          try{
+            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+            showStatus('Saved (fallback). Refreshing…','success');
+            await loadModelsDataOnly();
+            byId('model').value = payload.modelName;
+            byId('model').dispatchEvent(new Event('change'));
+          }catch(e){
+            console.error(e); showStatus('Fallback save failed', 'error');
+          }finally{
+            window.removeEventListener('message', onMsg);
+          }
+        }, 4000);
+
+      }catch(err){
+        console.error(err); showStatus(err.message, 'error');
+      }
+    }
+
+    async function loadModelsDataOnly(){
+      const m = await fetchJSON('models');
+      MODEL_PRESETS = Object.fromEntries(Object.entries(m).filter(([n])=>n&&n.trim()&&n!=='NA'));
+      populateModelDropdown();
+    }
   </script>
 </body>
 </html>
