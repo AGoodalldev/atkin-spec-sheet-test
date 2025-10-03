@@ -2,123 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind for dev (fine here). For production you can prebuild. -->
+  <!-- Tailwind (fine for dev; switch to built CSS for production) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ---------- SINGLE A4 FIT (drop-in) ---------- */
-@media print {
-  /* Tuning knobs */
-  :root{
-    --pg-margin: 6mm;      /* was 8mm; lowering buys height quickly */
-    --sheet-pad: 4mm;      /* inner padding of the card */
-    --base-font: 10px;     /* global print font-size */
-    --line: 1.25;          /* global line-height */
-    --gap: 6px;            /* grid gap between fields */
-    --field-pad-v: 2px;    /* input/select vertical padding */
-    --field-pad-h: 3px;    /* input/select horizontal padding */
-    --notes-h: 80px;       /* force Notes to a fixed, short height */
-  }
+    /* ===== Screen styling ===== */
+    .highlight-changed {
+      border: 2px solid #f97316 !important;
+      background: #fef3c7 !important;
+      box-shadow: 0 0 0 3px rgba(249,115,22,.1) !important;
+    }
+    /* On-screen select tinting (kept as before) */
+    #rightLeft.right-selected { background: #dcfce7 !important; border-color: #16a34a !important; color: #15803d !important; }
+    #rightLeft.left-selected  { background: #fef2f2 !important; border-color: #dc2626 !important; color: #dc2626 !important; }
 
-  @page { size: A4 portrait; margin: var(--pg-margin); }
+    /* Background image; NO overlay/fade */
+    .guitar-bg{
+      background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      filter: none;
+    }
+    /* No fade */
+    .backdrop { background: transparent; min-height: 100vh; }
 
-  html, body {
-    width: 210mm !important;
-    height: 297mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    background: #fff !important;
-    font-size: var(--base-font) !important;
-    line-height: var(--line) !important;
-    -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-  }
+    /* Print badge (mirror of RIGHT/LEFT) */
+    .print-badge { display: none; }
+    .badge-right {
+      background-color: #dcfce7 !important;
+      border: 1px solid #16a34a !important;
+      color: #15803d !important;
+    }
+    .badge-left {
+      background-color: #fef2f2 !important;
+      border: 1px solid #dc2626 !important;
+      color: #dc2626 !important;
+    }
 
-  /* Make the sheet fit inside the page box (page width - margins) */
-  .max-w-4xl, .mx-auto { max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }
+    /* ===== Print: single A4 page ===== */
+    @media print {
+      @page {
+        size: A4 portrait;   /* 210mm x 297mm */
+        margin: 8mm;
+      }
 
-  .a4-sheet{
-    width: calc(210mm - (2 * var(--pg-margin))) !important;
-    min-height: calc(297mm - (2 * var(--pg-margin))) !important;
-    padding: var(--sheet-pad) !important;
-    border: 1px solid #000 !important;
-    background: #fff !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-  }
+      html, body {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+        background: #fff !important;   /* solid white for print */
+      }
 
-  .print-hidden{ display: none !important; }
+      /* The main “sheet” area sized for A4 inside margins */
+      .a4-sheet {
+        width: 194mm !important;                      /* 210 - (8+8) */
+        min-height: calc(297mm - 16mm) !important;    /* page height minus margins */
+        padding: 6mm !important;
+        box-sizing: border-box !important;
+        background: #fff !important;                  /* solid white on print */
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
 
-  h1{
-    font-size: 18px !important;
-    margin: 0 0 4mm !important;
-    border-bottom: 3px solid #000 !important;
-    padding-bottom: 3mm !important;
-  }
-  h2{
-    font-size: 13px !important;
-    margin: 3mm 0 2mm !important;
-    border-bottom: 2px solid #666 !important;
-    padding-bottom: 2mm !important;
-  }
+      /* Remove decorative spacing that can cause overflow */
+      .background-overlay,
+      .p-6 {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-  /* Make fields more compact */
-  label { font-weight: 700; font-size: 10px !important; }
-  input, select, textarea {
-    font-size: 10px !important;
-    padding: var(--field-pad-v) var(--field-pad-h) !important;
-    border: 1px solid #333 !important;
-    background: #fff !important;
-  }
+      /* Keep blocks from breaking across pages */
+      #specsGrid > div,
+      .grid,
+      .bg-gray-50,
+      .space-y-4 > * {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
 
-  /* More columns = less vertical height */
-  #specsGrid{
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important; /* 3 columns for height savings */
-    gap: var(--gap) !important;
-  }
+      /* Hide print-unfriendly UI bits */
+      .print-hidden { display: none !important; }
 
-  /* Keep blocks from breaking across pages */
-  #specsGrid > div, .grid, .bg-gray-50, .space-y-4 > *{
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
+      /* Tame big paddings */
+      .px-4 { padding-left: 3mm !important; padding-right: 3mm !important; }
+      .py-3 { padding-top: 3mm !important; padding-bottom: 3mm !important; }
 
-  /* Notes: cap height so it can never push onto page 2 */
-  #notes{
-    height: var(--notes-h) !important;
-    min-height: var(--notes-h) !important;
-    max-height: var(--notes-h) !important;
-    resize: none !important;
-  }
+      /* Title + section spacing tuned for one page */
+      h1 { margin: 0 0 4mm 0 !important; font-size: 18px !important; border-bottom: 3px solid #000 !important; padding-bottom: 4px !important; text-align: center !important; }
+      h2 { margin: 3mm 0 2mm 0 !important; font-size: 14px !important; border-bottom: 2px solid #666 !important; padding-bottom: 2mm !important; }
 
-  /* highlight still visible on print but lighter */
-  .highlight-changed{
-    border: 2px solid #f97316 !important;
-    background: #fef3c7 !important;
-  }
-}
+      label { font-weight: 700; font-size: 10px !important; }
+      input, select, textarea { font-size: 10px !important; border: 1px solid #333 !important; background: #fff !important; padding: 3px 5px !important; }
 
-    /* Non-print helpers */
-    .highlight-changed { border: 2px solid #f97316; background: #fef3c7; box-shadow: 0 0 0 3px rgba(249,115,22,.1); }
-    #rightLeft.right-selected { background: #dcfce7; border-color: #16a34a; color: #15803d; }
-    #rightLeft.left-selected  { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+      #specsGrid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important; /* 3 cols on print for better fit */
+        gap: 8px !important;
+      }
 
-    /* Nice background when not printing (optional) */
-    .guitar-bg { background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg'); background-size: cover; background-attachment: fixed; }
-    .backdrop { background: transparent; }
+      .highlight-changed { border: 2px solid #f97316 !important; background: #fef3c7 !important; }
+
+      /* RIGHT/LEFT mirror: hide select, show badge (prints perfectly) */
+      #rightLeft { display: none !important; }
+      .print-badge { display: inline-flex !important; }
+    }
   </style>
 </head>
 <body class="guitar-bg">
   <div class="p-6 backdrop">
-    <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm max-w-4xl mx-auto a4-sheet">
+    <div class="rounded-2xl shadow-xl border border-gray-200 bg-white/0 backdrop-blur-sm max-w-4xl mx-auto a4-sheet">
       <div class="p-6 space-y-4">
-        <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
+        <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet (Workshop)</h1>
 
         <!-- Status -->
         <div id="statusMessage" class="hidden"></div>
@@ -154,6 +161,12 @@
                 <option value="RIGHT">RIGHT</option>
                 <option value="LEFT">LEFT</option>
               </select>
+
+              <!-- Print-friendly mirror badge -->
+              <span id="rightLeftBadge"
+                    class="print-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold align-middle mt-2">
+                —
+              </span>
             </div>
           </div>
         </div>
@@ -167,7 +180,7 @@
         <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[120px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture..."></textarea>
+          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture..."></textarea>
         </div>
 
         <!-- Actions -->
@@ -208,11 +221,11 @@
   </div>
 
   <script>
-    /* ================= CONFIG ================= */
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec"; // e.g. https://script.google.com/macros/s/AKfyc.../exec
+    /*** CONFIG — set to your live /exec URL exactly ***/
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ================= STATE ================= */
+    /*** State ***/
     let MODEL_PRESETS = {};
     let GUITAR_SPECS = {};
     let baseline = {};
@@ -220,15 +233,24 @@
     let dirtyFields = new Set();
     let dataLoaded = false;
 
-    /* ================= BOOT ================= */
+    /*** Boot ***/
+    console.log("Using GAS_BASE:", GAS_BASE);
     window.addEventListener('DOMContentLoaded', init);
 
+    /*** Init ***/
     function init() {
       bindUI();
       loadAllData();
+
+      // optional: log GAS replies
       window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
+        if (evt?.data?.type === 'saveModel') {
+          console.log('↩️ saveModel reply:', evt.data);
+        }
       });
+
+      // set initial badge
+      updateRightLeftBadge();
     }
 
     function bindUI() {
@@ -239,7 +261,7 @@
       document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
     }
 
-    /* ================= STATUS ================= */
+    /*** Status ***/
     function showStatus(message, type = 'info') {
       const div = document.getElementById('statusMessage');
       const tone = {
@@ -252,10 +274,13 @@
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 2500);
+
+      if (type === 'info' || type === 'success') {
+        setTimeout(() => div.classList.add('hidden'), 3000);
+      }
     }
 
-    /* ================= DATA ================= */
+    /*** Data Loading ***/
     async function loadAllData() {
       try {
         showStatus('Loading data...', 'info');
@@ -269,15 +294,19 @@
     }
 
     async function loadModelsData() {
-      const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
+      const url = `${GAS_BASE}?kind=models&_cb=${Date.now()}`;
+      const res = await fetch(url);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
+      MODEL_PRESETS = Object.fromEntries(
+        Object.entries(json.data || {}).filter(([name]) => name && name.trim() && name !== 'NA')
+      );
       populateModelDropdown();
     }
 
     async function loadOptionsData() {
-      const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
+      const url = `${GAS_BASE}?kind=options&_cb=${Date.now()}`;
+      const res = await fetch(url);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'options error');
       GUITAR_SPECS = json.data || {};
@@ -287,27 +316,54 @@
       const select = document.getElementById('model');
       select.innerHTML = '';
       select.appendChild(new Option('Choose a model', ''));
+
       const names = Object.keys(MODEL_PRESETS).sort();
-      names.forEach(n => select.appendChild(new Option(n, n)));
+      for (const n of names) select.appendChild(new Option(n, n));
       console.log(`✅ Model dropdown populated with ${names.length} models`);
     }
 
-    /* ================= UI ================= */
-    function handleRightLeftChange(e) {
-      const el = e.target;
-      el.classList.remove('right-selected', 'left-selected');
-      if (el.value === 'RIGHT') el.classList.add('right-selected');
-      if (el.value === 'LEFT')  el.classList.add('left-selected');
+    /*** RIGHT/LEFT syncing (select + print badge) ***/
+    function updateRightLeftBadge() {
+      const val   = (document.getElementById('rightLeft') || {}).value || '';
+      const badge = document.getElementById('rightLeftBadge');
+      if (!badge) return;
+
+      badge.classList.remove('badge-right','badge-left');
+
+      if (val === 'RIGHT') {
+        badge.textContent = 'RIGHT';
+        badge.classList.add('badge-right');
+      } else if (val === 'LEFT') {
+        badge.textContent = 'LEFT';
+        badge.classList.add('badge-left');
+      } else {
+        badge.textContent = '—';
+      }
     }
 
+    function handleRightLeftChange(e) {
+      const el  = e.target;
+      const val = el.value;
+
+      el.classList.remove('right-selected', 'left-selected');
+      if (val === 'RIGHT') el.classList.add('right-selected');
+      if (val === 'LEFT')  el.classList.add('left-selected');
+
+      updateRightLeftBadge(); // keep print badge in sync
+    }
+
+    /*** Model / Specs UI ***/
     function handleModelChange(e) {
       const name = e.target.value;
       if (!name) return hideSpecs();
+
       const data = MODEL_PRESETS[name];
       if (!data) { showStatus(`No data for ${name}`, 'error'); hideSpecs(); return; }
+
       baseline = { ...data };
       currentSpecs = { ...data };
       dirtyFields.clear();
+
       showSpecs();
       buildSpecsUI(data);
     }
@@ -319,7 +375,9 @@
       const grid = document.getElementById('specsGrid');
       grid.innerHTML = '';
 
+      // Combine fields from model + OPTIONS
       const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+
       for (const field of fields) {
         const wrapper = document.createElement('div');
         const value = modelData[field] ?? '';
@@ -332,7 +390,7 @@
           sel.addEventListener('change', () => handleSpecChange(field, sel.value));
 
           sel.appendChild(new Option('Select...', ''));
-          options.forEach(opt => sel.appendChild(new Option(opt, opt)));
+          for (const opt of options) sel.appendChild(new Option(opt, opt));
           if (value && !options.includes(value)) sel.appendChild(new Option(value, value));
           sel.value = value || '';
 
@@ -356,36 +414,60 @@
       const base = baseline[field] ?? '';
       const sel = document.getElementById(`spec-${field}`);
       if (!sel) return;
-      if (value && value !== base) { dirtyFields.add(field); sel.classList.add('highlight-changed'); }
-      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      const n = dirtyFields.size; if (n > 0) showStatus(`${n} spec${n===1?'':'s'} modified`, 'info');
+
+      if (value && value !== base) {
+        dirtyFields.add(field);
+        sel.classList.add('highlight-changed');
+      } else {
+        dirtyFields.delete(field);
+        sel.classList.remove('highlight-changed');
+      }
+
+      const n = dirtyFields.size;
+      if (n > 0) showStatus(`${n} spec${n===1?'':'s'} modified`, 'info');
     }
 
-    /* ================= PRINT ================= */
+    /*** Print (single A4) ***/
     function printPdf() {
-      const selectedModel = document.getElementById('model').value;
+      // ensure the badge reflects current select state
+      updateRightLeftBadge();
+
+      // Show specs if model chosen
+      const selectedModel = document.getElementById('model')?.value;
       if (selectedModel) showSpecs();
 
+      // Small delay for layout
       setTimeout(() => {
         const h1 = document.querySelector('h1');
-        const original = h1.textContent;
-        const serial = (document.getElementById('serial').value || '').trim();
-        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
+        const originalTitle = h1.textContent;
+        const serialNumber = (document.getElementById('serial')?.value || '').trim();
+        h1.textContent = serialNumber ? `Atkin Custom Spec Sheet - Serial: ${serialNumber}` : 'Atkin Custom Spec Sheet';
+
+        // Lock A4 sizing during print (optional helper class)
+        document.documentElement.classList.add('print-a4');
+        document.body.classList.add('print-a4');
 
         window.print();
 
-        setTimeout(() => { h1.textContent = original; }, 250);
+        setTimeout(() => {
+          h1.textContent = originalTitle;
+          document.documentElement.classList.remove('print-a4');
+          document.body.classList.remove('print-a4');
+        }, 300);
       }, 80);
     }
 
-    /* ================= RESET ================= */
+    /*** Reset ***/
     function hardReset() {
       const btn = document.getElementById('hardResetBtn');
       btn.disabled = true; btn.textContent = 'Reloading…';
 
-      ['serial','customer','email','notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-      const modelSel = document.getElementById('model'); if (modelSel) { modelSel.value=''; modelSel.dispatchEvent(new Event('change')); }
-      const handed = document.getElementById('rightLeft'); if (handed) { handed.value=''; handed.classList.remove('right-selected','left-selected'); }
+      for (const id of ['serial','customer','email','notes']) {
+        const el = document.getElementById(id); if (el) el.value = '';
+      }
+      const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
+      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected');
+      updateRightLeftBadge();
 
       MODEL_PRESETS = {}; GUITAR_SPECS = {}; baseline = {}; currentSpecs = {}; dirtyFields.clear(); hideSpecs();
 
@@ -396,7 +478,7 @@
       }, 600);
     }
 
-    /* ================= SAVE (CORS-SAFE) ================= */
+    /*** Save new model (CORS-safe via hidden iframe + postMessage; with fallback) ***/
     async function saveAsNewModel() {
       try {
         if (!dataLoaded)   return showStatus('⚠️ Data not loaded yet', 'warning');
@@ -406,6 +488,7 @@
         const name = prompt('Enter a name for the new model:');
         if (!name || !name.trim()) return showStatus('Model name is required.', 'error');
 
+        // Include header fields if you have matching columns in MODELS
         const payload = {
           modelName: name.trim(),
           specs: {
@@ -420,6 +503,7 @@
 
         showStatus('📡 Saving new model...', 'info');
 
+        // Primary: hidden iframe post (Apps Script replies with postMessage)
         let heardBack = false;
         const onMsg = async (evt) => {
           const msg = evt?.data || {};
@@ -438,11 +522,10 @@
         };
         window.addEventListener('message', onMsg);
 
-        // Primary path: hidden iframe form POST (GAS replies with postMessage)
         document.getElementById('gasPayload').value = JSON.stringify(payload);
         document.getElementById('gasForm').submit();
 
-        // Fallback after 4s: opaque POST still writes server-side
+        // Fallback: if no postMessage in 4s, do a no-cors form POST (opaque but writes)
         setTimeout(async () => {
           if (heardBack) return;
           try {
