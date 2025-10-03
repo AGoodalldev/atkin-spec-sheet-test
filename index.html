@@ -5,118 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (dev) -->
+  <!-- Tailwind (fine for dev) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ---------- Screen styles ---------- */
-    .highlight-changed {
-      border: 2px solid #f97316 !important;
-      background: #fef3c7 !important;
-      box-shadow: 0 0 0 3px rgba(249,115,22,.1) !important;
-    }
-    /* Screen tinting for select */
-    #rightLeft.right-selected { background: #dcfce7 !important; border-color: #16a34a !important; color: #15803d !important; }
-    #rightLeft.left-selected  { background: #fef2f2 !important; border-color: #dc2626 !important; color: #dc2626 !important; }
-
-    /* Background image (no global fade) */
+    /* ---------- Screen helpers ---------- */
     .guitar-bg{
-      background-image: url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
+      background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
+      background-size:cover;background-position:center;background-attachment:fixed;
     }
-    /* Inner card overlay – keep subtle fade on screen */
-    .card-overlay { background: rgba(255,255,255,.7); }
+    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
+    #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
+    #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
+    .print-only{display:none;}
 
-    /* Print badge is hidden on screen */
-    .print-badge { display: none !important; }
-
-    /* ---------- Print (A4) ---------- */
-    @media print {
-      @page { size: A4 portrait; margin: 8mm; }
-
-      html, body {
-        width: 210mm !important;
-        height: 297mm !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: visible !important;
-        -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-        background: #fff !important;
+    /* ---------- A4 single page ---------- */
+    .a4-shell{max-width:900px;margin:0 auto;}
+    @media print{
+      @page{size:A4 portrait;margin:8mm;}
+      html,body{
+        width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;
+        overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
       }
-
-      /* A4 content area */
-      .a4-sheet { border: none !important; }
-
-      /* Remove layout fluff */
-      .p-6, .mx-auto { padding: 0 !important; margin: 0 auto !important; }
-      .print-hidden { display: none !important; }
-
-      /* Tighter controls for fit */
-      label { font-weight: 700; font-size: 10px !important; }
-      input, select, textarea {
-        font-size: 10px !important;
-        border: 1px solid #333 !important;
-        background: #fff !important;
-        padding: 3px 5px !important;
-        min-height: 20px !important;
-        height: 20px !important;
+      .a4-shell{
+        width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:6mm!important;
+        box-sizing:border-box!important;border:1px solid #000!important;border-radius:0!important;
+        background:#fff!important;box-shadow:none!important;
       }
-      textarea { height: 70px !important; min-height: 70px !important; }
-
-      /* Sections */
-      h1 {
-        margin: 0 0 4mm 0 !important;
-        font-size: 18px !important;
-        border-bottom: none !important;
-        padding-bottom: 4px !important;
-        text-align: center !important;
-      }
-      h2 {
-        margin: 3mm 0 2mm 0 !important;
-        font-size: 14px !important;
-        border-bottom: none !important;
-        padding-bottom: 2mm !important;
-      }
-
-      /* Specs grid: 3 columns, small gap */
-      #specsGrid {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-      }
-
-      /* Avoid breaks inside items */
-      #specsGrid > div,
-      .grid, .bg-gray-50, .space-y-4 > * {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-
-      /* Show the RIGHT/LEFT badge instead of the select */
-      #rightLeft { display: none !important; }
-      .print-badge { display: inline-flex !important; }
-
-      /* Badge colors */
-      .badge-right {
-        background-color: #dcfce7 !important;
-        border: 1px solid #16a34a !important;
-        color: #15803d !important;
-      }
-      .badge-left {
-        background-color: #fef2f2 !important;
-        border: 1px solid #dc2626 !important;
-        color: #dc2626 !important;
-      }
+      .print-hidden{display:none!important;}
+      .bg-gray-50,.grid,#specsGrid>div,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important;}
+      /* Inputs softer or borderless on paper */
+      input,select,textarea{border:1px solid #bbb!important;box-shadow:none!important}
+      /* Hide the select and show the badge for handedness */
+      #rightLeft{display:none!important;}
+      .print-only{display:inline-block!important}
+      .badge-right{background:#dcfce7!important;color:#14532d!important;border:1px solid #16a34a!important;}
+      .badge-left{background:#fee2e2!important;color:#7f1d1d!important;border:1px solid #dc2626!important;}
+      /* Title spacing */
+      h1{margin:0 0 4mm 0!important;border-bottom:2px solid #000!important;padding-bottom:2mm!important;text-align:center;}
     }
   </style>
 </head>
 <body class="guitar-bg">
-  <div class="p-6 min-h-screen">
-    <div class="rounded-2xl shadow-xl border border-gray-200 card-overlay max-w-4xl mx-auto a4-sheet">
+  <div class="p-6">
+    <div class="a4-shell rounded-2xl shadow-xl border border-gray-200 bg-white/70 backdrop-blur-sm">
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet (Workshop)</h1>
 
@@ -124,7 +56,7 @@
         <div id="statusMessage" class="hidden"></div>
 
         <!-- Header -->
-        <div class="bg-gray-50/70 p-4 rounded-xl shadow-inner space-y-4">
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
@@ -149,13 +81,15 @@
           <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label for="rightLeft" class="block text-sm text-gray-700 mb-1">RIGHT / LEFT</label>
-              <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
-                <option value="">Select...</option>
-                <option value="RIGHT">RIGHT</option>
-                <option value="LEFT">LEFT</option>
-              </select>
-              <!-- Print-only badge -->
-              <span id="rightLeftBadge" class="print-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold align-middle mt-2">—</span>
+              <div class="flex items-center gap-3">
+                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
+                  <option value="">Select...</option>
+                  <option value="RIGHT">RIGHT</option>
+                  <option value="LEFT">LEFT</option>
+                </select>
+                <!-- print-only badge -->
+                <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -169,7 +103,7 @@
         <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[120px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture..."></textarea>
+          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture..."></textarea>
         </div>
 
         <!-- Actions -->
@@ -191,31 +125,26 @@
           </button>
         </div>
 
-        <!-- Hidden CORS-safe POST form to GAS -->
+        <!-- Hidden CORS-safe POST to GAS -->
         <form id="gasForm" method="POST" target="gasFrame" class="hidden">
           <input type="hidden" name="payload" id="gasPayload" />
         </form>
-        <!-- Silent iframe that receives GAS response and relays via postMessage -->
-        <iframe
-          id="gasFrame"
-          name="gasFrame"
-          class="hidden"
-          style="display:none;"
-          sandbox="allow-forms allow-scripts"
-          referrerpolicy="no-referrer"
-          srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"
-        ></iframe>
+        <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
+                sandbox="allow-forms allow-scripts"
+                referrerpolicy="no-referrer"
+                srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"></iframe>
       </div>
     </div>
   </div>
 
   <script>
-    /* ===== CONFIG ===== */
+    /* ================= CONFIG ================= */
+    // 👉 Replace with your current deployed Web app URL (ends with /exec)
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
     document.getElementById('gasForm').action = GAS_BASE;
     console.log("Using GAS_BASE:", GAS_BASE);
 
-    /* ===== State ===== */
+    /* ================= State ================= */
     let MODEL_PRESETS = {};
     let GUITAR_SPECS = {};
     let baseline = {};
@@ -223,19 +152,21 @@
     let dirtyFields = new Set();
     let dataLoaded = false;
 
-    /* ===== Boot ===== */
-    window.addEventListener('DOMContentLoaded', init);
-
-    function init() {
+    /* ================= Boot ================= */
+    window.addEventListener('DOMContentLoaded', () => {
       bindUI();
       loadAllData();
+      // in case GAS replies with postMessage
       window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
+        if (evt?.data?.type === 'saveModel') {
+          console.log('↩️ saveModel reply:', evt.data);
+        }
       });
-      updateRightLeftBadge();  // set initial (prints only)
-    }
+      // ensure print badge is correct on first print
+      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
+    });
 
-    function bindUI() {
+    function bindUI(){
       document.getElementById('btnPrint').addEventListener('click', printPdf);
       document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
       document.getElementById('hardResetBtn').addEventListener('click', hardReset);
@@ -243,7 +174,7 @@
       document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
     }
 
-    /* ===== Status ===== */
+    /* ================= Status ================= */
     function showStatus(message, type = 'info') {
       const div = document.getElementById('statusMessage');
       const tone = {
@@ -256,106 +187,104 @@
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 3000);
+      if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3000);
     }
 
-    /* ===== Data ===== */
-    async function loadAllData() {
-      try {
+    /* ================= Data load ================= */
+    async function loadAllData(){
+      try{
         showStatus('Loading data...', 'info');
         await Promise.all([loadModelsData(), loadOptionsData()]);
         dataLoaded = true;
         showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} models and ${Object.keys(GUITAR_SPECS).length} spec fields`, 'success');
-      } catch (err) {
+      }catch(err){
         console.error(err);
         showStatus(`❌ Failed to load: ${err.message}`, 'error');
       }
     }
 
-    async function loadModelsData() {
+    async function loadModelsData(){
       const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(
-        Object.entries(json.data || {}).filter(([name]) => name && name.trim() && name !== 'NA')
-      );
+      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
       populateModelDropdown();
     }
 
-    async function loadOptionsData() {
+    async function loadOptionsData(){
       const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'options error');
       GUITAR_SPECS = json.data || {};
     }
 
-    function populateModelDropdown() {
+    function populateModelDropdown(){
       const select = document.getElementById('model');
       select.innerHTML = '';
-      select.appendChild(new Option('Choose a model', ''));
+      select.appendChild(new Option('Choose a model',''));
       const names = Object.keys(MODEL_PRESETS).sort();
-      for (const n of names) select.appendChild(new Option(n, n));
+      for (const n of names) select.appendChild(new Option(n,n));
       console.log(`✅ Model dropdown populated with ${names.length} models`);
     }
 
-    /* ===== RIGHT/LEFT sync (select + print badge) ===== */
-    function updateRightLeftBadge() {
-      const val   = (document.getElementById('rightLeft') || {}).value || '';
-      const badge = document.getElementById('rightLeftBadge');
+    /* ================= UI ================= */
+    function handleRightLeftChange(e){
+      const val = e.target.value;
+      const select = e.target;
+      select.classList.remove('right-selected','left-selected');
+      if (val==='RIGHT') select.classList.add('right-selected');
+      if (val==='LEFT')  select.classList.add('left-selected');
+      updateHandedBadge(val);
+    }
+
+    function updateHandedBadge(val){
+      const badge = document.getElementById('handedBadge');
       if (!badge) return;
-      badge.classList.remove('badge-right','badge-left');
-      if (val === 'RIGHT') { badge.textContent = 'RIGHT'; badge.classList.add('badge-right'); }
-      else if (val === 'LEFT') { badge.textContent = 'LEFT'; badge.classList.add('badge-left'); }
-      else { badge.textContent = '—'; }
+      badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
+      if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
+      else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
+      else { badge.textContent=''; }
     }
 
-    function handleRightLeftChange(e) {
-      const el  = e.target;
-      const val = el.value;
-      el.classList.remove('right-selected', 'left-selected');
-      if (val === 'RIGHT') el.classList.add('right-selected');
-      if (val === 'LEFT')  el.classList.add('left-selected');
-      updateRightLeftBadge();
-    }
-
-    /* ===== Specs UI ===== */
-    function handleModelChange(e) {
+    function handleModelChange(e){
       const name = e.target.value;
-      if (!name) return hideSpecs();
+      if (!name){ hideSpecs(); return; }
       const data = MODEL_PRESETS[name];
-      if (!data) { showStatus(`No data for ${name}`, 'error'); hideSpecs(); return; }
-      baseline = { ...data };
-      currentSpecs = { ...data };
+      if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
+      baseline = {...data};
+      currentSpecs = {...data};
       dirtyFields.clear();
       showSpecs();
       buildSpecsUI(data);
     }
 
-    function showSpecs() { document.getElementById('specsSection').classList.remove('hidden'); }
-    function hideSpecs() { document.getElementById('specsSection').classList.add('hidden'); }
+    function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
+    function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
 
-    function buildSpecsUI(modelData) {
+    function buildSpecsUI(modelData){
       const grid = document.getElementById('specsGrid');
       grid.innerHTML = '';
       const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
-      for (const field of fields) {
+      for (const field of fields){
         const wrapper = document.createElement('div');
         const value = modelData[field] ?? '';
         const options = GUITAR_SPECS[field];
-        if (Array.isArray(options) && options.length) {
+
+        if (Array.isArray(options) && options.length){
           const sel = document.createElement('select');
           sel.id = `spec-${field}`;
           sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
-          sel.addEventListener('change', () => handleSpecChange(field, sel.value));
-          sel.appendChild(new Option('Select...', ''));
-          for (const opt of options) sel.appendChild(new Option(opt, opt));
-          if (value && !options.includes(value)) sel.appendChild(new Option(value, value));
+          sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
+          sel.appendChild(new Option('Select...',''));
+          for (const opt of options) sel.appendChild(new Option(opt,opt));
+          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
           sel.value = value || '';
+
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
           wrapper.appendChild(sel);
-        } else {
+        }else{
           const inp = document.createElement('input');
-          inp.type = 'text'; inp.readOnly = true; inp.value = value || '';
+          inp.type='text'; inp.readOnly = true; inp.value = value || '';
           inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
           wrapper.appendChild(inp);
@@ -365,80 +294,80 @@
       }
     }
 
-    function handleSpecChange(field, value) {
+    function handleSpecChange(field, value){
       currentSpecs[field] = value;
       const base = baseline[field] ?? '';
       const sel = document.getElementById(`spec-${field}`);
       if (!sel) return;
-      if (value && value !== base) { dirtyFields.add(field); sel.classList.add('highlight-changed'); }
+      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
       else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
       const n = dirtyFields.size;
-      if (n > 0) showStatus(`${n} spec${n===1?'':'s'} modified`, 'info');
+      if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
     }
 
-    /* ===== Print ===== */
-    function printPdf() {
-      updateRightLeftBadge(); // keep badge in sync
+    /* ================= Print ================= */
+    function printPdf(){
       const selectedModel = document.getElementById('model')?.value;
       if (selectedModel) showSpecs();
-      setTimeout(() => {
+      // ensure badge reflects current selection
+      updateHandedBadge(document.getElementById('rightLeft')?.value || '');
+
+      setTimeout(()=>{
         const h1 = document.querySelector('h1');
-        const originalTitle = h1.textContent;
-        const serialNumber = (document.getElementById('serial')?.value || '').trim();
-        h1.textContent = serialNumber ? `Atkin Custom Spec Sheet - Serial: ${serialNumber}` : 'Atkin Custom Spec Sheet';
+        const original = h1.textContent;
+        const serial = (document.getElementById('serial').value || '').trim();
+        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
         window.print();
-        setTimeout(() => { h1.textContent = originalTitle; }, 300);
+        setTimeout(()=>{ h1.textContent = original; }, 250);
       }, 80);
     }
 
-    /* ===== Reset ===== */
-    function hardReset() {
-      const btn = document.getElementById('hardResetBtn');
-      btn.disabled = true; btn.textContent = 'Reloading…';
-      for (const id of ['serial','customer','email','notes']) { const el = document.getElementById(id); if (el) el.value=''; }
+    /* ================= Reset ================= */
+    function hardReset(){
+      const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
+      for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
       const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected');
-      updateRightLeftBadge();
-      MODEL_PRESETS = {}; GUITAR_SPECS = {}; baseline = {}; currentSpecs = {}; dirtyFields.clear(); hideSpecs();
-      setTimeout(async () => { await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success'); }, 600);
+      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
+      MODEL_PRESETS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
+      setTimeout(async ()=>{
+        await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success');
+      }, 600);
     }
 
-    /* ===== Save new model (iframe + fallback) ===== */
-    async function saveAsNewModel() {
-      try {
-        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet', 'warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.', 'warning');
+    /* ================= Save Model (CORS-safe) ================= */
+    async function saveAsNewModel(){
+      try{
+        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
+        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
 
-        const name = prompt('Enter a name for the new model:');
-        if (!name || !name.trim()) return showStatus('Model name is required.', 'error');
+        const modelName = prompt('Enter a name for the new model:');
+        if (!modelName || !modelName.trim()) return showStatus('Model name is required.','error');
 
         const payload = {
-          modelName: name.trim(),
+          modelName: modelName.trim(),
           specs: {
             ...currentSpecs,
-            Serial:   (document.getElementById('serial')    || {}).value || '',
-            Customer: (document.getElementById('customer')  || {}).value || '',
-            Email:    (document.getElementById('email')     || {}).value || '',
-            'RIGHT / LEFT': (document.getElementById('rightLeft') || {}).value || '',
-            Notes:    (document.getElementById('notes')     || {}).value || ''
+            Serial: (document.getElementById('serial')||{}).value || '',
+            Customer: (document.getElementById('customer')||{}).value || '',
+            Email: (document.getElementById('email')||{}).value || '',
+            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
+            Notes: (document.getElementById('notes')||{}).value || ''
           }
         };
 
-        showStatus('📡 Saving new model...', 'info');
+        showStatus('📡 Saving new model…','info');
 
         let heardBack = false;
-        const onMsg = async (evt) => {
+        const onMsg = async (evt)=>{
           const msg = evt?.data || {};
-          if (msg.type === 'saveModel') {
-            heardBack = true;
-            window.removeEventListener('message', onMsg);
-            if (msg.ok) {
-              showStatus(`✅ Model “${msg.name}” saved`, 'success');
+          if (msg.type === 'saveModel'){
+            heardBack = true; window.removeEventListener('message', onMsg);
+            if (msg.ok){
+              showStatus(`✅ Model “${msg.name}” saved`,'success');
               await loadModelsData();
-              const sel = document.getElementById('model');
-              sel.value = msg.name; sel.dispatchEvent(new Event('change'));
-            } else {
-              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`, 'error');
+              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+            }else{
+              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
             }
           }
         };
@@ -447,27 +376,23 @@
         document.getElementById('gasPayload').value = JSON.stringify(payload);
         document.getElementById('gasForm').submit();
 
-        setTimeout(async () => {
+        setTimeout(async ()=>{
           if (heardBack) return;
-          try {
-            const fd = new FormData();
-            fd.append('payload', JSON.stringify(payload));
-            await fetch(GAS_BASE, { method: 'POST', body: fd, mode: 'no-cors' });
-            showStatus('✅ Saved (fallback). Refreshing models…', 'success');
+          try{
+            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+            showStatus('✅ Saved (fallback). Refreshing models…','success');
             await loadModelsData();
-            const sel = document.getElementById('model');
-            sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
-          } catch (e) {
-            console.error(e);
-            showStatus('❌ Fallback save failed.', 'error');
-          } finally {
+            const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
+          }catch(e){
+            console.error(e); showStatus('❌ Fallback save failed.','error');
+          }finally{
             window.removeEventListener('message', onMsg);
           }
         }, 4000);
 
-      } catch (err) {
-        console.error(err);
-        showStatus(`❌ Error: ${err.message}`, 'error');
+      }catch(err){
+        console.error(err); showStatus(`❌ Error: ${err.message}`,'error');
       }
     }
   </script>
