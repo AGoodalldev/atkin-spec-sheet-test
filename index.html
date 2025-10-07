@@ -376,66 +376,115 @@
     }
 
     /* ================= Save Model (CORS-safe) ================= */
-    async function saveAsNewModel(){
-      try{
-        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
+  <script>
+  // --- helper: check for duplicates ---
+  async function checkModelExists(name){
+    const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'exists check failed');
+    return !!json.exists; // true if exists
+  }
 
-        const modelName = prompt('Enter a name for the new model:');
-        if (!modelName || !modelName.trim()) return showStatus('Model name is required.','error');
+  // --- updated save flow with duplicate handling ---
+  async function saveAsNewModel(){
+    try{
+      if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
+      if (!currentSpecs || !Object.keys(currentSpecs).length)
+        return showStatus('Pick a model first, then tweak specs.','warning');
 
-        const payload = {
-          modelName: modelName.trim(),
-          specs: {
-            ...currentSpecs,
-            Serial: (document.getElementById('serial')||{}).value || '',
-            Customer: (document.getElementById('customer')||{}).value || '',
-            Email: (document.getElementById('email')||{}).value || '',
-            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
-            Notes: (document.getElementById('notes')||{}).value || ''
+      // 1) ask for a name
+      let name = prompt('Enter a name for the new model:');
+      if (!name || !name.trim()) return showStatus('Model name is required.','error');
+      name = name.trim();
+
+      // 2) check duplicates
+      const exists = await checkModelExists(name);
+      let overwrite = false;
+
+      if (exists) {
+        const doOverwrite = confirm(
+          `A model named "${name}" already exists.\n\n` +
+          `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
+        );
+
+        if (doOverwrite) {
+          overwrite = true; // proceed updating existing
+        } else {
+          // ask for a new name until unique or cancel
+          let newName = null;
+          while (true) {
+            newName = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
+            if (newName === null) return showStatus('Save cancelled.','warning'); // user cancelled
+            newName = newName.trim();
+            if (!newName) { alert('Name cannot be empty.'); continue; }
+            const exists2 = await checkModelExists(newName);
+            if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
+            name = newName;
+            break;
           }
-        };
-
-        showStatus('📡 Saving new model…','info');
-
-        let heardBack = false;
-        const onMsg = async (evt)=>{
-          const msg = evt?.data || {};
-          if (msg.type === 'saveModel'){
-            heardBack = true; window.removeEventListener('message', onMsg);
-            if (msg.ok){
-              showStatus(`✅ Model “${msg.name}” saved`,'success');
-              await loadModelsData();
-              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
-            }else{
-              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
-            }
-          }
-        };
-        window.addEventListener('message', onMsg);
-
-        document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasForm').submit();
-
-        setTimeout(async ()=>{
-          if (heardBack) return;
-          try{
-            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
-            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
-            showStatus('✅ Saved (fallback). Refreshing models…','success');
-            await loadModelsData();
-            const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
-          }catch(e){
-            console.error(e); showStatus('❌ Fallback save failed.','error');
-          }finally{
-            window.removeEventListener('message', onMsg);
-          }
-        }, 4000);
-
-      }catch(err){
-        console.error(err); showStatus(`❌ Error: ${err.message}`,'error');
+        }
       }
+
+      // 3) build payload
+      const payload = {
+        modelName: name,
+        overwrite, // tells the server to update instead of append
+        specs: {
+          ...currentSpecs,
+          Serial: (document.getElementById('serial')||{}).value || '',
+          Customer: (document.getElementById('customer')||{}).value || '',
+          Email: (document.getElementById('email')||{}).value || '',
+          'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
+          Notes: (document.getElementById('notes')||{}).value || ''
+        }
+      };
+
+      showStatus(overwrite ? '📡 Updating model…' : '📡 Saving new model…','info');
+
+      // 4) post via hidden iframe (same as before)
+      let heardBack = false;
+      const onMsg = async (evt)=>{
+        const msg = evt?.data || {};
+        if (msg.type === 'saveModel'){
+          heardBack = true; window.removeEventListener('message', onMsg);
+          if (msg.ok){
+            const verb = (msg.action === 'updated') ? 'updated' : 'saved';
+            showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
+            await loadModelsData();
+            const sel = document.getElementById('model');
+            sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+          }else{
+            showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
+          }
+        }
+      };
+      window.addEventListener('message', onMsg);
+
+      document.getElementById('gasPayload').value = JSON.stringify(payload);
+      document.getElementById('gasForm').submit();
+
+      // 5) fallback (opaque no-cors) if iframe message doesn’t arrive
+      setTimeout(async ()=>{
+        if (heardBack) return;
+        try{
+          const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+          await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+          showStatus('✅ Saved (fallback). Refreshing models…','success');
+          await loadModelsData();
+          const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
+        }catch(e){
+          console.error(e); showStatus('❌ Fallback save failed.','error');
+        }finally{
+          window.removeEventListener('message', onMsg);
+        }
+      }, 4000);
+
+    }catch(err){
+      console.error(err);
+      showStatus(`❌ Error: ${err.message}`,'error');
     }
-  </script>
+  }
+</script>
 </body>
 </html>
