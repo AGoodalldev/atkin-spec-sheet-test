@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind for dev preview; fine to keep here -->
+  <!-- Tailwind for dev preview -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -42,7 +42,7 @@
         border:1px solid #000 !important;
         border-radius:0 !important;
         box-shadow:none !important;
-        zoom: 0.88;
+        zoom: 0.88; /* tweak 0.85–0.92 if needed */
       }
       .print-hidden{ display:none !important; }
       body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
@@ -158,8 +158,8 @@
 
   <script>
     /* ================= CONFIG ================= */
-    // 👉 Replace this with your *current* /exec Web App URL
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbxLGTyc8bv8t_I-uAZ0iamkL2Jan4ShgNL1JmFXLg0e74Lofb1oDSO4AaiQ2xpDaqaK/exec"; // e.g. https://script.google.com/macros/s/AKfy.../exec
+    // 👉 Set to your current /exec Web App URL
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbxLGTyc8bv8t_I-uAZ0iamkL2Jan4ShgNL1JmFXLg0e74Lofb1oDSO4AaiQ2xpDaqaK/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
     /* ================= State ================= */
@@ -252,7 +252,6 @@
       select.appendChild(new Option('Choose a model',''));
 
       if (onlyCustom) {
-        // Only custom
         const names = Object.keys(MODELS_CUSTOM).sort((a,b)=>a.localeCompare(b));
         if (names.length){
           const og = document.createElement('optgroup');
@@ -261,7 +260,6 @@
           select.appendChild(og);
         }
       } else {
-        // Both groups
         const customNames = Object.keys(MODELS_CUSTOM).sort((a,b)=>a.localeCompare(b));
         const factoryNames = Object.keys(MODELS_FACTORY).sort((a,b)=>a.localeCompare(b));
 
@@ -302,7 +300,7 @@
       const name = e.target.value;
       if (!name){ hideSpecs(); return; }
 
-      // Prefer custom if name exists in both
+      // Prefer custom if exists in both
       const data = MODELS_CUSTOM[name] || MODELS_FACTORY[name];
       if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
 
@@ -388,11 +386,112 @@
       }, 600);
     }
 
-    /* ========== Save Model (uses your existing iframe + overwrite/duplicate flow) ========== */
-    // NOTE: Your existing saveAsNewModel() implementation can stay as-is.
-    // If you want the dropdown to auto-jump to the newly saved custom model afterwards,
-    // you already reload and select by name in your current code.
-    async function saveAsNewModel(){ /* keep your existing implementation here */ }
+    /* ================= Duplicate/Overwrite helpers ================= */
+    async function checkModelExists(name){
+      const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'exists check failed');
+      return !!json.exists;
+    }
+
+    /* ================= Save Model (CORS-safe, with duplicate handling) ================= */
+    async function saveAsNewModel(){
+      try{
+        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
+        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
+
+        let name = prompt('Enter a name for the new model:');
+        if (!name || !name.trim()) return showStatus('Model name is required.','error');
+        name = name.trim();
+
+        // Check duplicates
+        const exists = await checkModelExists(name);
+        let overwrite = false;
+
+        if (exists) {
+          const doOverwrite = confirm(
+            `A model named "${name}" already exists.\n\n` +
+            `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
+          );
+
+          if (doOverwrite) {
+            overwrite = true;
+          } else {
+            // ask for fresh unique name
+            while (true) {
+              const candidate = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
+              if (candidate === null) return showStatus('Save cancelled.','warning');
+              const trimmed = candidate.trim();
+              if (!trimmed) { alert('Name cannot be empty.'); continue; }
+              const taken = await checkModelExists(trimmed);
+              if (taken) { alert(`"${trimmed}" already exists. Choose another name.`); continue; }
+              name = trimmed;
+              break;
+            }
+          }
+        }
+
+        const payload = {
+          modelName: name,
+          overwrite, // tell the server to update instead of append
+          specs: {
+            ...currentSpecs,
+            Serial: (document.getElementById('serial')||{}).value || '',
+            Customer: (document.getElementById('customer')||{}).value || '',
+            Email: (document.getElementById('email')||{}).value || '',
+            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
+            Notes: (document.getElementById('notes')||{}).value || ''
+          }
+        };
+
+        showStatus(overwrite ? '📡 Updating model…' : '📡 Saving new model…','info');
+
+        let heardBack = false;
+        const onMsg = async (evt)=>{
+          const msg = evt?.data || {};
+          if (msg.type === 'saveModel'){
+            heardBack = true; window.removeEventListener('message', onMsg);
+            if (msg.ok){
+              const verb = (msg.action === 'updated') ? 'updated' : 'saved';
+              showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
+
+              // Reload lists (including custom) and reselect
+              await Promise.all([loadCustomModels(), loadFactoryModels()]);
+              populateModelDropdown();
+              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+            }else{
+              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
+            }
+          }
+        };
+        window.addEventListener('message', onMsg);
+
+        document.getElementById('gasPayload').value = JSON.stringify(payload);
+        document.getElementById('gasForm').submit();
+
+        // Fallback if no postMessage within 4s
+        setTimeout(async ()=>{
+          if (heardBack) return;
+          try{
+            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+            showStatus('✅ Saved (fallback). Refreshing models…','success');
+            await Promise.all([loadCustomModels(), loadFactoryModels()]);
+            populateModelDropdown();
+            const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
+          }catch(e){
+            console.error(e); showStatus('❌ Fallback save failed.','error');
+          }finally{
+            window.removeEventListener('message', onMsg);
+          }
+        }, 4000);
+
+      }catch(err){
+        console.error(err);
+        showStatus(`❌ Error: ${err.message}`,'error');
+      }
+    }
   </script>
 </body>
 </html>
