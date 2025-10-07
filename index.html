@@ -42,7 +42,7 @@
       .sheet.a4 {
         width:194mm !important;                       /* 210 - (8 + 8) */
         min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
-        padding:5mm !important;                       /* slightly tighter */
+        padding:5mm !important;
         box-sizing:border-box !important;
         background:#fff !important;
         border:1px solid #000 !important;
@@ -111,26 +111,22 @@
               <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
 
-  <!-- MODEL with tidy filter -->
-<div>
-  <label for="model" class="text-sm text-gray-700 mb-1">Model</label>
-
-  <!-- dropdown -->
-  <select id="model"
-          class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-    <option value="">Loading…</option>
-  </select>
-
-  <!-- checkbox UNDER the select; hidden when printing -->
-  <label for="showCustomOnly"
-         class="print-hidden mt-2 inline-flex items-center gap-2 cursor-pointer select-none text-[11px] text-gray-600">
-    <input id="showCustomOnly"
-           type="checkbox"
-           class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
-    <span>Show only custom models</span>
-  </label>
-</div>
-
+            <!-- MODEL with checkbox underneath -->
+            <div>
+              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
+              <select id="model"
+                      class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
+                <option value="">Loading…</option>
+              </select>
+              <label for="showCustomOnly"
+                     class="print-hidden mt-2 inline-flex items-center gap-2 cursor-pointer select-none text-[11px] text-gray-600">
+                <input id="showCustomOnly"
+                       type="checkbox"
+                       class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                <span>Show only custom models</span>
+              </label>
+            </div>
+          </div>
 
           <div class="grid md:grid-cols-4 gap-4">
             <div>
@@ -193,17 +189,15 @@
 
   <script>
     /* ================= CONFIG ================= */
-    // 👉 Replace this with your current /exec Web App URL
+    // 👉 Replace this with your *current* /exec Web App URL
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbwa5en1wz3eyiUMLA9IZ1izBidUHyZ18yooA1r_gre4zK3YbS-A6p4XMkQbn_6JKU5J/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
     /* ================= State ================= */
-    let MODEL_PRESETS = {};     // factory
-    let CUSTOM_MODELS = {};     // custom
-    let GUITAR_SPECS = {};      // options
-    let PRESET_SOURCE = {};     // map modelName -> 'factory' | 'custom'
-
-    let baseline = {};          // baseline for selected model (factory when available)
+    let MODEL_PRESETS = {};   // factory
+    let CUSTOM_MODELS = {};   // custom
+    let GUITAR_SPECS  = {};
+    let baseline = {};
     let currentSpecs = {};
     let dirtyFields = new Set();
     let dataLoaded = false;
@@ -215,9 +209,7 @@
       window.addEventListener('message', evt => {
         if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
       });
-      window.addEventListener('beforeprint', () =>
-        updateHandedBadge(document.getElementById('rightLeft')?.value || '')
-      );
+      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
     });
 
     function bindUI(){
@@ -226,7 +218,9 @@
       document.getElementById('hardResetBtn').addEventListener('click', hardReset);
       document.getElementById('model').addEventListener('change', handleModelChange);
       document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
-      document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
+
+      const chk = document.getElementById('showCustomOnly');
+      chk.addEventListener('change', populateModelDropdown);
     }
 
     /* ================= Status ================= */
@@ -242,16 +236,18 @@
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3000);
+      if (type === 'info' || type === 'success') {
+        setTimeout(() => div.classList.add('hidden'), 3000);
+      }
     }
 
-    /* ================ Data load ================ */
+    /* ================= Data load ================= */
     async function loadAllData(){
       try{
         showStatus('Loading data…', 'info');
         await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
         dataLoaded = true;
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom`, 'success');
+        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`, 'success');
         populateModelDropdown();
       }catch(err){
         console.error(err);
@@ -263,16 +259,14 @@
       const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = json.data || {};
-      Object.keys(MODEL_PRESETS).forEach(n => PRESET_SOURCE[n] = 'factory');
+      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
     }
 
     async function loadCustomModels(){
-      const res = await fetch(`${GAS_BASE}?kind=customModels&_cb=${Date.now()}`);
+      const res = await fetch(`${GAS_BASE}?kind=custom_models&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'custom models error');
-      CUSTOM_MODELS = json.data || {};
-      Object.keys(CUSTOM_MODELS).forEach(n => PRESET_SOURCE[n] = 'custom');
+      CUSTOM_MODELS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
     }
 
     async function loadOptionsData(){
@@ -286,18 +280,16 @@
       const select = document.getElementById('model');
       const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
 
-      // choose source + placeholder
       const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
       const placeholder = showCustomOnly ? 'Custom Model' : 'Factory Model';
 
       // rebuild options
       select.innerHTML = '';
       select.appendChild(new Option(placeholder, ''));
-
       const names = Object.keys(source).sort();
       for (const n of names) select.appendChild(new Option(n, n));
 
-      // clear current selection & hide specs after switching lists
+      // clear selection and hide specs when switching lists
       select.value = '';
       hideSpecs();
     }
@@ -321,28 +313,38 @@
     }
 
     function handleModelChange(e){
+      const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
+      const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+
       const name = e.target.value;
       if (!name){ hideSpecs(); return; }
 
-      // Build working spec set from factory + custom overlay (if any)
-      const factory = MODEL_PRESETS[name] || {};
-      const custom  = CUSTOM_MODELS[name] || {};
-      const merged  = { ...factory, ...custom };
+      const data = source[name];
+      if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
 
-      // Baseline is always factory (so custom deltas highlight)
-      baseline = { ...factory };
-      currentSpecs = { ...merged };
+      // baseline = factory preset if custom; otherwise the model data itself
+      if (showCustomOnly && data['BASELINE_FROM']) {
+        const baseName = data['BASELINE_FROM'];
+        baseline = { ...(MODEL_PRESETS[baseName] || {}) };
+      } else {
+        baseline = { ...data };
+      }
+
+      currentSpecs = { ...data };
       dirtyFields.clear();
-
-      // Precompute which fields differ from baseline
-      Object.keys(currentSpecs).forEach(field => {
-        const base = (baseline[field] ?? '').toString().trim();
-        const cur  = (currentSpecs[field] ?? '').toString().trim();
-        if (cur && cur !== base) dirtyFields.add(field);
-      });
-
       showSpecs();
-      buildSpecsUI(currentSpecs);
+      buildSpecsUI(data);
+
+      // re-highlight diffs vs baseline for custom
+      if (showCustomOnly) {
+        for (const key of Object.keys(currentSpecs)) {
+          const sel = document.getElementById(`spec-${key}`);
+          if (!sel) continue;
+          const val = currentSpecs[key] ?? '';
+          const baseVal = baseline[key] ?? '';
+          if (val && val !== baseVal) sel.classList.add('highlight-changed');
+        }
+      }
     }
 
     function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
@@ -363,49 +365,32 @@
           sel.id = `spec-${field}`;
           sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
           sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
-
           sel.appendChild(new Option('Select…',''));
           for (const opt of options) sel.appendChild(new Option(opt,opt));
           if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
           sel.value = value || '';
-
-          // highlight if differs from baseline
-          const base = (baseline[field] ?? '').toString().trim();
-          if ((value ?? '') !== base && (value ?? '') !== '') sel.classList.add('highlight-changed');
-
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
           wrapper.appendChild(sel);
         }else{
           const inp = document.createElement('input');
           inp.type='text'; inp.readOnly = true; inp.value = value || '';
           inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
-
-          // highlight if differs from baseline
-          const base = (baseline[field] ?? '').toString().trim();
-          if ((value ?? '') !== base && (value ?? '') !== '') inp.classList.add('highlight-changed');
-
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
           wrapper.appendChild(inp);
         }
 
         grid.appendChild(wrapper);
+        currentSpecs[field] = value || '';
       }
     }
 
     function handleSpecChange(field, value){
       currentSpecs[field] = value;
-      const base = (baseline[field] ?? '').toString().trim();
+      const base = baseline[field] ?? '';
       const sel = document.getElementById(`spec-${field}`);
       if (!sel) return;
-
-      if ((value ?? '') !== base && (value ?? '') !== ''){
-        dirtyFields.add(field);
-        sel.classList.add('highlight-changed');
-      }else{
-        dirtyFields.delete(field);
-        sel.classList.remove('highlight-changed');
-      }
-
+      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
+      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
       const n = dirtyFields.size;
       if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
     }
@@ -421,9 +406,7 @@
         const original = h1.textContent;
         const serial = (document.getElementById('serial').value || '').trim();
         h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
-
         window.print();
-
         setTimeout(()=>{ h1.textContent = original; }, 250);
       }, 80);
     }
@@ -440,7 +423,7 @@
       }, 600);
     }
 
-    /* ================= Save Model (duplicate-aware, writes to CUSTOM MODELS) ================= */
+    /* ================= Duplicate-safe Save ================= */
     async function checkModelExists(name){
       const res = await fetch(`${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
       const json = await res.json();
@@ -458,7 +441,6 @@
         if (!name || !name.trim()) return showStatus('Model name is required.','error');
         name = name.trim();
 
-        // duplicate logic (CUSTOM MODELS)
         const exists = await checkModelExists(name);
         let overwrite = false;
 
@@ -467,7 +449,6 @@
             `A model named "${name}" already exists.\n\n` +
             `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
           );
-
           if (doOverwrite) {
             overwrite = true;
           } else {
@@ -487,7 +468,7 @@
 
         const payload = {
           modelName: name,
-          overwrite,                  // tells GAS to update instead of append
+          overwrite,
           specs: {
             ...currentSpecs,
             Serial: (document.getElementById('serial')||{}).value || '',
@@ -508,14 +489,10 @@
             if (msg.ok){
               const verb = (msg.action === 'updated') ? 'updated' : 'saved';
               showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
-              await loadCustomModels();               // refresh customs
-              populateModelDropdown();               // reflect in dropdown
+              await loadCustomModels();   // refresh custom set
+              await loadModelsData();     // refresh factory set (if overwritten)
+              populateModelDropdown();
               const sel = document.getElementById('model');
-              // if filter is on and we just saved a custom, ensure it’s visible
-              if (!document.getElementById('showCustomOnly').checked) {
-                document.getElementById('showCustomOnly').checked = true;
-                populateModelDropdown();
-              }
               sel.value = msg.name; sel.dispatchEvent(new Event('change'));
             }else{
               showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
@@ -533,8 +510,7 @@
             const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
             await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
             showStatus('✅ Saved (fallback). Refreshing models…','success');
-            await loadCustomModels();
-            populateModelDropdown();
+            await loadCustomModels(); await loadModelsData(); populateModelDropdown();
             const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
           }catch(e){
             console.error(e); showStatus('❌ Fallback save failed.','error');
