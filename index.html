@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind for dev preview -->
+  <!-- Tailwind for dev preview; fine to keep here -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -18,6 +18,8 @@
     #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
     #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
     .print-only{display:none;}
+
+    /* Layout wrapper for A4 */
     .a4      { max-width: 900px; margin: 0 auto; }
     .sheet   { background: #ffffffb3; backdrop-filter: blur(4px); }
 
@@ -25,6 +27,7 @@
     @media print{
       @page { size: A4 portrait; margin: 8mm; }
 
+      /* Remove background during print */
       html, body, .guitar-bg {
         width:210mm !important; height:297mm !important;
         margin:0 !important; padding:0 !important;
@@ -32,32 +35,50 @@
         overflow:visible !important;
       }
 
+      /* Inner card gets exact color control (badges, etc.) */
       .a4 { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
+      /* Core sheet sizing */
       .sheet.a4 {
-        width:194mm !important;
-        min-height:calc(297mm - 16mm) !important;
-        padding:5mm !important;
+        width:194mm !important;                       /* 210 - (8 + 8) */
+        min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
+        padding:5mm !important;                       /* slightly tighter */
         box-sizing:border-box !important;
         background:#fff !important;
         border:1px solid #000 !important;
         border-radius:0 !important;
         box-shadow:none !important;
-        zoom: 0.88;
+        zoom: 0.88;                                   /* tweak if you need */
       }
 
       .print-hidden{ display:none !important; }
 
+      /* Tighter typography */
       body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
       h1 { font-size: 16px !important; margin: 0 0 4mm 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align: center; }
       h2 { font-size: 12px !important; margin: 3mm 0 2mm !important; }
 
-      input, select, textarea { min-height: 20px !important; padding: 2px 6px !important; border: 1px solid #bdbdbd !important; box-shadow: none !important; }
+      input, select, textarea {
+        min-height: 20px !important;
+        padding: 2px 6px !important;
+        border: 1px solid #bdbdbd !important;
+        box-shadow: none !important;
+      }
       .bg-gray-50 { padding: 3mm !important; }
 
-      #specsGrid { display:grid !important; grid-template-columns: repeat(3, 1fr) !important; column-gap: 4mm !important; row-gap: 3mm !important; }
-      #specsGrid > div, .grid, .space-y-4 > * { break-inside: avoid !important; page-break-inside: avoid !important; }
+      /* Specs grid: 3 columns, small gaps, avoid breaks */
+      #specsGrid {
+        display:grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        column-gap: 4mm !important;
+        row-gap: 3mm !important;
+      }
+      #specsGrid > div, .grid, .space-y-4 > * {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
 
+      /* RIGHT/LEFT: hide select, show badge */
       #rightLeft { display: none !important; }
       .print-only { display: inline-block !important; }
       .badge-right{ background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
@@ -92,13 +113,16 @@
 
             <!-- Model + filter -->
             <div>
-              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
+              <div class="flex items-end justify-between gap-3">
+                <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
+                <label class="text-xs flex items-center gap-2 select-none">
+                  <input id="showCustomOnly" type="checkbox" class="rounded border-gray-300">
+                  Show only custom models
+                </label>
+              </div>
+              <select id="model" class="mt-1 w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
                 <option value="">Loading…</option>
               </select>
-              <label class="mt-2 flex items-center gap-2 text-sm text-gray-700">
-                <input id="showCustomOnly" type="checkbox" class="rounded border-gray-300"> Show only custom models
-              </label>
             </div>
           </div>
 
@@ -111,6 +135,7 @@
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
+                <!-- Printed badge -->
                 <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
             </div>
@@ -162,76 +187,49 @@
 
   <script>
     /* ================= CONFIG ================= */
-    // 👉 Set to your deployed Apps Script Web App URL (ends with /exec)
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbxQgE7JHP3dZcnYgOr_0adz74xpkSNClbUP4E4l0YsXlW4XUxA2mNy-Qz3HYGRG3EvF/exec";
+    // 👉 Replace this with your *current* /exec Web App URL
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
     /* ================= State ================= */
-    let MODEL_PRESETS = {};     // factory
-    let CUSTOM_MODELS = {};     // custom
-    let GUITAR_SPECS = {};
+    let MODEL_PRESETS = {};   // Factory models
+    let CUSTOM_MODELS = {};   // Custom models
+    let GUITAR_SPECS  = {};   // Options
     let baseline = {};
     let currentSpecs = {};
     let dirtyFields = new Set();
     let dataLoaded = false;
 
-    /* ================= Boot ================= */
-    window.addEventListener('DOMContentLoaded', () => {
-      bindUI();
-      loadAllData();
-      window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
-      });
-      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
-    });
-
-    function bindUI(){
-      document.getElementById('btnPrint').addEventListener('click', printPdf);
-      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
-      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
-      document.getElementById('model').addEventListener('change', handleModelChange);
-      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
-      document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
-    }
-
-    /* ================= Status (orange info) ================= */
+    /* ================= Status ================= */
     function showStatus(message, type = 'info') {
       const div = document.getElementById('statusMessage');
       const tone = {
         success: 'bg-green-50 border-green-200 text-green-800',
         warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        info:    'bg-amber-50 border-amber-200 text-amber-800',  // info uses amber
+        info:    'bg-amber-50 border-amber-200 text-amber-800', // info in amber
         error:   'bg-red-50 border-red-200 text-red-700'
       }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
 
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3000);
-    }
 
-    /* ================= Data load ================= */
-    async function loadAllData(){
-      try{
-        showStatus('Loading data…', 'info');
-        await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
-        dataLoaded = true;
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} spec fields`, 'success');
-        populateModelDropdown();
-      }catch(err){
-        console.error(err);
-        showStatus(`❌ Failed to load: ${err.message}`, 'error');
+      if (type === 'info' || type === 'success') {
+        setTimeout(() => div.classList.add('hidden'), 3000);
       }
     }
 
+    /* ================= Data load ================= */
     async function loadModelsData(){
       const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
+      MODEL_PRESETS = Object.fromEntries(
+        Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA')
+      );
     }
     async function loadCustomModels(){
-      const res = await fetch(`${GAS_BASE}?kind=custom&_cb=${Date.now()}`);
+      const res = await fetch(`${GAS_BASE}?kind=customModels&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'custom models error');
       CUSTOM_MODELS = json.data || {};
@@ -243,15 +241,39 @@
       GUITAR_SPECS = json.data || {};
     }
 
+    async function loadAllData(){
+      try{
+        showStatus('Loading data…', 'info');
+        await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
+        dataLoaded = true;
+        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`, 'success');
+        populateModelDropdown();
+      }catch(err){
+        console.error(err);
+        showStatus(`❌ Failed to load: ${err.message}`, 'error');
+      }
+    }
+
+    /* ================= Dropdown builder (TOP-LEVEL) ================= */
     function populateModelDropdown(){
       const select = document.getElementById('model');
-      const showCustomOnly = document.getElementById('showCustomOnly').checked;
-      select.innerHTML = '';
-      select.appendChild(new Option('Choose a model',''));
+      const showCustomOnly =
+        document.getElementById('showCustomOnly')?.checked === true;
 
-      const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+      // choose source + placeholder
+      const source      = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+      const placeholder = showCustomOnly ? 'Custom Model' : 'Factory Model';
+
+      // rebuild options
+      select.innerHTML = '';
+      select.appendChild(new Option(placeholder, '')); // dynamic first option
+
       const names = Object.keys(source).sort();
-      for (const n of names) select.appendChild(new Option(n,n));
+      for (const n of names) select.appendChild(new Option(n, n));
+
+      // clear current selection & hide specs after switching lists
+      select.value = '';
+      hideSpecs();
     }
 
     /* ================= UI ================= */
@@ -273,39 +295,35 @@
     }
 
     function handleModelChange(e){
+      const showCustomOnly =
+        document.getElementById('showCustomOnly')?.checked === true;
+      const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+
       const name = e.target.value;
       if (!name){ hideSpecs(); return; }
-
-      const showCustomOnly = document.getElementById('showCustomOnly').checked;
-      let data = showCustomOnly ? CUSTOM_MODELS[name] : MODEL_PRESETS[name];
-      let isCustom = showCustomOnly;
-
-      // If not found in factory list when filter is off, try custom
-      if (!data && !showCustomOnly && CUSTOM_MODELS[name]) {
-        data = CUSTOM_MODELS[name];
-        isCustom = true;
-      }
-
+      const data = source[name];
       if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
 
-      if (isCustom) {
-        const baseName = (data["BASE MODEL"] || "").toString().trim();
-        const base = baseName && MODEL_PRESETS[baseName] ? MODEL_PRESETS[baseName] : null;
+      // When reloading a custom model, highlight diffs from factory baseline (if exists)
+      const factoryBase = MODEL_PRESETS[name] || {};
+      baseline = {...factoryBase};
+      currentSpecs = {...data};
+      dirtyFields.clear();
 
-        baseline = base ? { ...base } : { ...data };
-        currentSpecs = { ...data };
-        dirtyFields.clear();
+      showSpecs();
+      buildSpecsUI(data);
 
-        showSpecs();
-        buildSpecsUI(data);
-        applyDiffHighlight(base, currentSpecs);  // highlight changes vs base model
-      } else {
-        baseline = { ...data };
-        currentSpecs = { ...data };
-        dirtyFields.clear();
-
-        showSpecs();
-        buildSpecsUI(data);
+      // mark changed vs baseline for custom
+      Object.keys(currentSpecs).forEach(field => {
+        const baseVal = (baseline[field] ?? '').toString().trim();
+        const curVal  = (currentSpecs[field] ?? '').toString().trim();
+        if (baseVal !== curVal && document.getElementById(`spec-${field}`)) {
+          document.getElementById(`spec-${field}`).classList.add('highlight-changed');
+          dirtyFields.add(field);
+        }
+      });
+      if (dirtyFields.size) {
+        showStatus(`${dirtyFields.size} spec${dirtyFields.size===1?'':'s'} modified`, 'info');
       }
     }
 
@@ -358,19 +376,6 @@
       if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
     }
 
-    // highlight differences when loading a custom model vs factory baseline
-    function applyDiffHighlight(baselineObj, currentObj) {
-      if (!baselineObj) return;
-      for (const [field, curVal] of Object.entries(currentObj)) {
-        const baseVal = baselineObj[field] ?? '';
-        if (!baseVal) continue;
-        if (curVal && curVal !== baseVal) {
-          const sel = document.getElementById(`spec-${field}`);
-          if (sel) sel.classList.add('highlight-changed');
-        }
-      }
-    }
-
     /* ================= Print ================= */
     function printPdf(){
       const selectedModel = document.getElementById('model')?.value;
@@ -382,7 +387,9 @@
         const original = h1.textContent;
         const serial = (document.getElementById('serial').value || '').trim();
         h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
+
         window.print();
+
         setTimeout(()=>{ h1.textContent = original; }, 250);
       }, 80);
     }
@@ -399,9 +406,9 @@
       }, 600);
     }
 
-    /* ================= Save Model (custom, CORS-safe with duplicate guard) ================= */
+    /* ================= Save Model (duplicate handling kept) ================= */
     async function checkModelExists(name){
-      const url = `${GAS_BASE}?kind=exists&scope=custom&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
+      const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
       const res = await fetch(url);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'exists check failed');
@@ -411,9 +418,9 @@
     async function saveAsNewModel(){
       try{
         if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
+        if (!currentSpecs || !Object.keys(currentSpecs).length)
+          return showStatus('Pick a model first, then tweak specs.','warning');
 
-        const baseModel = (document.getElementById('model') || {}).value || "";
         let name = prompt('Enter a name for the new model:');
         if (!name || !name.trim()) return showStatus('Model name is required.','error');
         name = name.trim();
@@ -423,30 +430,29 @@
 
         if (exists) {
           const doOverwrite = confirm(
-            `A custom model named "${name}" already exists.\n\n` +
+            `A model named "${name}" already exists.\n\n` +
             `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
           );
-          if (doOverwrite) {
-            overwrite = true;
-          } else {
-            // prompt until unique or cancel
+
+          if (!doOverwrite) {
+            // loop until unique or cancel
             while (true) {
-              let newName = prompt('Enter a different name (or Cancel):', name + ' (copy)');
+              let newName = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
               if (newName === null) return showStatus('Save cancelled.','warning');
               newName = newName.trim();
               if (!newName) { alert('Name cannot be empty.'); continue; }
-              if (await checkModelExists(newName)) { alert(`"${newName}" already exists.`); continue; }
-              name = newName;
-              break;
+              const exists2 = await checkModelExists(newName);
+              if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
+              name = newName; break;
             }
+          } else {
+            overwrite = true;
           }
         }
 
         const payload = {
-          scope: "custom",
           modelName: name,
-          overwrite,
-          baseModel,            // remember the selected factory base
+          overwrite, // tells backend to update instead of append
           specs: {
             ...currentSpecs,
             Serial: (document.getElementById('serial')||{}).value || '',
@@ -467,10 +473,10 @@
             if (msg.ok){
               const verb = (msg.action === 'updated') ? 'updated' : 'saved';
               showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
-              await loadCustomModels(); // refresh only custom cache
-              document.getElementById('showCustomOnly').checked = true;
+              await Promise.all([loadModelsData(), loadCustomModels()]);
               populateModelDropdown();
-              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+              const sel = document.getElementById('model');
+              sel.value = msg.name; sel.dispatchEvent(new Event('change'));
             }else{
               showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
             }
@@ -481,15 +487,13 @@
         document.getElementById('gasPayload').value = JSON.stringify(payload);
         document.getElementById('gasForm').submit();
 
-        // fallback if iframe message doesn’t arrive
         setTimeout(async ()=>{
           if (heardBack) return;
           try{
             const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
             await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
             showStatus('✅ Saved (fallback). Refreshing models…','success');
-            await loadCustomModels();
-            document.getElementById('showCustomOnly').checked = true;
+            await Promise.all([loadModelsData(), loadCustomModels()]);
             populateModelDropdown();
             const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
           }catch(e){
@@ -504,6 +508,31 @@
         showStatus(`❌ Error: ${err.message}`,'error');
       }
     }
+
+    /* ================= Boot ================= */
+    function bindUI(){
+      document.getElementById('btnPrint').addEventListener('click', printPdf);
+      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
+      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
+      document.getElementById('model').addEventListener('change', handleModelChange);
+      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
+
+      // Checkbox to toggle factory/custom lists
+      document.getElementById('showCustomOnly')
+        ?.addEventListener('change', () => {
+          populateModelDropdown();
+          document.getElementById('model')?.focus();
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      bindUI();
+      loadAllData();
+      window.addEventListener('message', evt => {
+        if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
+      });
+      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
+    });
   </script>
 </body>
 </html>
