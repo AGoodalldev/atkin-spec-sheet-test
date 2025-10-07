@@ -281,7 +281,7 @@
 
       select.innerHTML = '';
       select.appendChild(new Option(
-        document.getElementById('filterCustom').checked ? 'Choose a custom model' : 'Choose a factory model', ''
+        document.getElementById('filterCustom').checked ? 'custom model' : 'factory model', ''
       ));
       for (const n of names) select.appendChild(new Option(n,n));
     }
