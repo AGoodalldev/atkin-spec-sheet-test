@@ -27,7 +27,6 @@
     @media print{
       @page { size: A4 portrait; margin: 8mm; }
 
-      /* Remove background during print */
       html, body, .guitar-bg {
         width:210mm !important; height:297mm !important;
         margin:0 !important; padding:0 !important;
@@ -35,25 +34,22 @@
         overflow:visible !important;
       }
 
-      /* Inner card gets exact color control (badges, etc.) */
       .a4 { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-      /* Core sheet sizing with gentle zoom to guarantee one page */
       .sheet.a4 {
-        width:194mm !important;                       /* 210 - (8 + 8) */
-        min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
-        padding:5mm !important;                       /* slightly tighter */
+        width:194mm !important;
+        min-height:calc(297mm - 16mm) !important;
+        padding:5mm !important;
         box-sizing:border-box !important;
         background:#fff !important;
         border:1px solid #000 !important;
         border-radius:0 !important;
         box-shadow:none !important;
-        zoom: 0.88;                                   /* tweak 0.85–0.92 if you need */
+        zoom: 0.88;
       }
 
       .print-hidden{ display:none !important; }
 
-      /* Tighter typography */
       body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
       h1 { font-size: 16px !important; margin: 0 0 4mm 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align: center; }
       h2 { font-size: 12px !important; margin: 3mm 0 2mm !important; }
@@ -66,7 +62,6 @@
       }
       .bg-gray-50 { padding: 3mm !important; }
 
-      /* Specs grid: 3 columns, small gaps, avoid breaks */
       #specsGrid {
         display:grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
@@ -78,7 +73,6 @@
         page-break-inside: avoid !important;
       }
 
-      /* RIGHT/LEFT: hide select, show badge */
       #rightLeft { display: none !important; }
       .print-only { display: inline-block !important; }
       .badge-right{ background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
@@ -127,7 +121,6 @@
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
-                <!-- Printed badge -->
                 <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
             </div>
@@ -179,7 +172,6 @@
 
   <script>
     /* ================= CONFIG ================= */
-    // 👉 Replace this with your *current* /exec Web App URL
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyVhdOprYN1L9x08ZN5O-6nzhMeCw0vx3OqNb6jFigW-7CpkGQ8h1PkiTe43zrN6ALO/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
@@ -211,24 +203,22 @@
 
     /* ================= Status ================= */
     function showStatus(message, type = 'info') {
-  const div = document.getElementById('statusMessage');
-  const tone = {
-    success: 'bg-green-50 border-green-200 text-green-800',
-    warning: 'bg-amber-50 border-amber-200 text-amber-800',
-    // 👇 make "info" use amber instead of blue
-    info:    'bg-amber-50 border-amber-200 text-amber-800',
-    error:   'bg-red-50 border-red-200 text-red-700'
-  }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
+      const div = document.getElementById('statusMessage');
+      const tone = {
+        success: 'bg-green-50 border-green-200 text-green-800',
+        warning: 'bg-amber-50 border-amber-200 text-amber-800',
+        info:    'bg-amber-50 border-amber-200 text-amber-800',
+        error:   'bg-red-50 border-red-200 text-red-700'
+      }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
 
-  div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-  div.textContent = message;
-  div.classList.remove('hidden');
+      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
+      div.textContent = message;
+      div.classList.remove('hidden');
 
-  if (type === 'info' || type === 'success') {
-    setTimeout(() => div.classList.add('hidden'), 3000);
-  }
-}
-
+      if (type === 'info' || type === 'success') {
+        setTimeout(() => div.classList.add('hidden'), 3000);
+      }
+    }
 
     /* ================= Data load ================= */
     async function loadAllData(){
@@ -375,116 +365,109 @@
       }, 600);
     }
 
-    /* ================= Save Model (CORS-safe) ================= */
-  <script>
-  // --- helper: check for duplicates ---
-  async function checkModelExists(name){
-    const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
-    const res = await fetch(url);
-    const json = await res.json();
-    if (!json.ok) throw new Error(json.error || 'exists check failed');
-    return !!json.exists; // true if exists
-  }
+    /* ================= Save Model (CORS-safe) + no-duplicate flow ================= */
 
-  // --- updated save flow with duplicate handling ---
-  async function saveAsNewModel(){
-    try{
-      if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
-      if (!currentSpecs || !Object.keys(currentSpecs).length)
-        return showStatus('Pick a model first, then tweak specs.','warning');
-
-      // 1) ask for a name
-      let name = prompt('Enter a name for the new model:');
-      if (!name || !name.trim()) return showStatus('Model name is required.','error');
-      name = name.trim();
-
-      // 2) check duplicates
-      const exists = await checkModelExists(name);
-      let overwrite = false;
-
-      if (exists) {
-        const doOverwrite = confirm(
-          `A model named "${name}" already exists.\n\n` +
-          `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
-        );
-
-        if (doOverwrite) {
-          overwrite = true; // proceed updating existing
-        } else {
-          // ask for a new name until unique or cancel
-          let newName = null;
-          while (true) {
-            newName = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
-            if (newName === null) return showStatus('Save cancelled.','warning'); // user cancelled
-            newName = newName.trim();
-            if (!newName) { alert('Name cannot be empty.'); continue; }
-            const exists2 = await checkModelExists(newName);
-            if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
-            name = newName;
-            break;
-          }
-        }
-      }
-
-      // 3) build payload
-      const payload = {
-        modelName: name,
-        overwrite, // tells the server to update instead of append
-        specs: {
-          ...currentSpecs,
-          Serial: (document.getElementById('serial')||{}).value || '',
-          Customer: (document.getElementById('customer')||{}).value || '',
-          Email: (document.getElementById('email')||{}).value || '',
-          'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
-          Notes: (document.getElementById('notes')||{}).value || ''
-        }
-      };
-
-      showStatus(overwrite ? '📡 Updating model…' : '📡 Saving new model…','info');
-
-      // 4) post via hidden iframe (same as before)
-      let heardBack = false;
-      const onMsg = async (evt)=>{
-        const msg = evt?.data || {};
-        if (msg.type === 'saveModel'){
-          heardBack = true; window.removeEventListener('message', onMsg);
-          if (msg.ok){
-            const verb = (msg.action === 'updated') ? 'updated' : 'saved';
-            showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
-            await loadModelsData();
-            const sel = document.getElementById('model');
-            sel.value = msg.name; sel.dispatchEvent(new Event('change'));
-          }else{
-            showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
-          }
-        }
-      };
-      window.addEventListener('message', onMsg);
-
-      document.getElementById('gasPayload').value = JSON.stringify(payload);
-      document.getElementById('gasForm').submit();
-
-      // 5) fallback (opaque no-cors) if iframe message doesn’t arrive
-      setTimeout(async ()=>{
-        if (heardBack) return;
-        try{
-          const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
-          await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
-          showStatus('✅ Saved (fallback). Refreshing models…','success');
-          await loadModelsData();
-          const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
-        }catch(e){
-          console.error(e); showStatus('❌ Fallback save failed.','error');
-        }finally{
-          window.removeEventListener('message', onMsg);
-        }
-      }, 4000);
-
-    }catch(err){
-      console.error(err);
-      showStatus(`❌ Error: ${err.message}`,'error');
+    // 1) helper to check for duplicates
+    async function checkModelExists(name){
+      const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'exists check failed');
+      return !!json.exists;
     }
-  }
-</script>
+
+    // 2) main save flow
+    async function saveAsNewModel(){
+      try{
+        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
+        if (!currentSpecs || !Object.keys(currentSpecs).length)
+          return showStatus('Pick a model first, then tweak specs.','warning');
+
+        let name = prompt('Enter a name for the new model:');
+        if (!name || !name.trim()) return showStatus('Model name is required.','error');
+        name = name.trim();
+
+        const exists = await checkModelExists(name);
+        let overwrite = false;
+
+        if (exists) {
+          const doOverwrite = confirm(
+            `A model named "${name}" already exists.\n\n` +
+            `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
+          );
+          if (doOverwrite) {
+            overwrite = true;
+          } else {
+            let newName = null;
+            while (true) {
+              newName = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
+              if (newName === null) return showStatus('Save cancelled.','warning');
+              newName = newName.trim();
+              if (!newName) { alert('Name cannot be empty.'); continue; }
+              const exists2 = await checkModelExists(newName);
+              if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
+              name = newName;
+              break;
+            }
+          }
+        }
+
+        const payload = {
+          modelName: name,
+          overwrite,
+          specs: {
+            ...currentSpecs,
+            Serial: (document.getElementById('serial')||{}).value || '',
+            Customer: (document.getElementById('customer')||{}).value || '',
+            Email: (document.getElementById('email')||{}).value || '',
+            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
+            Notes: (document.getElementById('notes')||{}).value || ''
+          }
+        };
+
+        showStatus(overwrite ? '📡 Updating model…' : '📡 Saving new model…','info');
+
+        let heardBack = false;
+        const onMsg = async (evt)=>{
+          const msg = evt?.data || {};
+          if (msg.type === 'saveModel'){
+            heardBack = true; window.removeEventListener('message', onMsg);
+            if (msg.ok){
+              const verb = (msg.action === 'updated') ? 'updated' : 'saved';
+              showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
+              await loadModelsData();
+              const sel = document.getElementById('model');
+              sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+            }else{
+              showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
+            }
+          }
+        };
+        window.addEventListener('message', onMsg);
+
+        document.getElementById('gasPayload').value = JSON.stringify(payload);
+        document.getElementById('gasForm').submit();
+
+        setTimeout(async ()=>{
+          if (heardBack) return;
+          try{
+            const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+            await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+            showStatus('✅ Saved (fallback). Refreshing models…','success');
+            await loadModelsData();
+            const sel = document.getElementById('model'); sel.value = payload.modelName; sel.dispatchEvent(new Event('change'));
+          }catch(e){
+            console.error(e); showStatus('❌ Fallback save failed.','error');
+          }finally{
+            window.removeEventListener('message', onMsg);
+          }
+        }, 4000);
+
+      }catch(err){
+        console.error(err);
+        showStatus(`❌ Error: ${err.message}`,'error');
+      }
+    }
+  </script>
 </body>
 </html>
