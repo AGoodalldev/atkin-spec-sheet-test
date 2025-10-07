@@ -105,18 +105,27 @@
               <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
             <div>
-              <div class="flex items-end justify-between">
-                <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-                <label class="flex items-center gap-2 text-xs select-none">
-                  <input id="showCustomOnly" type="checkbox" class="rounded">
-                  <span>Show only custom models</span>
-                </label>
-              </div>
-              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
-                <option value="">Loading…</option>
-              </select>
-            </div>
-          </div>
+             <div>
+  <!-- top row: label left, compact checkbox right -->
+  <div class="mb-1 flex items-center justify-between">
+    <label for="model" class="text-sm text-gray-700">Model</label>
+
+    <!-- smaller, subtle, and print-hidden -->
+    <label for="showCustomOnly"
+           class="print-hidden inline-flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-gray-600">
+      <input id="showCustomOnly"
+             type="checkbox"
+             class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+      <span class="leading-none">Show only custom models</span>
+    </label>
+  </div>
+
+  <select id="model"
+          class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
+    <option value="">Loading…</option>
+  </select>
+</div>
+
 
           <div class="grid md:grid-cols-4 gap-4">
             <div>
