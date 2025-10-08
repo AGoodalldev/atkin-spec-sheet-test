@@ -1,313 +1,236 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
   <title>Atkin Custom Spec Sheet</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    .guitar-bg{background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');background-size:cover;background-position:center;background-attachment:fixed;}
-    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
-    #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
-    #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
-    .print-only{display:none;}
-    .a4{max-width:900px;margin:0 auto;}
-    .sheet{background:#ffffffb3;backdrop-filter:blur(4px);}
-    @media print{
-      @page{size:A4 portrait;margin:8mm}
-      html,body,.guitar-bg{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important;background-image:none!important;overflow:visible!important}
-      .a4{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-      .sheet.a4{width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:5mm!important;background:#fff!important;border:1px solid #000!important;border-radius:0!important;box-shadow:none!important;zoom:.88}
-      .print-hidden{display:none!important}
-      body,input,select,textarea,label{font-size:10px!important;line-height:1.25!important}
-      h1{font-size:16px!important;margin:0 0 4mm 0!important;border-bottom:2px solid #000!important;padding-bottom:2mm!important;text-align:center}
-      h2{font-size:12px!important;margin:3mm 0 2mm!important}
-      .bg-gray-50{padding:3mm!important}
-      #specsGrid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;column-gap:4mm!important;row-gap:3mm!important}
-      #specsGrid>div,.grid,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important}
-      #rightLeft{display:none!important}
-      .print-only{display:inline-block!important}
-      .badge-right{background:#dcfce7!important;color:#14532d!important;border:1px solid #16a34a!important}
-      .badge-left{background:#fee2e2!important;color:#7f1d1d!important;border:1px solid #dc2626!important}
-    }
+    body { background:#0f3a36; font-family: ui-sans-serif, system-ui; margin:0; }
+    .wrap { max-width: 960px; margin: 24px auto; background:#f4f5f4; border-radius:16px; padding:20px 22px; }
+    h1 { margin: 0 0 12px; font-size: 20px; }
+    .row { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
+    label { font-size:12px; color:#374151; display:block; margin-bottom:4px; }
+    input, select, textarea { width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:12px; background:#fff; }
+    .section { margin-top:16px; }
+    .grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
+    .actions { display:flex; gap:10px; margin-top:14px; }
+    button { padding:8px 12px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; cursor:pointer; }
+    .pill { background:#dcfce7; border-color:#bbf7d0; }
+    .msg { margin:10px 0; padding:10px 12px; border-radius:10px; border:1px solid #f59e0b; background:#fffbeb; color:#92400e; display:none; }
+    .changed { outline:2px solid #f97316; background:#fff7ed; }
   </style>
 </head>
-<body class="guitar-bg">
-  <div class="p-6">
-    <div class="a4 sheet rounded-2xl shadow-xl border border-gray-200">
-      <div class="p-6 space-y-4">
-        <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
-        <div id="statusMessage" class="hidden"></div>
+<body>
+  <div class="wrap">
+    <h1>Atkin Custom Spec Sheet</h1>
 
-        <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
-          <div class="grid md:grid-cols-4 gap-4">
-            <div><label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label><input id="serial" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
-            <div><label for="customer" class="block text-sm text-gray-700 mb-1">Customer Name</label><input id="customer" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
-            <div><label for="email" class="block text-sm text-gray-700 mb-1">Contact Email</label><input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
-            <div>
-              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-              <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm"><option value="">Loading…</option></select>
-              <label for="showCustomOnly" class="mt-2 flex items-center gap-2 text-[12px] text-gray-600 print-hidden">
-                <input id="showCustomOnly" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-emerald-600"><span>Show only custom models</span>
-              </label>
-            </div>
-          </div>
+    <div id="status" class="msg"></div>
 
-          <div class="grid md:grid-cols-4 gap-4">
-            <div>
-              <label for="rightLeft" class="block text-sm text-gray-700 mb-1">RIGHT / LEFT</label>
-              <div class="flex items-center gap-3">
-                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none">
-                  <option value="">Select…</option><option value="RIGHT">RIGHT</option><option value="LEFT">LEFT</option>
-                </select>
-                <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="specsSection" class="space-y-4 hidden">
-          <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
-          <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
-        </div>
-
-        <div>
-          <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm" placeholder="Anything extra to capture…"></textarea>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-          <button id="btnPrint" class="rounded-2xl border px-4 py-2 text-sm shadow-sm hover:bg-gray-50">Print PDF</button>
-          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116" target="_blank" class="rounded-2xl border px-4 py-2 text-sm shadow-sm hover:bg-gray-50">Edit spec sheet (Google Sheets)</a>
-          <button id="btnSaveModel" class="rounded-2xl border px-4 py-2 text-sm shadow-sm bg-green-100 hover:bg-green-200">Save as New Model</button>
-          <button id="hardResetBtn" class="rounded-2xl border px-4 py-2 text-sm shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
-        </div>
-
-        <!-- Hidden POST -->
-        <form id="gasForm" method="POST" target="gasFrame" class="hidden"><input type="hidden" name="payload" id="gasPayload" /></form>
-        <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
-                sandbox="allow-forms allow-scripts allow-same-origin"
-                referrerpolicy="no-referrer"
-                srcdoc="<!doctype html><html><head><meta charset='utf-8'></head><body></body></html>"></iframe>
+    <div class="row">
+      <div><label>Serial Number</label><input id="serial"></div>
+      <div><label>Customer Name</label><input id="customer"></div>
+      <div><label>Contact Email</label><input id="email" type="email"></div>
+      <div>
+        <label>Model</label>
+        <select id="model"><option>Loading...</option></select>
+        <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px;">
+          <input id="showCustomOnly" type="checkbox"> Show only custom models
+        </label>
       </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div>
+        <label>RIGHT / LEFT</label>
+        <select id="rightLeft"><option value="">Select…</option><option>RIGHT</option><option>LEFT</option></select>
+      </div>
+      <div>
+        <label>Updated At</label>
+        <input id="updatedAt" readonly>
+      </div>
+    </div>
+
+    <div id="specs" class="section" style="display:none;">
+      <h3 style="margin:0 0 8px;">Specifications</h3>
+      <div id="specsGrid" class="grid"></div>
+    </div>
+
+    <div class="section">
+      <label>Additional Notes</label>
+      <textarea id="notes" rows="5" placeholder="Anything extra to capture…"></textarea>
+    </div>
+
+    <div class="actions">
+      <button id="btnPrint">Print PDF</button>
+      <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116"
+         target="_blank" rel="noreferrer">
+        <button>Edit spec sheet (Google Sheets)</button>
+      </a>
+      <button id="btnSave" class="pill">Save as New Model</button>
+      <button id="btnReset">Reset form</button>
     </div>
   </div>
 
   <script>
-    /* ===== CONFIG ===== */
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbzD_88prLZqTY9s-vguHZ71cx_4PDcTVscQkbQXKrHssZRS3GUL-SXVoxGDD-C6-N-i/exec";
-    document.getElementById('gasForm').action = GAS_BASE;
-
-    /* ===== State ===== */
     let MODEL_PRESETS = {}, CUSTOM_MODELS = {}, GUITAR_SPECS = {};
-    let baseline = {}, currentSpecs = {}, dirtyFields = new Set(), dataLoaded = false;
+    let baseline = {}, current = {}, dirty = new Set();
 
-    /* ===== Boot ===== */
-    window.addEventListener('DOMContentLoaded', () => {
-      bindUI();
-      Promise.all([
-        gasCall({action:'listModels'},  ['listModels']),
-        gasCall({action:'listCustom'},  ['listCustom']),
-        gasCall({action:'listOptions'}, ['listOptions'])
-      ]).then(([m,c,o])=>{
-        MODEL_PRESETS = m.data || {}; CUSTOM_MODELS = c.data || {}; GUITAR_SPECS = o.data || {};
-        dataLoaded = true; populateModelDropdown();
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`, 'success');
-      }).catch(err=> showStatus(`❌ Failed to load: ${err.message}`,'error'));
+    const $ = id => document.getElementById(id);
+    const msg = (t, ok=true)=>{ const s=$('status'); s.textContent=t; s.style.display='block'; s.style.borderColor= ok?'#86efac':'#fca5a5'; s.style.background= ok?'#ecfdf5':'#fef2f2'; s.style.color= ok?'#065f46':'#991b1b'; if(ok) setTimeout(()=>s.style.display='none',2500); };
 
-      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
+    document.addEventListener('DOMContentLoaded', () => {
+      bind();
+      google.script.run.withSuccessHandler(init).withFailureHandler(e=>msg('Load failed: '+e.message,false)).apiListAll();
     });
 
-    function bindUI(){
-      document.getElementById('btnPrint').addEventListener('click', printPdf);
-      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
-      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
-      document.getElementById('model').addEventListener('change', handleModelChange);
-      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
-      document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
+    function bind(){
+      $('btnPrint').onclick = printPdf;
+      $('btnSave').onclick = saveAsNewModel;
+      $('btnReset').onclick = () => location.reload();
+      $('model').onchange = handleModelChange;
+      $('showCustomOnly').onchange = populateModels;
+      $('rightLeft').onchange = () => updateBadge();
     }
 
-    /* ===== iframe POST helper ===== */
-function gasCall(payload, expectTypes = ['*'], timeoutMs = 15000){
-  return new Promise((resolve, reject)=>{
-    let done = false;
-    const onMsg = (evt)=>{
-      const msg = evt?.data || {};
-      if (expectTypes.includes('*') || expectTypes.includes(msg.type)){
-        window.removeEventListener('message', onMsg);
-        done = true;
-        if (msg.ok) resolve(msg); else reject(new Error(msg.error || 'Unknown error'));
-      }
-    };
-    window.addEventListener('message', onMsg, false);
-
-    // >>> New: GET via iframe src (no CORS, no form submit)
-    const url = GAS_BASE + '?payload=' + encodeURIComponent(JSON.stringify(payload)) + '&_cb=' + Date.now();
-    document.getElementById('gasFrame').src = url;
-
-    setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); reject(new Error('Timeout (check deployment + auth)')); }}, timeoutMs);
-  });
-}
-
-
-    /* ===== Status ===== */
-    function showStatus(message, type = 'info') {
-      const div = document.getElementById('statusMessage');
-      const tone = { success:'bg-green-50 border-green-200 text-green-800', warning:'bg-amber-50 border-amber-200 text-amber-800', info:'bg-amber-50 border-amber-200 text-amber-800', error:'bg-red-50 border-red-200 text-red-700' }[type];
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`; div.textContent = message; div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 3000);
+    function init(data){
+      MODEL_PRESETS = data.models || {};
+      CUSTOM_MODELS = data.custom || {};
+      GUITAR_SPECS  = data.options || {};
+      populateModels();
+      msg(`Loaded ${Object.keys(MODEL_PRESETS).length} factory / ${Object.keys(CUSTOM_MODELS).length} custom / ${Object.keys(GUITAR_SPECS).length} fields`);
     }
 
-    /* ===== Data/UI ===== */
-    function populateModelDropdown(){
-      const select = document.getElementById('model');
-      const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
-      const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
-      const placeholder = showCustomOnly ? 'Custom Model' : 'Factory Model';
-      select.innerHTML = ''; select.appendChild(new Option(placeholder, ''));
-      for (const n of Object.keys(source).sort()) select.appendChild(new Option(n, n));
-      select.value = ''; hideSpecs();
+    function populateModels(){
+      const showCustom = $('showCustomOnly').checked;
+      const src = showCustom ? CUSTOM_MODELS : MODEL_PRESETS;
+      const sel = $('model');
+      sel.innerHTML = '';
+      sel.appendChild(new Option(showCustom?'Custom Model':'Factory Model',''));
+      Object.keys(src).sort().forEach(n => sel.appendChild(new Option(n,n)));
+      $('specs').style.display='none';
     }
-    function handleRightLeftChange(e){
-      const val=e.target.value; e.target.classList.remove('right-selected','left-selected');
-      if (val==='RIGHT') e.target.classList.add('right-selected'); if (val==='LEFT') e.target.classList.add('left-selected'); updateHandedBadge(val);
+
+    function handleModelChange(){
+      const name = $('model').value;
+      if (!name){ $('specs').style.display='none'; return; }
+      const src = $('showCustomOnly').checked ? CUSTOM_MODELS : MODEL_PRESETS;
+      const data = src[name]; if (!data) return msg(`No data for ${name}`, false);
+      baseline = {...data}; current = {...data}; dirty.clear();
+      $('updatedAt').value = new Date().toISOString();
+      buildSpecsUI(data);
+      $('specs').style.display='block';
     }
-    function updateHandedBadge(val){
-      const badge=document.getElementById('handedBadge'); if(!badge) return;
-      badge.className='print-only text-xs font-semibold px-2 py-1 rounded border';
-      if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
-      else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
-      else { badge.textContent=''; }
-    }
-    function handleModelChange(e){
-      const name=e.target.value; if(!name){ hideSpecs(); return; }
-      const src = document.getElementById('showCustomOnly')?.checked ? CUSTOM_MODELS : MODEL_PRESETS;
-      const data = src[name]; if(!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
-      baseline = {...data}; currentSpecs = {...data}; dirtyFields.clear(); showSpecs(); buildSpecsUI(data);
-    }
-    function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
-    function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
 
     function buildSpecsUI(modelData){
-      const grid=document.getElementById('specsGrid'); grid.innerHTML='';
-      const fields=new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
-      for (const field of fields){
-        const wrap=document.createElement('div'); const value=modelData[field] ?? ''; const options=GUITAR_SPECS[field];
+      const g = $('specsGrid'); g.innerHTML='';
+      const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+      fields.forEach(field=>{
+        const wrap = document.createElement('div');
+        const options = GUITAR_SPECS[field];
+        const val = modelData[field] ?? '';
         if (Array.isArray(options) && options.length){
-          const sel=document.createElement('select'); sel.id=`spec-${field}`; sel.className='w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none';
-          sel.addEventListener('change',()=>handleSpecChange(field, sel.value));
-          sel.appendChild(new Option('Select…','')); for (const opt of options) sel.appendChild(new Option(opt,opt));
-          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
-          sel.value=value||''; wrap.innerHTML=`<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`; wrap.appendChild(sel);
-        } else {
-          const inp=document.createElement('input'); inp.type='text'; inp.readOnly=true; inp.value=value||''; inp.className='w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
-          wrap.innerHTML=`<label class="block text-sm text-gray-700 mb-1">${field}</label>`; wrap.appendChild(inp);
+          const sel = document.createElement('select');
+          sel.id = `spec-${field}`; sel.onchange=()=>onSpec(field, sel.value, sel);
+          sel.appendChild(new Option('Select…',''));
+          options.forEach(o=>sel.appendChild(new Option(o,o)));
+          if (val && !options.includes(val)) sel.appendChild(new Option(val,val));
+          sel.value = val || '';
+          wrap.innerHTML = `<label>${field}</label>`; wrap.appendChild(sel);
+        }else{
+          const i = document.createElement('input'); i.readOnly=true; i.value = val || '';
+          wrap.innerHTML = `<label>${field}</label>`; wrap.appendChild(i);
         }
-        grid.appendChild(wrap); currentSpecs[field]=value||'';
-      }
+        g.appendChild(wrap);
+        current[field] = val || '';
+      });
     }
-    function handleSpecChange(field, value){
-      currentSpecs[field]=value; const base=baseline[field] ?? ''; const sel=document.getElementById(`spec-${field}`);
-      if (!sel) return; if (value && value!==base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); } else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      const n=dirtyFields.size; if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
+    function onSpec(field, value, sel){
+      current[field] = value;
+      const base = baseline[field] ?? '';
+      if (value && value !== base){ dirty.add(field); sel.classList.add('changed'); }
+      else { dirty.delete(field); sel.classList.remove('changed'); }
+      if (dirty.size) msg(`${dirty.size} spec${dirty.size===1?'':'s'} modified`);
     }
 
-    /* ===== Print ===== */
     function printPdf(){
-      const selectedModel=document.getElementById('model')?.value; if (selectedModel) showSpecs();
-      updateHandedBadge(document.getElementById('rightLeft')?.value || '');
-      setTimeout(()=>{ const h1=document.querySelector('h1'); const original=h1.textContent; const serial=(document.getElementById('serial').value||'').trim();
-        h1.textContent=serial?`Atkin Custom Spec Sheet - Serial: ${serial}`:'Atkin Custom Spec Sheet'; window.print(); setTimeout(()=>{ h1.textContent=original; },250);
-      },80);
+      // keep using the browser print (your A4 CSS lives server-side for Drive PDF)
+      window.print();
     }
 
-    /* ===== Reset ===== */
-    function hardReset(){
-      const btn=document.getElementById('hardResetBtn'); btn.disabled=true; btn.textContent='Reloading…';
-      for (const id of ['serial','customer','email','notes']){ const el=document.getElementById(id); if(el) el.value=''; }
-      const modelSel=document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const handed=document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
-      MODEL_PRESETS={}; CUSTOM_MODELS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
-      Promise.all([gasCall({action:'listModels'},['listModels']), gasCall({action:'listCustom'},['listCustom']), gasCall({action:'listOptions'},['listOptions'])])
-        .then(([m,c,o])=>{ MODEL_PRESETS=m.data||{}; CUSTOM_MODELS=c.data||{}; GUITAR_SPECS=o.data||{}; btn.disabled=false; btn.textContent='Reset form'; populateModelDropdown(); showStatus('✅ Form reset completed','success'); })
-        .catch(err=>{ btn.disabled=false; btn.textContent='Reset form'; showStatus(`❌ Reset failed: ${err.message}`,'error'); });
-    }
-
-    /* ===== Save Model + PDF ===== */
     async function saveAsNewModel(){
+      // name prompt
+      let name = prompt('Enter a name for the new model:');
+      if (!name) return msg('Cancelled', false);
+      name = name.trim();
+
+      // existence check (CUSTOM only)
       try{
-        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
-
-        let name = prompt('Enter a name for the new model (this will also be the PDF file name):');
-        if (!name || !name.trim()) return showStatus('Model name is required.','error');
-        name = name.trim();
-
-        const exists = await gasCall({action:'exists', where:'custom', name}, ['exists']).then(r => !!r.exists);
+        const existsRes = await new Promise((res,rej)=>
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiExists(name,'custom')
+        );
         let overwrite = false;
-        if (exists){
-          const doOverwrite = confirm(`A custom model named "${name}" already exists.\n\nOK = Overwrite existing\nCancel = Pick a different name`);
-          if (!doOverwrite){
-            while(true){
-              const alt = prompt('Enter a different name (or Cancel):', name + ' (copy)');
-              if (alt === null) return showStatus('Save cancelled.','warning');
-              if (!alt.trim()) { alert('Name cannot be empty'); continue; }
-              const exists2 = await gasCall({action:'exists', where:'custom', name:alt.trim()}, ['exists']).then(r => !!r.exists);
-              if (exists2) { alert(`"${alt}" already exists.`); continue; }
-              name = alt.trim(); break;
-            }
-          } else overwrite = true;
-        }
-
-        const specsPayload = {
-          ...currentSpecs,
-          Serial:(document.getElementById('serial')||{}).value || '',
-          Customer:(document.getElementById('customer')||{}).value || '',
-          Email:(document.getElementById('email')||{}).value || '',
-          'RIGHT / LEFT':(document.getElementById('rightLeft')||{}).value || '',
-          Notes:(document.getElementById('notes')||{}).value || ''
-        };
-
-        showStatus('📡 Saving…','info');
-
-        const saved = await gasCall({action:'saveModel', modelName:name, specs:specsPayload, overwrite}, ['saveModel']);
-        const verb = (saved.action === 'updated') ? 'updated' : 'saved';
-        showStatus(`✅ Model “${saved.name}” ${verb} to Custom Models`,'success');
-
-        const custom = await gasCall({action:'listCustom'}, ['listCustom']);
-        CUSTOM_MODELS = custom.data || {}; populateModelDropdown();
-        const sel = document.getElementById('model'); if (sel){ sel.value = saved.name; sel.dispatchEvent(new Event('change', {bubbles:true})); }
-
-        const wantPdf = confirm('Save PDF to Google Drive now?');
-        if (wantPdf){
-          const pdf = await gasCall({
-            action:'savePdf', fileName: ensurePdfExt(name),
-            serial:(document.getElementById('serial')||{}).value || '',
-            modelName:saved.name, specs:specsPayload, overwriteDrive:false
-          }, ['pdfSaved','savePdf']).catch(err => ({ ok:false, error:err.message }));
-
-          if (pdf && pdf.ok){
-            showStatus(`✅ PDF saved${pdf.replaced ? ' (overwritten)':''}. Link copied to clipboard.`, 'success');
-            try { await navigator.clipboard.writeText(pdf.link); } catch(_) {}
-          } else if (pdf && /already exists/i.test(pdf.error||'')) {
-            const ow = confirm(`A PDF named "${ensurePdfExt(name)}" already exists.\n\nOK = Overwrite\nCancel = Skip`);
-            if (ow){
-              const pdf2 = await gasCall({
-                action:'savePdf', fileName: ensurePdfExt(name),
-                serial:(document.getElementById('serial')||{}).value || '',
-                modelName:saved.name, specs:specsPayload, overwriteDrive:true
-              }, ['pdfSaved','savePdf']);
-              showStatus('✅ PDF overwritten. Link copied to clipboard.','success');
-              try { await navigator.clipboard.writeText(pdf2.link); } catch(_) {}
-            }
-          } else if (pdf && pdf.error){
-            showStatus(`❌ PDF error: ${pdf.error}`,'error');
+        if (existsRes.exists){
+          if (!confirm(`A custom model named "${name}" exists.\n\nOK = Overwrite\nCancel = Choose another`)){
+            const alt = prompt('Enter a different name:', name + ' (copy)');
+            if (!alt) return msg('Cancelled', false);
+            name = alt.trim();
+            const ex2 = await new Promise((res,rej)=>
+              google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiExists(name,'custom')
+            );
+            if (ex2.exists) return msg(`"${name}" already exists`, false);
+          } else {
+            overwrite = true;
           }
         }
-      }catch(err){ showStatus(`❌ Error: ${err.message}`,'error'); }
+
+        // build specs payload
+        const specs = {
+          ...current,
+          Serial:   $('serial').value || '',
+          Customer: $('customer').value || '',
+          Email:    $('email').value || '',
+          'RIGHT / LEFT': $('rightLeft').value || '',
+          Notes: $('notes').value || '',
+          'Updated At': new Date().toISOString(),
+        };
+
+        // save model (always to CUSTOM MODELS)
+        const saved = await new Promise((res,rej)=>
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej)
+            .apiSaveModel({ modelName:name, specs, overwrite })
+        );
+        if (!saved.ok) return msg('Save failed: '+(saved.error||'Unknown'), false);
+        msg(`Model “${saved.name}” ${saved.action === 'updated' ? 'updated' : 'created'}`);
+
+        // refresh lists
+        const fresh = await new Promise((res,rej)=>
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiListAll()
+        );
+        MODEL_PRESETS = fresh.models || {};
+        CUSTOM_MODELS = fresh.custom || {};
+        populateModels();
+        $('model').value = saved.name; handleModelChange();
+
+        // ask to save PDF to Drive
+        if (confirm('Save PDF to Google Drive now?')){
+          const serial = $('serial').value || saved.name;
+          const pdf = await new Promise((res,rej)=>
+            google.script.run.withSuccessHandler(res).withFailureHandler(rej)
+              .apiSavePdf({ serial, modelName:saved.name, specs, fileName: serial })
+          );
+          if (pdf.ok){
+            msg('PDF saved to Drive' + (pdf.replaced?' (overwritten)':'')); 
+          } else {
+            msg('PDF save failed: '+(pdf.error||'Unknown'), false);
+          }
+        }
+      }catch(err){
+        msg('Error: '+(err && err.message || err), false);
+      }
     }
 
-    function ensurePdfExt(name){ return (name && name.toLowerCase().endsWith('.pdf')) ? name : (name + '.pdf'); }
+    function updateBadge(){ /* placeholder for printed badge if needed */ }
   </script>
 </body>
 </html>
