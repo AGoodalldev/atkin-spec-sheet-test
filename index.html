@@ -140,7 +140,8 @@
   <script>
     /* ================= CONFIG ================= */
     // 👉 IMPORTANT: set this to your current Web App /exec URL if you redeploy
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbzqmZ7x2P64ld5ZCbcc8FlZH-fpBMgOK5A4Slrhn4usVxuG6jcNf5II7u0LP8hwQnNX/exec";
+    // RIGHT for external hosting (works in hidden iframe)
+const GAS_BASE = "https://script.googleusercontent.com/macros/echo?user_content_key=...&lib=...";
     document.getElementById('gasForm').action = GAS_BASE;
 
     /* ================= State ================= */
