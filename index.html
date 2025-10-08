@@ -1,88 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atkin Custom Spec Sheet (Workshop)</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Atkin Custom Spec Sheet</title>
+<script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Tailwind for dev preview; OK to keep here -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .guitar-bg{
+    background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
+    background-size:cover;background-position:center;background-attachment:fixed;
+  }
+  .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
+  #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
+  #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
+  .print-only{display:none;}
+  .a4{max-width:900px;margin:0 auto;}
+  .sheet{background:#ffffffb3;backdrop-filter:blur(4px);}
 
-  <!-- html2pdf bundle (includes html2canvas + jsPDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-
-  <style>
-    /* ---------- Screen helpers ---------- */
-    .guitar-bg{
-      background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
-      background-size:cover;background-position:center;background-attachment:fixed;
-    }
-    .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
-    #rightLeft.right-selected{background:#dcfce7!important;border-color:#16a34a!important;color:#15803d!important;}
-    #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
-    .print-only{display:none;}
-
-    /* Layout wrapper for A4 */
-    .a4      { max-width: 900px; margin: 0 auto; }
-    .sheet   { background: #ffffffb3; backdrop-filter: blur(4px); }
-
-    /* ---------- PRINT: single A4 page ---------- */
-    @media print{
-      @page { size: A4 portrait; margin: 8mm; }
-
-      html, body, .guitar-bg {
-        width:210mm !important; height:297mm !important;
-        margin:0 !important; padding:0 !important;
-        background:#fff !important; background-image:none !important;
-        overflow:visible !important;
-      }
-
-      .a4 { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
-      .sheet.a4 {
-        width:194mm !important;                       /* 210 - (8 + 8) */
-        min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
-        padding:5mm !important;
-        box-sizing:border-box !important;
-        background:#fff !important;
-        border:1px solid #000 !important;
-        border-radius:0 !important;
-        box-shadow:none !important;
-        zoom: 0.88;                                   /* tweak if needed */
-      }
-
-      .print-hidden{ display:none !important; }
-
-      body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
-      h1 { font-size: 16px !important; margin: 0 0 4mm 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align: center; }
-      h2 { font-size: 12px !important; margin: 3mm 0 2mm !important; }
-
-      input, select, textarea {
-        min-height: 20px !important;
-        padding: 2px 6px !important;
-        border: 1px solid #bdbdbd !important;
-        box-shadow: none !important;
-      }
-      .bg-gray-50 { padding: 3mm !important; }
-
-      /* Specs grid: 3 columns, small gaps, avoid breaks */
-      #specsGrid {
-        display:grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        column-gap: 4mm !important;
-        row-gap: 3mm !important;
-      }
-      #specsGrid > div, .grid, .space-y-4 > * {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-
-      #rightLeft { display: none !important; }
-      .print-only { display: inline-block !important; }
-      .badge-right{ background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
-      .badge-left { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
-    }
-  </style>
+  @media print{
+    @page{ size:A4 portrait; margin:8mm; }
+    html, body, .guitar-bg{ width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important;background-image:none!important;overflow:visible!important; }
+    .a4{ -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+    .sheet.a4{ width:194mm!important; min-height:calc(297mm - 16mm)!important; padding:5mm!important; box-sizing:border-box!important; background:#fff!important; border:1px solid #000!important; border-radius:0!important; box-shadow:none!important; }
+    .print-hidden{ display:none!important; }
+    body, input, select, textarea, label { font-size:10px!important; line-height:1.25!important; }
+    h1{ font-size:16px!important; margin:0 0 4mm 0!important; border-bottom:2px solid #000!important; padding-bottom:2mm!important; text-align:center; }
+    h2{ font-size:12px!important; margin:3mm 0 2mm!important; }
+    input,select,textarea{ min-height:20px!important; padding:2px 6px!important; border:1px solid #bdbdbd!important; box-shadow:none!important; }
+    .bg-gray-50{ padding:3mm!important; }
+    #specsGrid{ display:grid!important; grid-template-columns:repeat(3,1fr)!important; column-gap:4mm!important; row-gap:3mm!important; }
+    #specsGrid>div, .grid, .space-y-4>*{ break-inside:avoid!important; page-break-inside:avoid!important; }
+    #rightLeft{ display:none!important; }
+    .print-only{ display:inline-block!important; }
+    .badge-right{ background:#dcfce7!important; color:#14532d!important; border:1px solid #16a34a!important; }
+    .badge-left { background:#fee2e2!important; color:#7f1d1d!important; border:1px solid #dc2626!important; }
+  }
+</style>
 </head>
 
 <body class="guitar-bg">
@@ -93,10 +47,7 @@
 
         <div id="statusMessage" class="hidden"></div>
 
-        <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
-
-          <!-- Top row (Serial, Customer, Email, Model) -->
           <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
@@ -111,15 +62,16 @@
               <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
 
-            <!-- MODEL with tidy filter (checkbox under dropdown) -->
+            <!-- Model + filter (checkbox below select) -->
             <div>
-              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
+              <label for="model" class="text-sm text-gray-700 mb-1 block">Model</label>
               <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
                 <option value="">Loading…</option>
               </select>
-              <!-- filter under the select -->
-              <label for="showCustomOnly" class="print-hidden mt-2 inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-600">
-                <input id="showCustomOnly" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+              <label for="showCustomOnly"
+                     class="mt-2 flex items-center gap-2 text-xs text-gray-600 select-none cursor-pointer print-hidden">
+                <input id="showCustomOnly" type="checkbox"
+                       class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                 <span>Show only custom models</span>
               </label>
             </div>
@@ -140,40 +92,25 @@
           </div>
         </div>
 
-        <!-- Specs -->
         <div id="specsSection" class="space-y-4 hidden">
           <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
           <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
         </div>
 
-        <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
           <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture…"></textarea>
         </div>
 
-        <!-- Actions -->
         <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
           <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">Print PDF</button>
-
-          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116"
-             target="_blank" rel="noreferrer"
-             class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 no-underline">
-            Edit spec sheet (Google Sheets)
-          </a>
-
-          <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">
-            Save as New Model
-          </button>
-
-          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">
-            Reset form
-          </button>
+          <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">Save as New Model</button>
+          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
         </div>
 
-        <!-- Hidden CORS-safe POST (shared for model + PDF) -->
+        <!-- Hidden CORS-safe POST -->
         <form id="gasForm" method="POST" target="gasFrame" class="hidden">
-          <input type="hidden" name="payload" id="gasPayload" />
+          <input type="hidden" name="payload" id="gasPayload"/>
         </form>
         <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
                 sandbox="allow-forms allow-scripts"
@@ -183,407 +120,330 @@
     </div>
   </div>
 
-  <script>
-    /* ================= CONFIG ================= */
-    // 👉 Set to your current /exec URL
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyrPBsaCUAujnptaa417pdubcbe6ookNWTqOFQZWeoX3_NR_Nr8QwLyPJDCCPmSryPL/exec";
-    document.getElementById('gasForm').action = GAS_BASE;
+<script>
+/* ================= CONFIG ================= */
+// 👉 Set to your active Web App /exec URL (copy from Apps Script deployment)
+const GAS_BASE = 'https://script.google.com/macros/s/AKfycbyNhLpEaBXdZnkWzLKKqDlCRIbm7HoGDm07HTCOkpRooFyE-OSOuB85ObIw2OISrPhV/exec';
+document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ================= State ================= */
-    let MODEL_PRESETS = {};      // factory
-    let CUSTOM_MODELS = {};      // custom
-    let GUITAR_SPECS = {};
-    let baseline = {};
-    let currentSpecs = {};
-    let dirtyFields = new Set();
-    let dataLoaded = false;
+/* ================= State ================= */
+let MODEL_PRESETS = {};    // factory models
+let CUSTOM_MODELS = {};    // custom models
+let GUITAR_SPECS = {};
+let baseline = {};
+let currentSpecs = {};
+let dirtyFields = new Set();
+let dataLoaded = false;
 
-    /* ================= Boot ================= */
-    window.addEventListener('DOMContentLoaded', () => {
-      bindUI();
-      loadAllData();
-      window.addEventListener('message', evt => {
-        const msg = evt?.data || {};
-        if (msg.type === 'saveModel') console.log('↩️ saveModel reply', msg);
-        if (msg.type === 'uploadPdf') console.log('↩️ uploadPdf reply', msg);
-      });
-      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
-    });
+/* ================= Boot ================= */
+window.addEventListener('DOMContentLoaded', () => {
+  bindUI();
+  loadAllData();
+  window.addEventListener('message', (evt) => {
+    if (evt?.data?.type === 'saveModel') console.log('↩️ saveModel reply:', evt.data);
+  });
+  window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
+});
 
-    function bindUI(){
-      document.getElementById('btnPrint').addEventListener('click', printPdf);
-      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
-      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
-      document.getElementById('model').addEventListener('change', handleModelChange);
-      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
-      document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
+function bindUI(){
+  document.getElementById('btnPrint').addEventListener('click', printPdf);
+  document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
+  document.getElementById('hardResetBtn').addEventListener('click', hardReset);
+  document.getElementById('model').addEventListener('change', handleModelChange);
+  document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
+  document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
+}
+
+/* ================= Status (amber “info”) ================= */
+function showStatus(message, type='info'){
+  const div = document.getElementById('statusMessage');
+  const tone = {
+    success:'bg-green-50 border-green-200 text-green-800',
+    warning:'bg-amber-50 border-amber-200 text-amber-800',
+    info:'bg-amber-50 border-amber-200 text-amber-800',
+    error:'bg-red-50 border-red-200 text-red-700'
+  }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
+  div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
+  div.textContent = message;
+  div.classList.remove('hidden');
+  if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 3000);
+}
+
+/* ================= Data load ================= */
+async function loadAllData(){
+  try{
+    showStatus('Loading data…','info');
+    await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
+    dataLoaded = true;
+    showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom`, 'success');
+    populateModelDropdown();
+  }catch(err){
+    console.error(err);
+    showStatus(`❌ Failed to load: ${err.message}`, 'error');
+  }
+}
+async function loadModelsData(){
+  const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'models error');
+  MODEL_PRESETS = json.data || {};
+}
+async function loadCustomModels(){
+  const res = await fetch(`${GAS_BASE}?kind=custom&_cb=${Date.now()}`);
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'custom error');
+  CUSTOM_MODELS = json.data || {};
+}
+async function loadOptionsData(){
+  const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'options error');
+  GUITAR_SPECS = json.data || {};
+}
+
+/* ================= Model dropdown with filter ================= */
+function populateModelDropdown(){
+  const select = document.getElementById('model');
+  const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
+
+  const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+  const placeholder = showCustomOnly ? 'Custom Model' : 'Factory Model';
+
+  select.innerHTML = '';
+  select.appendChild(new Option(placeholder, ''));
+
+  const names = Object.keys(source).sort();
+  for (const n of names) select.appendChild(new Option(n, n));
+
+  // clear current selection when switching
+  select.value = '';
+  hideSpecs();
+}
+
+/* ================= UI handlers ================= */
+function handleRightLeftChange(e){
+  const val = e.target.value;
+  e.target.classList.remove('right-selected','left-selected');
+  if (val==='RIGHT') e.target.classList.add('right-selected');
+  if (val==='LEFT')  e.target.classList.add('left-selected');
+  updateHandedBadge(val);
+}
+function updateHandedBadge(val){
+  const badge = document.getElementById('handedBadge');
+  if (!badge) return;
+  badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
+  if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
+  else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
+  else { badge.textContent=''; }
+}
+
+function handleModelChange(e){
+  const name = e.target.value;
+  if (!name){ hideSpecs(); return; }
+  const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
+  const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
+  const data = source[name];
+  if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
+
+  baseline = {...data};
+  currentSpecs = {...data};
+  dirtyFields.clear();
+  showSpecs();
+  buildSpecsUI(data);
+}
+
+function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
+function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
+
+function buildSpecsUI(modelData){
+  const grid = document.getElementById('specsGrid');
+  grid.innerHTML = '';
+  const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+  for (const field of fields){
+    const wrapper = document.createElement('div');
+    const value = modelData[field] ?? '';
+    const options = GUITAR_SPECS[field];
+
+    if (Array.isArray(options) && options.length){
+      const sel = document.createElement('select');
+      sel.id = `spec-${field}`;
+      sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
+      sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
+      sel.appendChild(new Option('Select…',''));
+      for (const opt of options) sel.appendChild(new Option(opt,opt));
+      if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
+      sel.value = value || '';
+
+      wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
+      wrapper.appendChild(sel);
+    } else {
+      const inp = document.createElement('input');
+      inp.type='text'; inp.readOnly = true; inp.value = value || '';
+      inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
+      wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
+      wrapper.appendChild(inp);
     }
+    grid.appendChild(wrapper);
+    currentSpecs[field] = value || '';
+  }
+}
 
-    /* ================= Status ================= */
-    function showStatus(message, type = 'info') {
-      const div = document.getElementById('statusMessage');
-      const tone = {
-        success: 'bg-green-50 border-green-200 text-green-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        info:    'bg-amber-50 border-amber-200 text-amber-800',
-        error:   'bg-red-50 border-red-200 text-red-700'
-      }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
+function handleSpecChange(field, value){
+  currentSpecs[field] = value;
+  const base = baseline[field] ?? '';
+  const sel = document.getElementById(`spec-${field}`);
+  if (!sel) return;
+  if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
+  else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
+  const n = dirtyFields.size;
+  if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
+}
 
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-      div.textContent = message;
-      div.classList.remove('hidden');
-      if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3000);
-    }
+/* ================= Print ================= */
+function printPdf(){
+  const selectedModel = document.getElementById('model')?.value;
+  if (selectedModel) showSpecs();
+  updateHandedBadge(document.getElementById('rightLeft')?.value || '');
+  setTimeout(()=>{
+    const h1 = document.querySelector('h1');
+    const original = h1.textContent;
+    const serial = (document.getElementById('serial').value || '').trim();
+    h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
+    window.print();
+    setTimeout(()=>{ h1.textContent = original; }, 250);
+  }, 80);
+}
 
-    /* ================= Data load ================= */
-    async function loadAllData(){
-      try{
-        showStatus('Loading data…','info');
-        await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
-        dataLoaded = true;
-        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`,'success');
-        populateModelDropdown();
-      }catch(err){
-        console.error(err);
-        showStatus(`❌ Failed to load: ${err.message}`,'error');
+/* ================= Reset ================= */
+function hardReset(){
+  const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
+  for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
+  const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
+  const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
+  baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
+  setTimeout(async ()=>{
+    await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success');
+  }, 600);
+}
+
+/* ================= Robust Save (iframe + fallback) ================= */
+async function saveAsNewModel(){
+  try{
+    if (!dataLoaded) { showStatus('⚠️ Data not loaded yet','warning'); return; }
+    if (!currentSpecs || !Object.keys(currentSpecs).length) { showStatus('Pick a model first, then tweak specs.','warning'); return; }
+
+    // Choose whether to save into Custom or Factory based on filter
+    const saveToCustom = document.getElementById('showCustomOnly')?.checked === true;
+
+    // Ask name
+    let name = prompt('Enter a name for the new model:');
+    if (!name || !name.trim()) { showStatus('Model name is required.','error'); return; }
+    name = name.trim();
+
+    // Duplicate check
+    const where = saveToCustom ? 'custom' : 'factory';
+    const existsRes = await fetch(`${GAS_BASE}?kind=exists&where=${where}&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
+    const existsJson = await existsRes.json();
+    if (!existsJson.ok) throw new Error(existsJson.error || 'exists check failed');
+
+    let overwrite = false;
+    if (existsJson.exists) {
+      const doOverwrite = confirm(
+        `A ${saveToCustom ? 'custom' : 'factory'} model named "${name}" already exists.\n\nOK = Overwrite existing\nCancel = Pick a different name`
+      );
+      if (!doOverwrite) {
+        // loop until unique / cancel
+        while (true) {
+          const alt = prompt('Enter a different name (or Cancel):', name + ' (copy)');
+          if (alt === null) return showStatus('Save cancelled.','warning');
+          if (!alt.trim()) { alert('Name cannot be empty'); continue; }
+          const exists2 = await fetch(`${GAS_BASE}?kind=exists&where=${where}&name=${encodeURIComponent(alt.trim())}&_cb=${Date.now()}`);
+          const j2 = await exists2.json();
+          if (!j2.ok) throw new Error(j2.error || 'exists check failed');
+          if (j2.exists) { alert(`"${alt}" already exists.`); continue; }
+          name = alt.trim();
+          break;
+        }
+      } else {
+        overwrite = true;
       }
     }
 
-    async function loadModelsData(){
-      const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
-    }
-
-    async function loadCustomModels(){
-      const res = await fetch(`${GAS_BASE}?kind=custom_models&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'custom models error');
-      CUSTOM_MODELS = json.data || {};
-    }
-
-    async function loadOptionsData(){
-      const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'options error');
-      GUITAR_SPECS = json.data || {};
-    }
-
-    function populateModelDropdown(){
-      const select = document.getElementById('model');
-      const onlyCustom = document.getElementById('showCustomOnly')?.checked === true;
-      const source = onlyCustom ? CUSTOM_MODELS : MODEL_PRESETS;
-      const placeholder = onlyCustom ? 'Custom Model' : 'Factory Model';
-
-      select.innerHTML = '';
-      select.appendChild(new Option(placeholder,''));
-      const names = Object.keys(source).sort();
-      for (const n of names) select.appendChild(new Option(n,n));
-
-      // clear selection + hide specs (to avoid stale)
-      select.value = '';
-      hideSpecs();
-    }
-
-    /* ================= UI ================= */
-    function handleRightLeftChange(e){
-      const val = e.target.value;
-      e.target.classList.remove('right-selected','left-selected');
-      if (val==='RIGHT') e.target.classList.add('right-selected');
-      if (val==='LEFT')  e.target.classList.add('left-selected');
-      updateHandedBadge(val);
-    }
-
-    function updateHandedBadge(val){
-      const badge = document.getElementById('handedBadge');
-      if (!badge) return;
-      badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
-      if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
-      else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
-      else { badge.textContent=''; }
-    }
-
-    function handleModelChange(e){
-      const onlyCustom = document.getElementById('showCustomOnly')?.checked === true;
-      const source = onlyCustom ? CUSTOM_MODELS : MODEL_PRESETS;
-
-      const name = e.target.value;
-      if (!name){ hideSpecs(); return; }
-
-      const data = source[name];
-      if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
-
-      baseline = {...data};
-      currentSpecs = {...data};
-      dirtyFields.clear();
-
-      showSpecs();
-      buildSpecsUI(data);
-    }
-
-    function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
-    function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
-
-    function buildSpecsUI(modelData){
-      const grid = document.getElementById('specsGrid');
-      grid.innerHTML = '';
-
-      const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
-      for (const field of fields){
-        const wrapper = document.createElement('div');
-        const value = modelData[field] ?? '';
-        const options = GUITAR_SPECS[field];
-
-        if (Array.isArray(options) && options.length){
-          const sel = document.createElement('select');
-          sel.id = `spec-${field}`;
-          sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
-          sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
-          sel.appendChild(new Option('Select…',''));
-          for (const opt of options) sel.appendChild(new Option(opt,opt));
-          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
-          sel.value = value || '';
-
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
-          wrapper.appendChild(sel);
-
-          // restore highlight if differs from baseline
-          if (value !== (baseline[field] ?? '')) sel.classList.add('highlight-changed');
-        }else{
-          const inp = document.createElement('input');
-          inp.type='text'; inp.readOnly = true; inp.value = value || '';
-          inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
-          wrapper.appendChild(inp);
-        }
-
-        grid.appendChild(wrapper);
-        currentSpecs[field] = value || '';
+    const payload = {
+      modelName:name,
+      overwrite,
+      saveToCustom,
+      specs:{
+        ...currentSpecs,
+        Serial:(document.getElementById('serial')||{}).value || '',
+        Customer:(document.getElementById('customer')||{}).value || '',
+        Email:(document.getElementById('email')||{}).value || '',
+        'RIGHT / LEFT':(document.getElementById('rightLeft')||{}).value || '',
+        Notes:(document.getElementById('notes')||{}).value || ''
       }
-    }
+    };
 
-    function handleSpecChange(field, value){
-      currentSpecs[field] = value;
-      const base = baseline[field] ?? '';
-      const sel = document.getElementById(`spec-${field}`);
-      if (!sel) return;
-      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
-      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      const n = dirtyFields.size;
-      if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
-    }
+    showStatus('📡 Saving…','info');
 
-    /* ================= Print ================= */
-    function printPdf(){
-      const selectedModel = document.getElementById('model')?.value;
-      if (selectedModel) showSpecs();
-      updateHandedBadge(document.getElementById('rightLeft')?.value || '');
+    const form = document.getElementById('gasForm');
+    const input = document.getElementById('gasPayload');
+    input.value = JSON.stringify(payload);
 
-      setTimeout(()=>{
-        const h1 = document.querySelector('h1');
-        const original = h1.textContent;
-        const serial = (document.getElementById('serial').value || '').trim();
-        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
+    let heardBack = false;
+    let fallbackStarted = false;
 
-        window.print();
-
-        setTimeout(()=>{ h1.textContent = original; }, 250);
-      }, 80);
-    }
-
-    /* ================= Reset ================= */
-    function hardReset(){
-      const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
-      for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
-      const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
-      MODEL_PRESETS={}; CUSTOM_MODELS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
-      setTimeout(async ()=>{
-        await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success');
-      }, 600);
-    }
-
-    /* ================= Save Model + (optional) PDF to Drive ================= */
-
-    // existence checks (server endpoints)
-    async function checkFactoryExists(name){
-      const res = await fetch(`${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'exists check failed');
-      return !!json.exists;
-    }
-    async function checkCustomExists(name){
-      const res = await fetch(`${GAS_BASE}?kind=custom_exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'custom exists check failed');
-      return !!json.exists;
-    }
-
-    // render the current sheet to a single-page A4 PDF, return Blob
-    async function generatePdfBlob(){
-      const el = document.querySelector('.sheet.a4') || document.querySelector('.sheet');
-      const opt = {
-        margin:       [8,8,8,8],              // mm
-        filename:     'temp.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all','css','legacy'] }
-      };
-      return await html2pdf().set(opt).from(el).outputPdf('blob');
-    }
-
-    // upload PDF to Drive via iframe form (no CORS)
-    function uploadPdfToDrive({fileName, base64, overwrite}){
-      return new Promise((resolve) => {
-        const payload = { action: 'uploadPdf', fileName, pdfBase64: base64, overwrite: !!overwrite };
-        let done = false;
-        const onMsg = (evt)=>{
-          const msg = evt?.data || {};
-          if (msg.type === 'uploadPdf'){
-            window.removeEventListener('message', onMsg);
-            done = true;
-            resolve(msg);
-          }
-        };
-        window.addEventListener('message', onMsg);
-
-        document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasForm').submit();
-
-        // safety timeout (resolve anyway)
-        setTimeout(()=>{ if (!done){ window.removeEventListener('message', onMsg); resolve({ok:false,error:'Timeout'});} }, 15000);
-      });
-    }
-
-    async function saveAsNewModel(){
-      try{
-        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
-        if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
-
-        // ask for name
-        let name = prompt('Enter a name for the new model:');
-        if (!name || !name.trim()) return showStatus('Model name is required.','error');
-        name = name.trim();
-
-        // we always save customs into the CUSTOM MODELS sheet
-        const exists = await checkCustomExists(name);
-        let overwrite = false;
-
-        if (exists) {
-          const doOverwrite = confirm(
-            `A custom model named "${name}" already exists.\n\n` +
-            `OK = Overwrite existing\nCancel = Save under a different name`
-          );
-          if (doOverwrite){
-            overwrite = true;
-          } else {
-            let newName = null;
-            while (true) {
-              newName = prompt('Enter a different name for the duplicate (or Cancel):', name + ' (copy)');
-              if (newName === null) return showStatus('Save cancelled.','warning');
-              newName = newName.trim();
-              if (!newName) { alert('Name cannot be empty.'); continue; }
-              const exists2 = await checkCustomExists(newName);
-              if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
-              name = newName;
-              break;
-            }
-          }
-        }
-
-        // payload to GAS (save model)
-        const payload = {
-          modelName: name,
-          overwrite,
-          saveTo: 'custom', // always custom sheet
-          specs: {
-            ...currentSpecs,
-            Serial: (document.getElementById('serial')||{}).value || '',
-            Customer: (document.getElementById('customer')||{}).value || '',
-            Email: (document.getElementById('email')||{}).value || '',
-            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
-            Notes: (document.getElementById('notes')||{}).value || ''
-          }
-        };
-
-        showStatus(overwrite ? '📡 Updating custom model…' : '📡 Saving new custom model…','info');
-
-        // iframe round-trip for model save
-        const modelSaved = await new Promise((resolve)=>{
-          let done=false;
-          const onMsg=(evt)=>{
-            const msg = evt?.data || {};
-            if (msg.type === 'saveModel'){
-              window.removeEventListener('message', onMsg);
-              done=true; resolve(msg);
-            }
-          };
-          window.addEventListener('message', onMsg);
-          document.getElementById('gasPayload').value = JSON.stringify({ action:'saveModel', ...payload });
-          document.getElementById('gasForm').submit();
-          setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); resolve({ok:false,error:'Timeout'});} },15000);
-        });
-
-        if (!modelSaved.ok) {
-          showStatus(`❌ Save failed: ${modelSaved.error || 'Unknown error'}`,'error');
-          return;
-        }
-
-        showStatus(`✅ Model “${modelSaved.name}” ${modelSaved.action==='updated'?'updated':'saved'}`,'success');
-
-        // refresh custom list, switch filter to custom + select saved model
-        await loadCustomModels();
-        document.getElementById('showCustomOnly').checked = true;
+    const onMsg = async (evt) => {
+      const msg = evt && evt.data || {};
+      if (msg.type !== 'saveModel') return;
+      heardBack = true;
+      window.removeEventListener('message', onMsg);
+      if (msg.ok) {
+        const verb = (msg.action === 'updated') ? 'updated' : 'saved';
+        showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
+        if (saveToCustom) await loadCustomModels(); else await loadModelsData();
         populateModelDropdown();
         const sel = document.getElementById('model');
-        sel.value = modelSaved.name; sel.dispatchEvent(new Event('change'));
-
-        // ask about Drive PDF
-        const doPdf = confirm('Save a 1-page A4 PDF to Drive now?');
-        if (!doPdf) return;
-
-        // generate A4 single-page PDF
-        showStatus('📄 Rendering PDF…','info');
-        const blob = await generatePdfBlob();
-
-        // to base64
-        const b64 = await new Promise((resolve)=>{
-          const fr = new FileReader();
-          fr.onload = ()=> resolve(fr.result.split(',')[1]);
-          fr.readAsDataURL(blob);
-        });
-
-        const serial = (document.getElementById('serial')?.value || '').trim();
-        const fileName = (serial ? serial : modelSaved.name) + '.pdf';
-
-        // check drive duplicate? handled server-side with prompt (overwrite param); here we ask once client-side:
-        let overwritePdf = false;
-
-        // attempt create without overwrite; server will reply exists if so
-        showStatus('☁️ Uploading PDF to Drive…','info');
-        let res = await uploadPdfToDrive({fileName, base64: b64, overwrite: false});
-        if (res && res.exists === true && !res.ok){
-          const doOw = confirm(`A PDF named “${fileName}” already exists in the Drive folder.\n\nOK = Overwrite\nCancel = Skip upload`);
-          if (doOw){
-            overwritePdf = true;
-            res = await uploadPdfToDrive({fileName, base64: b64, overwrite: true});
-          }
-        }
-
-        if (res && res.ok){
-          showStatus(`✅ PDF saved. Link copied to clipboard.`, 'success');
-          try { await navigator.clipboard.writeText(res.link); } catch {}
-        } else {
-          showStatus(`❌ PDF save failed: ${res?.error || 'Unknown error'}`, 'error');
-        }
-
-      }catch(err){
-        console.error(err);
-        showStatus(`❌ Error: ${err.message}`,'error');
+        if (sel) { sel.value = msg.name; sel.dispatchEvent(new Event('change', { bubbles:true })); }
+      } else {
+        showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
       }
-    }
-  </script>
+    };
+    window.addEventListener('message', onMsg);
+
+    // fire iframe
+    form.submit();
+
+    // fallback after 3s
+    setTimeout(async () => {
+      if (heardBack || fallbackStarted) return;
+      fallbackStarted = true;
+      try {
+        const fd = new FormData(); fd.append('payload', JSON.stringify(payload));
+        await fetch(GAS_BASE, { method:'POST', body:fd, mode:'no-cors' });
+        showStatus('✅ Saved (fallback). Refreshing models…','success');
+        if (saveToCustom) await loadCustomModels(); else await loadModelsData();
+        populateModelDropdown();
+        const sel = document.getElementById('model');
+        if (sel) { sel.value = name; sel.dispatchEvent(new Event('change', { bubbles:true })); }
+      } catch (e) {
+        console.error(e);
+        showStatus('❌ Fallback save failed.', 'error');
+      }
+    }, 3000);
+
+    // hard timeout at 10s
+    setTimeout(() => {
+      if (!heardBack && !fallbackStarted) {
+        showStatus('❌ Save failed: Timeout','error');
+        window.removeEventListener('message', onMsg);
+      }
+    }, 10000);
+
+  } catch (err) {
+    console.error(err);
+    showStatus(`❌ Error: ${err.message}`,'error');
+  }
+}
+</script>
 </body>
 </html>
