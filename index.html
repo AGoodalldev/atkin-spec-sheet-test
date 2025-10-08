@@ -140,8 +140,9 @@
           }
         };
         window.addEventListener('message', onMsg, false);
-        document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasForm').submit();
+document.getElementById('gasFrame').src =
+  GAS_BASE + '?payload=' + encodeURIComponent(JSON.stringify(payload)) + '&_cb=' + Date.now();
+
         setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); reject(new Error('Timeout (check deployment + auth)')); }}, timeoutMs);
       });
     }
