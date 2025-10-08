@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (dev) -->
+  <!-- Tailwind (fine for dev; for prod, build locally per the warning) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- html2pdf bundle (includes html2canvas + jsPDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <!-- html2pdf bundle: includes html2canvas + jsPDF. No SRI, defer so it’s ready before we call it. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
   <style>
-    /* ---------- Screen helpers ---------- */
     .guitar-bg{
       background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');
       background-size:cover;background-position:center;background-attachment:fixed;
@@ -22,14 +21,11 @@
     #rightLeft.left-selected{background:#fee2e2!important;border-color:#dc2626!important;color:#dc2626!important;}
     .print-only{display:none;}
 
-    /* Layout wrapper for A4 on screen */
-    .a4      { max-width: 900px; margin: 0 auto; }
-    .sheet   { background: #ffffffb3; backdrop-filter: blur(4px); }
+    .a4 { max-width: 900px; margin: 0 auto; }
+    .sheet { background: #ffffffb3; backdrop-filter: blur(4px); }
 
-    /* ---------- PRINT: single A4 page (browser print) ---------- */
     @media print{
       @page { size: A4 portrait; margin: 8mm; }
-
       html, body, .guitar-bg {
         width:210mm !important; height:297mm !important;
         margin:0 !important; padding:0 !important;
@@ -37,58 +33,44 @@
         overflow:visible !important;
       }
       .a4 { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
       .sheet.a4 {
         width:194mm !important; min-height:calc(297mm - 16mm) !important;
         padding:5mm !important; box-sizing:border-box !important;
         background:#fff !important; border:1px solid #000 !important;
-        border-radius:0 !important; box-shadow:none !important;
-        zoom: 0.88;
+        border-radius:0 !important; box-shadow:none !important; zoom:0.88;
       }
-
-      .print-hidden{ display:none !important; }
-
+      .print-hidden{display:none!important;}
       body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
-      h1 { font-size: 16px !important; margin: 0 0 4mm 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align: center; }
+      h1 { font-size: 16px !important; margin: 0 0 4mm !important; border-bottom:2px solid #000 !important; padding-bottom:2mm !important; text-align:center;}
       h2 { font-size: 12px !important; margin: 3mm 0 2mm !important; }
-
-      input, select, textarea {
-        min-height: 20px !important; padding: 2px 6px !important;
-        border: 1px solid #bdbdbd !important; box-shadow: none !important;
-      }
-      .bg-gray-50 { padding: 3mm !important; }
-
-      #specsGrid { display:grid !important; grid-template-columns: repeat(3, 1fr) !important; column-gap: 4mm !important; row-gap: 3mm !important; }
-      #specsGrid > div, .grid, .space-y-4 > * { break-inside: avoid !important; page-break-inside: avoid !important; }
-
-      #rightLeft { display: none !important; }
-      .print-only { display: inline-block !important; }
-      .badge-right{ background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
-      .badge-left { background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #dc2626 !important; }
+      input,select,textarea{min-height:20px!important;padding:2px 6px!important;border:1px solid #bdbdbd!important;box-shadow:none!important;}
+      .bg-gray-50{padding:3mm!important;}
+      #specsGrid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;column-gap:4mm!important;row-gap:3mm!important;}
+      #specsGrid>div,.grid,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important;}
+      #rightLeft{display:none!important;}
+      .print-only{display:inline-block!important;}
+      .badge-right{background:#dcfce7!important;color:#14532d!important;border:1px solid #16a34a!important;}
+      .badge-left{background:#fee2e2!important;color:#7f1d1d!important;border:1px solid #dc2626!important;}
     }
 
-    /* ---------- PDF (Drive) capture helpers ---------- */
-    .pdf-compact,
-    .pdf-compact * { font-size: 10px !important; line-height: 1.25 !important; }
-    .pdf-compact .bg-gray-50 { padding: 8px !important; }
-    .pdf-compact input, .pdf-compact select, .pdf-compact textarea {
-      padding: 4px 6px !important; min-height: 22px !important;
-      border: 1px solid #bdbdbd !important; box-shadow: none !important;
+    /* Tighter capture for Drive PDF */
+    .pdf-compact, .pdf-compact * { font-size:10px!important; line-height:1.25!important; }
+    .pdf-compact .bg-gray-50{ padding:8px!important; }
+    .pdf-compact input, .pdf-compact select, .pdf-compact textarea{
+      padding:4px 6px!important; min-height:22px!important; border:1px solid #bdbdbd!important; box-shadow:none!important;
     }
-    .pdf-fit { transform-origin: top left; }
+    .pdf-fit{ transform-origin: top left; }
   </style>
 </head>
 
 <body class="guitar-bg">
   <div class="p-6">
-    <!-- everything we print/capture lives in printRoot -->
     <div id="printRoot" class="a4 sheet rounded-2xl shadow-xl border border-gray-200">
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
 
         <div id="statusMessage" class="hidden"></div>
 
-        <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
             <div>
@@ -104,16 +86,12 @@
               <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
 
-            <!-- MODEL with filter -->
+            <!-- Model + filter under select -->
             <div>
               <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-
-              <select id="model"
-                      class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
+              <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
                 <option value="">Loading…</option>
               </select>
-
-              <!-- filter under the select -->
               <label for="showCustomOnly"
                      class="print-hidden mt-1 inline-flex items-center gap-2 cursor-pointer text-[12px] text-gray-600 select-none">
                 <input id="showCustomOnly" type="checkbox"
@@ -132,27 +110,23 @@
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
-                <!-- Printed badge -->
                 <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Specs -->
         <div id="specsSection" class="space-y-4 hidden">
           <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
           <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
         </div>
 
-        <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
           <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20"
                     placeholder="Anything extra to capture…"></textarea>
         </div>
 
-        <!-- Actions -->
         <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
           <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">
             Print PDF
@@ -173,17 +147,13 @@
           </button>
         </div>
 
-        <!-- Hidden CORS-safe POST to GAS -->
+        <!-- Hidden CORS-safe POST -->
         <form id="gasForm" method="POST" target="gasFrame" class="hidden">
-          <!-- common -->
-          <input type="hidden" name="payload" id="gasPayload" />
-
-          <!-- action routing (server checks this) -->
-          <input type="hidden" name="action"   id="gasAction"   />
-          <!-- uploadPdf fields -->
-          <input type="hidden" name="pdfName"  id="gasPdfName"  />
-          <input type="hidden" name="pdfB64"   id="gasPdfB64"   />
-          <input type="hidden" name="overwrite" id="gasOverwrite" />
+          <input type="hidden" name="payload"    id="gasPayload" />
+          <input type="hidden" name="action"     id="gasAction" />
+          <input type="hidden" name="pdfName"    id="gasPdfName" />
+          <input type="hidden" name="pdfB64"     id="gasPdfB64" />
+          <input type="hidden" name="overwrite"  id="gasOverwrite" />
         </form>
         <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
                 sandbox="allow-forms allow-scripts"
@@ -194,33 +164,30 @@
   </div>
 
   <script>
-    /* ================= CONFIG ================= */
-    // 👉 Replace with your deployed GAS web app URL (ends with /exec)
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycby-NOm9GkfP9TPF8Bpvv8WN_nFnClB_2EJiJbsOHFrff2anI8d8RX5eV8reK_PRadoh/exec";
+    /* ============== CONFIG ============== */
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycby-NOm9GkfP9TPF8Bpvv8WN_nFnClB_2EJiJbsOHFrff2anI8d8RX5eV8reK_PRadoh/exec";   // <- replace with your deployed /exec URL
     document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ================= State ================= */
-    let MODEL_PRESETS   = {};   // factory
-    let CUSTOM_MODELS   = {};   // custom
-    let GUITAR_SPECS    = {};
-    let baseline        = {};
-    let currentSpecs    = {};
-    let dirtyFields     = new Set();
-    let dataLoaded      = false;
+    /* ============== STATE ============== */
+    let MODEL_PRESETS = {};
+    let CUSTOM_MODELS = {};
+    let GUITAR_SPECS  = {};
+    let baseline      = {};
+    let currentSpecs  = {};
+    let dataLoaded    = false;
 
-    /* ================= Boot ================= */
+    /* ============== BOOT ============== */
     window.addEventListener('DOMContentLoaded', () => {
       bindUI();
       loadAllData();
+
       window.addEventListener('message', evt => {
-        if (evt?.data?.type === 'saveModel') {
-          // Ask to save a Drive PDF after a successful save
-          if (evt.data.ok) {
-            const wantPdf = confirm('Model saved. Also save a 1-page PDF to Drive?');
-            if (wantPdf) saveToDrivePdf();
-          }
+        if (evt?.data?.type === 'saveModel' && evt.data.ok) {
+          const wantPdf = confirm('Model saved. Also save a 1-page PDF to Drive?');
+          if (wantPdf) saveToDrivePdf();
         }
       });
+
       window.addEventListener('beforeprint', () =>
         updateHandedBadge(document.getElementById('rightLeft')?.value || '')
       );
@@ -235,8 +202,8 @@
       document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
     }
 
-    /* ================= Status ================= */
-    function showStatus(message, type = 'info') {
+    /* ============== STATUS ============== */
+    function showStatus(message, type='info'){
       const div = document.getElementById('statusMessage');
       const tone = {
         success: 'bg-green-50 border-green-200 text-green-800',
@@ -244,48 +211,44 @@
         info:    'bg-amber-50 border-amber-200 text-amber-800',
         error:   'bg-red-50 border-red-200 text-red-700'
       }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
-
       div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
       div.textContent = message;
       div.classList.remove('hidden');
-
-      if (type === 'info' || type === 'success') {
-        setTimeout(() => div.classList.add('hidden'), 3000);
+      if (type === 'info' || type === 'success'){
+        setTimeout(()=>div.classList.add('hidden'), 3000);
       }
     }
 
-    /* ================= Data load ================= */
+    /* ============== LOAD DATA ============== */
     async function loadAllData(){
       try{
-        showStatus('Loading data…', 'info');
+        showStatus('Loading data…','info');
         await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
         dataLoaded = true;
         populateModelDropdown();
       }catch(err){
         console.error(err);
-        showStatus(`❌ Failed to load: ${err.message}`, 'error');
+        showStatus(`❌ Failed to load: ${err.message}`,'error');
       }
     }
 
     async function loadModelsData(){
-      const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'models error');
-      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
+      const r = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error||'models error');
+      MODEL_PRESETS = Object.fromEntries(Object.entries(j.data||{}).filter(([n])=>n && n.trim() && n!=='NA'));
     }
-
     async function loadCustomModels(){
-      const res = await fetch(`${GAS_BASE}?kind=customModels&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'custom models error');
-      CUSTOM_MODELS = json.data || {};
+      const r = await fetch(`${GAS_BASE}?kind=customModels&_cb=${Date.now()}`);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error||'custom models error');
+      CUSTOM_MODELS = j.data||{};
     }
-
     async function loadOptionsData(){
-      const res = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'options error');
-      GUITAR_SPECS = json.data || {};
+      const r = await fetch(`${GAS_BASE}?kind=options&_cb=${Date.now()}`);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error||'options error');
+      GUITAR_SPECS = j.data||{};
     }
 
     function populateModelDropdown(){
@@ -297,16 +260,13 @@
 
       select.innerHTML = '';
       select.appendChild(new Option(placeholder, ''));
-
       const names = Object.keys(source).sort();
-      for (const n of names) select.appendChild(new Option(n, n));
-
-      // clear current selection and hide specs when switching lists
+      for (const n of names) select.appendChild(new Option(n,n));
       select.value = '';
       hideSpecs();
     }
 
-    /* ================= UI ================= */
+    /* ============== UI ============== */
     function handleRightLeftChange(e){
       const val = e.target.value;
       e.target.classList.remove('right-selected','left-selected');
@@ -328,25 +288,18 @@
       const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
 
       if (!name){ hideSpecs(); return; }
-
       const data = showCustomOnly ? CUSTOM_MODELS[name] : MODEL_PRESETS[name];
       if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
 
-      // Baseline comparison logic:
-      if (showCustomOnly) {
-        // For custom models, baseline should be the matching factory model if present
-        baseline = MODEL_PRESETS[name] ? {...MODEL_PRESETS[name]} : {...data};
-      } else {
-        baseline = {...data};
-      }
+      baseline = showCustomOnly
+        ? (MODEL_PRESETS[name] ? {...MODEL_PRESETS[name]} : {...data})
+        : {...data};
 
       currentSpecs = {...data};
       showSpecs();
       buildSpecsUI(data);
 
-      // re-apply highlights (custom vs baseline)
-      const fields = Object.keys(currentSpecs);
-      for (const f of fields) {
+      for (const f of Object.keys(currentSpecs)) {
         const sel = document.getElementById(`spec-${f}`);
         if (!sel) continue;
         if (String(currentSpecs[f] ?? '') !== String(baseline[f] ?? '')) {
@@ -361,7 +314,6 @@
     function buildSpecsUI(modelData){
       const grid = document.getElementById('specsGrid');
       grid.innerHTML = '';
-
       const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
       for (const field of fields){
         const wrapper = document.createElement('div');
@@ -377,7 +329,6 @@
           for (const opt of options) sel.appendChild(new Option(opt,opt));
           if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
           sel.value = value || '';
-
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
           wrapper.appendChild(sel);
         }else{
@@ -387,7 +338,6 @@
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
           wrapper.appendChild(inp);
         }
-
         grid.appendChild(wrapper);
         currentSpecs[field] = value || '';
       }
@@ -402,25 +352,22 @@
       else sel.classList.remove('highlight-changed');
     }
 
-    /* ================= Print (browser) ================= */
+    /* ============== PRINT (browser) ============== */
     function printPdf(){
       const selectedModel = document.getElementById('model')?.value;
       if (selectedModel) showSpecs();
       updateHandedBadge(document.getElementById('rightLeft')?.value || '');
-
       setTimeout(()=>{
         const h1 = document.querySelector('h1');
         const original = h1.textContent;
         const serial = (document.getElementById('serial').value || '').trim();
         h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
-
         window.print();
-
         setTimeout(()=>{ h1.textContent = original; }, 250);
       }, 80);
     }
 
-    /* ================= Reset ================= */
+    /* ============== RESET ============== */
     function hardReset(){
       const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
       for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
@@ -432,13 +379,12 @@
       }, 600);
     }
 
-    /* ================= Save Model (with duplicate handling) ================= */
+    /* ============== SAVE MODEL (dupe handling) ============== */
     async function checkModelExists(name){
-      const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'exists check failed');
-      return !!json.exists;
+      const r = await fetch(`${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error||'exists check failed');
+      return !!j.exists;
     }
 
     async function saveAsNewModel(){
@@ -470,8 +416,7 @@
               if (!newName) { alert('Name cannot be empty.'); continue; }
               const exists2 = await checkModelExists(newName);
               if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
-              name = newName;
-              break;
+              name = newName; break;
             }
           }
         }
@@ -497,13 +442,12 @@
           if (msg.type === 'saveModel'){
             heardBack = true; window.removeEventListener('message', onMsg);
             if (msg.ok){
-              const verb = (msg.action === 'updated') ? 'updated' : 'saved';
-              showStatus(`✅ Model “${msg.name}” ${verb}`,'success');
+              showStatus(`✅ Model “${msg.name}” ${msg.action==='updated'?'updated':'saved'}`,'success');
               await Promise.all([loadModelsData(), loadCustomModels()]);
               populateModelDropdown();
-              const sel = document.getElementById('model');
-              sel.value = msg.name; sel.dispatchEvent(new Event('change'));
-              // Drive prompt handled in window message listener above.
+              const sel = document.getElementById('model'); sel.value = msg.name; sel.dispatchEvent(new Event('change'));
+              const wantPdf = confirm('Model saved. Also save a 1-page PDF to Drive?');
+              if (wantPdf) saveToDrivePdf();
             }else{
               showStatus(`❌ Save failed: ${msg.error || 'Unknown error'}`,'error');
             }
@@ -511,12 +455,10 @@
         };
         window.addEventListener('message', onMsg);
 
-        // send via iframe
         document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasAction').value = 'saveModel';
+        document.getElementById('gasAction').value  = 'saveModel';
         document.getElementById('gasForm').submit();
 
-        // fallback if no postMessage
         setTimeout(async ()=>{
           if (heardBack) return;
           try{
@@ -542,26 +484,16 @@
       }
     }
 
-    /* ================= Drive PDF (single page) ================= */
+    /* ============== DRIVE PDF (1 page, via html2pdf API) ============== */
     async function driveFileExists(name){
-      const url = `${GAS_BASE}?kind=driveExists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'drive exists check failed');
-      return !!json.exists;
-    }
-
-    function blobToBase64(blob){
-      return new Promise((resolve, reject)=>{
-        const r = new FileReader();
-        r.onload = () => resolve((r.result || '').toString().split(',')[1] || '');
-        r.onerror = reject;
-        r.readAsDataURL(blob);
-      });
+      const r = await fetch(`${GAS_BASE}?kind=driveExists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error||'drive exists check failed');
+      return !!j.exists;
     }
 
     function fitNodeToA4Once(node){
-      const maxH = 1123; // ~ A4 height px at 96dpi (margin is applied in PDF render)
+      const maxH = 1123;               // ~A4 @96dpi
       const rect = node.getBoundingClientRect();
       let scale = 1;
       if (rect.height > maxH) scale = maxH / rect.height;
@@ -573,51 +505,78 @@
     }
 
     async function saveToDrivePdf(){
-      const serial = (document.getElementById('serial')?.value || '').trim();
+      // Guard: html2pdf loaded?
+      if (typeof window.html2pdf === 'undefined'){
+        showStatus('❌ PDF library failed to load. Check network / CDN.','error');
+        return;
+      }
+
+      const serial  = (document.getElementById('serial')?.value || '').trim();
       const pdfName = (serial ? serial : 'Spec') + '.pdf';
 
       let overwrite = false;
-      const exists = await driveFileExists(pdfName);
-      if (exists) {
-        const ok = confirm(
-          `A PDF named "${pdfName}" already exists in the Drive folder.\n\n` +
-          `OK = Overwrite existing\nCancel = Abort`
-        );
-        if (!ok) { showStatus('PDF save cancelled.','warning'); return; }
-        overwrite = true;
+      try{
+        const exists = await driveFileExists(pdfName);
+        if (exists) {
+          const ok = confirm(
+            `A PDF named "${pdfName}" already exists in the Drive folder.\n\n` +
+            `OK = Overwrite existing\nCancel = Abort`
+          );
+          if (!ok) { showStatus('PDF save cancelled.','warning'); return; }
+          overwrite = true;
+        }
+      }catch(e){
+        // If exists check fails, allow proceeding (network blip)
+        console.warn('driveExists check failed:', e);
       }
 
       showStatus('📄 Preparing PDF…','info');
 
       const root = document.getElementById('printRoot');
       root.classList.add('pdf-compact');
-      const restoreScale = fitNodeToA4Once(root);
+      const undoScale = fitNodeToA4Once(root);
       updateHandedBadge(document.getElementById('rightLeft')?.value || '');
 
-      const canvas = await html2canvas(root, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#FFFFFF',
-        windowWidth: 794,
-        windowHeight: 1123
+      // Build PDF with html2pdf worker
+      //  - margin 0, A4, high quality, scale 2
+      const opt = {
+        margin:       [0, 0, 0, 0],
+        filename:     pdfName,
+        image:        { type: 'jpeg', quality: 0.95 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#FFFFFF', windowWidth: 794, windowHeight: 1123 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all'] }
+      };
+
+      let blob;
+      try{
+        const worker = window.html2pdf().set(opt).from(root).toPdf();
+        // get jsPDF instance then extract blob
+        const pdf = await worker.get('pdf');
+        blob = pdf.output('blob');
+      }catch(err){
+        undoScale(); root.classList.remove('pdf-compact');
+        console.error(err);
+        showStatus('❌ Failed to render PDF.','error');
+        return;
+      }finally{
+        // reset visual tweaks quickly (PDF capture is done)
+        setTimeout(()=>{ undoScale(); root.classList.remove('pdf-compact'); }, 50);
+      }
+
+      // Blob -> base64 (no prefix)
+      const pdfB64 = await new Promise((resolve,reject)=>{
+        const fr = new FileReader();
+        fr.onload = ()=>resolve((fr.result||'').toString().split(',')[1] || '');
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new window.jspdf.jsPDF('p','mm','a4');
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
-
-      const blob = pdf.output('blob');
-      const pdfB64 = await blobToBase64(blob);
-
-      restoreScale();
-      root.classList.remove('pdf-compact');
-
-      document.getElementById('gasAction').value     = 'uploadPdf';
-      document.getElementById('gasPdfName').value    = pdfName;
-      document.getElementById('gasPdfB64').value     = pdfB64;
-      document.getElementById('gasOverwrite').value  = overwrite ? 'true' : 'false';
+      // Send to GAS
+      document.getElementById('gasAction').value    = 'uploadPdf';
+      document.getElementById('gasPdfName').value   = pdfName;
+      document.getElementById('gasPdfB64').value    = pdfB64;
+      document.getElementById('gasOverwrite').value = overwrite ? 'true' : 'false';
       document.getElementById('gasForm').submit();
 
       showStatus('⬆️ Uploading to Drive…','info');
