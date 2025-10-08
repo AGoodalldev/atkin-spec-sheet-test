@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (dev) -->
+  <!-- Tailwind (dev ok) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2pdf (html2canvas + jsPDF) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-          integrity="sha512-YcsIPVYbqFfJ0g3oK8uYl3+1qg5dJr9n0o5Xpqv3K0w0Jm7s2M3xC9Qy5wq1dX2tJw2wzMc1Q2fR0p9m6x0w5w=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- html2pdf (NO integrity attribute to avoid SRI block) -->
+  <!-- Option A: cdnjs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" referrerpolicy="no-referrer"></script>
+  <!-- Option B: jsDelivr (either one is fine)
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  -->
 
   <style>
     .guitar-bg{
@@ -157,7 +160,7 @@
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyX3GqNn2nP4waKAylzsa-LW4WUvewi0lk5urGR5d8csEH-9vSC-JSPDlaLMlrGtpw/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ================= State (trimmed to essentials here) ================= */
+    /* ================= State ================= */
     let MODEL_PRESETS = {};
     let GUITAR_SPECS = {};
     let baseline = {};
@@ -170,7 +173,6 @@
       bindUI();
       loadAllData();
 
-      // GAS replies (models + pdf)
       window.addEventListener('message', evt => {
         const msg = evt?.data || {};
         if (msg.type === 'saveModel') {
@@ -187,21 +189,20 @@
         } else if (msg.type === 'pdfSaved') {
           if (msg.ok) {
             const link = msg.url;
-            // show copyable link
             showStatus(`✅ PDF saved. Link: ${link}`, 'success');
-            // optional: copy button toast
             copyToClipboard(link);
           } else {
             showStatus(`❌ PDF save failed: ${msg.error || 'Unknown error'}`, 'error');
           }
         }
       });
+
+      window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
     });
 
     function bindUI(){
       document.getElementById('btnPrint').addEventListener('click', printPdf);
       document.getElementById('btnSaveDrive').addEventListener('click', saveToDrivePdf);
-      // Keep your existing bindings…
       document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
       document.getElementById('hardResetBtn').addEventListener('click', hardReset);
       document.getElementById('model').addEventListener('change', handleModelChange);
@@ -224,7 +225,7 @@
       if (type === 'info' || type === 'success') setTimeout(()=>div.classList.add('hidden'), 3500);
     }
 
-    /* ================= Models/Options (unchanged from your working setup) ================= */
+    /* ================= Data load ================= */
     async function loadAllData(){
       showStatus('Loading data…','info');
       await Promise.all([loadModelsData(), loadOptionsData()]);
@@ -252,7 +253,7 @@
       for (const n of names) select.appendChild(new Option(n,n));
     }
 
-    /* ================= UI bits you already have (shortened) ================= */
+    /* ================= UI ================= */
     function handleRightLeftChange(e){
       const val = e.target.value;
       e.target.classList.remove('right-selected','left-selected');
@@ -338,63 +339,47 @@
       try{
         const serial = (document.getElementById('serial')?.value || '').trim();
         const pdfName = (serial ? serial : 'Spec') + '.pdf';
-
-        // Render only the sheet area for consistent output
         const sourceEl = document.getElementById('printRoot');
-
         showStatus('📄 Preparing PDF…', 'info');
-
-        // html2pdf options tuned for A4
         const opt = {
-          margin:       [0, 0, 0, 0],
-          filename:     pdfName,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak:    { mode: ['css', 'legacy'] }
+          margin: [0,0,0,0],
+          filename: pdfName,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css','legacy'] }
         };
-
-        // Make sure the badge reflects the current selection before snapshot
         updateHandedBadge(document.getElementById('rightLeft')?.value || '');
-
-        // Generate blob in browser
         const pdfBlob = await html2pdf().set(opt).from(sourceEl).outputPdf('blob');
-
-        // Convert blob → base64
         const pdfB64 = await blobToBase64(pdfBlob);
-
-        // Submit via hidden iframe so we can get a postMessage back with URL
         document.getElementById('gasAction').value   = 'uploadPdf';
         document.getElementById('gasPdfName').value  = pdfName;
         document.getElementById('gasPdfB64').value   = pdfB64;
         document.getElementById('gasForm').submit();
-
         showStatus('⬆️ Uploading to Drive…', 'info');
       } catch (err) {
         console.error(err);
         showStatus(`❌ Could not create PDF: ${err.message}`, 'error');
       }
     }
-
     function blobToBase64(blob){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const dataUrl = reader.result || "";
-          const b64 = (dataUrl.split(',')[1] || dataUrl); // strip prefix if present
+          const b64 = (dataUrl.split(',')[1] || dataUrl);
           resolve(b64);
         };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
     }
-
     async function copyToClipboard(text){
       try { await navigator.clipboard.writeText(text); showStatus('🔗 Link copied to clipboard','success'); }
-      catch { /* ignore */ }
+      catch {}
     }
 
-    /* ================= Reset (unchanged) ================= */
+    /* ================= Reset ================= */
     function hardReset(){
       const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
       for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
@@ -406,10 +391,75 @@
       }, 600);
     }
 
-    /* ================= Your existing saveAsNewModel stays as-is ================= */
-    // (left out for brevity since it already works in your current file)
-    // If you want me to paste it back in here, say the word and I’ll drop the full one again.
+    /* ================= Duplicate-aware save ================= */
+    async function checkModelExists(name){
+      const url = `${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'exists check failed');
+      return !!json.exists;
+    }
 
+    async function saveAsNewModel(){
+      try{
+        if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
+        if (!currentSpecs || !Object.keys(currentSpecs).length)
+          return showStatus('Pick a model first, then tweak specs.','warning');
+
+        let name = prompt('Enter a name for the new model:');
+        if (!name || !name.trim()) return showStatus('Model name is required.','error');
+        name = name.trim();
+
+        const exists = await checkModelExists(name);
+        let overwrite = false;
+
+        if (exists) {
+          const doOverwrite = confirm(
+            `A model named "${name}" already exists.\n\n` +
+            `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
+          );
+          if (doOverwrite) {
+            overwrite = true;
+          } else {
+            let newName = null;
+            while (true) {
+              newName = prompt('Enter a different name for the duplicate (or click Cancel):', name + ' (copy)');
+              if (newName === null) return showStatus('Save cancelled.','warning');
+              newName = newName.trim();
+              if (!newName) { alert('Name cannot be empty.'); continue; }
+              const exists2 = await checkModelExists(newName);
+              if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
+              name = newName;
+              break;
+            }
+          }
+        }
+
+        const payload = {
+          modelName: name,
+          overwrite,
+          specs: {
+            ...currentSpecs,
+            Serial: (document.getElementById('serial')||{}).value || '',
+            Customer: (document.getElementById('customer')||{}).value || '',
+            Email: (document.getElementById('email')||{}).value || '',
+            'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
+            Notes: (document.getElementById('notes')||{}).value || ''
+          }
+        };
+
+        showStatus(overwrite ? '📡 Updating model…' : '📡 Saving new model…','info');
+
+        // post via hidden iframe → GAS replies with postMessage
+        document.getElementById('gasAction').value = ''; // not a PDF action
+        document.getElementById('gasPayload').value = JSON.stringify(payload);
+        document.getElementById('gasForm').submit();
+
+      }catch(err){
+        console.error(err);
+        showStatus(`❌ Error: ${err.message}`,'error');
+      }
+    }
   </script>
 </body>
 </html>
