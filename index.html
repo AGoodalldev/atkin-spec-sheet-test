@@ -94,10 +94,10 @@
   </div>
 
   <script>
-  // Web App endpoint
-  const GAS_BASE = "https://script.google.com/macros/s/AKfycbzD_88prLZqTY9s-vguHZ71cx_4PDcTVscQkbQXKrHssZRS3GUL-SXVoxGDD-C6-N-i/exec";
-  document.getElementById('gasForm').action = GAS_BASE;
-    
+    /* ===== CONFIG ===== */
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbzD_88prLZqTY9s-vguHZ71cx_4PDcTVscQkbQXKrHssZRS3GUL-SXVoxGDD-C6-N-i/exec";
+    document.getElementById('gasForm').action = GAS_BASE;
+
     /* ===== State ===== */
     let MODEL_PRESETS = {}, CUSTOM_MODELS = {}, GUITAR_SPECS = {};
     let baseline = {}, currentSpecs = {}, dirtyFields = new Set(), dataLoaded = false;
@@ -140,9 +140,8 @@
           }
         };
         window.addEventListener('message', onMsg, false);
-        const form = document.getElementById('gasForm');
         document.getElementById('gasPayload').value = JSON.stringify(payload);
-        form.submit();
+        document.getElementById('gasForm').submit();
         setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); reject(new Error('Timeout (check deployment + auth)')); }}, timeoutMs);
       });
     }
