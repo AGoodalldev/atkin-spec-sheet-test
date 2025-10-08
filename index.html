@@ -8,13 +8,13 @@
   <style>
     body { background:#0f3a36; font-family: ui-sans-serif, system-ui; margin:0; }
     .wrap { max-width: 960px; margin: 24px auto; background:#f4f5f4; border-radius:16px; padding:20px 22px; }
-    h1 { margin: 0 0 12px; font-size: 20px; }
+    h1 { margin:0 0 12px; font-size: 20px; }
     .row { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
     label { font-size:12px; color:#374151; display:block; margin-bottom:4px; }
     input, select, textarea { width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:12px; background:#fff; }
     .section { margin-top:16px; }
     .grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
-    .actions { display:flex; gap:10px; margin-top:14px; }
+    .actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
     button { padding:8px 12px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; cursor:pointer; }
     .pill { background:#dcfce7; border-color:#bbf7d0; }
     .msg { margin:10px 0; padding:10px 12px; border-radius:10px; border:1px solid #f59e0b; background:#fffbeb; color:#92400e; display:none; }
@@ -65,7 +65,7 @@
       <button id="btnPrint">Print PDF</button>
       <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116"
          target="_blank" rel="noreferrer">
-        <button>Edit spec sheet (Google Sheets)</button>
+        <button type="button">Edit spec sheet (Google Sheets)</button>
       </a>
       <button id="btnSave" class="pill">Save as New Model</button>
       <button id="btnReset">Reset form</button>
@@ -81,16 +81,16 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       bind();
-      google.script.run.withSuccessHandler(init).withFailureHandler(e=>msg('Load failed: '+e.message,false)).apiListAll();
+      google.script.run.withSuccessHandler(init).withFailureHandler(e=>msg('Load failed: '+e.message,false)).apiLoadAll();
     });
 
     function bind(){
-      $('btnPrint').onclick = printPdf;
-      $('btnSave').onclick = saveAsNewModel;
+      $('btnPrint').onclick = () => window.print();
+      $('btnSave').onclick  = saveAsNewModel;
       $('btnReset').onclick = () => location.reload();
-      $('model').onchange = handleModelChange;
+      $('model').onchange   = handleModelChange;
       $('showCustomOnly').onchange = populateModels;
-      $('rightLeft').onchange = () => updateBadge();
+      $('rightLeft').onchange = ()=>{};
     }
 
     function init(data){
@@ -145,6 +145,7 @@
         current[field] = val || '';
       });
     }
+
     function onSpec(field, value, sel){
       current[field] = value;
       const base = baseline[field] ?? '';
@@ -153,38 +154,26 @@
       if (dirty.size) msg(`${dirty.size} spec${dirty.size===1?'':'s'} modified`);
     }
 
-    function printPdf(){
-      // keep using the browser print (your A4 CSS lives server-side for Drive PDF)
-      window.print();
-    }
-
     async function saveAsNewModel(){
-      // name prompt
       let name = prompt('Enter a name for the new model:');
       if (!name) return msg('Cancelled', false);
       name = name.trim();
 
-      // existence check (CUSTOM only)
       try{
-        const existsRes = await new Promise((res,rej)=>
-          google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiExists(name,'custom')
-        );
+        const exists = await _call('apiExists', name, 'custom');
         let overwrite = false;
-        if (existsRes.exists){
+        if (exists.exists){
           if (!confirm(`A custom model named "${name}" exists.\n\nOK = Overwrite\nCancel = Choose another`)){
             const alt = prompt('Enter a different name:', name + ' (copy)');
             if (!alt) return msg('Cancelled', false);
             name = alt.trim();
-            const ex2 = await new Promise((res,rej)=>
-              google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiExists(name,'custom')
-            );
+            const ex2 = await _call('apiExists', name, 'custom');
             if (ex2.exists) return msg(`"${name}" already exists`, false);
           } else {
             overwrite = true;
           }
         }
 
-        // build specs payload
         const specs = {
           ...current,
           Serial:   $('serial').value || '',
@@ -195,42 +184,32 @@
           'Updated At': new Date().toISOString(),
         };
 
-        // save model (always to CUSTOM MODELS)
-        const saved = await new Promise((res,rej)=>
-          google.script.run.withSuccessHandler(res).withFailureHandler(rej)
-            .apiSaveModel({ modelName:name, specs, overwrite })
-        );
+        const saved = await _call('apiSaveModel', { modelName:name, specs, overwrite });
         if (!saved.ok) return msg('Save failed: '+(saved.error||'Unknown'), false);
         msg(`Model “${saved.name}” ${saved.action === 'updated' ? 'updated' : 'created'}`);
 
         // refresh lists
-        const fresh = await new Promise((res,rej)=>
-          google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiListAll()
-        );
+        const fresh = await _call('apiLoadAll');
         MODEL_PRESETS = fresh.models || {};
         CUSTOM_MODELS = fresh.custom || {};
         populateModels();
         $('model').value = saved.name; handleModelChange();
 
-        // ask to save PDF to Drive
         if (confirm('Save PDF to Google Drive now?')){
           const serial = $('serial').value || saved.name;
-          const pdf = await new Promise((res,rej)=>
-            google.script.run.withSuccessHandler(res).withFailureHandler(rej)
-              .apiSavePdf({ serial, modelName:saved.name, specs, fileName: serial })
-          );
-          if (pdf.ok){
-            msg('PDF saved to Drive' + (pdf.replaced?' (overwritten)':'')); 
-          } else {
-            msg('PDF save failed: '+(pdf.error||'Unknown'), false);
-          }
+          const pdf = await _call('apiSavePdf', { serial, modelName:saved.name, specs, fileName: serial });
+          if (pdf.ok) msg('PDF saved to Drive' + (pdf.replaced?' (overwritten)':'')); else msg('PDF save failed: '+(pdf.error||'Unknown'), false);
         }
       }catch(err){
         msg('Error: '+(err && err.message || err), false);
       }
     }
 
-    function updateBadge(){ /* placeholder for printed badge if needed */ }
+    function _call(fn, ...args){
+      return new Promise((resolve, reject)=>{
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](...args);
+      });
+    }
   </script>
 </body>
 </html>
