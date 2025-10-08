@@ -2,18 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet (Workshop)</title>
 
-  <!-- Tailwind (fine for dev preview) -->
+  <!-- Tailwind for dev preview; OK to keep here -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- PDF libs (no SRI; load before app code) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- html2pdf bundle (includes html2canvas + jsPDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
   <style>
     /* ---------- Screen helpers ---------- */
@@ -30,14 +26,10 @@
     .a4      { max-width: 900px; margin: 0 auto; }
     .sheet   { background: #ffffffb3; backdrop-filter: blur(4px); }
 
-    /* Canvas capture width to force a 1-page A4 aspect when rasterizing */
-    .for-pdf .sheet { width: 794px; margin: 0 auto; background:#fff; }
-
     /* ---------- PRINT: single A4 page ---------- */
     @media print{
       @page { size: A4 portrait; margin: 8mm; }
 
-      /* Remove background during print */
       html, body, .guitar-bg {
         width:210mm !important; height:297mm !important;
         margin:0 !important; padding:0 !important;
@@ -45,25 +37,22 @@
         overflow:visible !important;
       }
 
-      /* Inner card gets exact color control (badges, etc.) */
       .a4 { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-      /* Core sheet sizing with gentle zoom to guarantee one page */
       .sheet.a4 {
         width:194mm !important;                       /* 210 - (8 + 8) */
         min-height:calc(297mm - 16mm) !important;     /* full height minus @page margins */
-        padding:5mm !important;                       /* slightly tighter */
+        padding:5mm !important;
         box-sizing:border-box !important;
         background:#fff !important;
         border:1px solid #000 !important;
         border-radius:0 !important;
         box-shadow:none !important;
-        zoom: 0.88;                                   /* tweak 0.85–0.92 if ever needed */
+        zoom: 0.88;                                   /* tweak if needed */
       }
 
       .print-hidden{ display:none !important; }
 
-      /* Tighter typography */
       body, input, select, textarea, label { font-size: 10px !important; line-height: 1.25 !important; }
       h1 { font-size: 16px !important; margin: 0 0 4mm 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 2mm !important; text-align: center; }
       h2 { font-size: 12px !important; margin: 3mm 0 2mm !important; }
@@ -88,7 +77,6 @@
         page-break-inside: avoid !important;
       }
 
-      /* RIGHT/LEFT: hide select, show badge */
       #rightLeft { display: none !important; }
       .print-only { display: inline-block !important; }
       .badge-right{ background:#dcfce7 !important; color:#14532d !important; border:1px solid #16a34a !important; }
@@ -103,11 +91,12 @@
       <div class="p-6 space-y-4">
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
 
-        <!-- Status (orange tone) -->
         <div id="statusMessage" class="hidden"></div>
 
         <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
+
+          <!-- Top row (Serial, Customer, Email, Model) -->
           <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
@@ -122,16 +111,15 @@
               <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
             </div>
 
-            <!-- Model select -->
+            <!-- MODEL with tidy filter (checkbox under dropdown) -->
             <div>
               <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
-              <select id="model" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
+              <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
                 <option value="">Loading…</option>
               </select>
-
-              <!-- Filter checkbox directly under the dropdown -->
-              <label class="mt-2 flex items-center gap-2 text-sm text-gray-700">
-                <input id="showCustomOnly" type="checkbox" class="rounded border-gray-300">
+              <!-- filter under the select -->
+              <label for="showCustomOnly" class="print-hidden mt-2 inline-flex items-center gap-2 cursor-pointer text-[13px] text-gray-600">
+                <input id="showCustomOnly" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                 <span>Show only custom models</span>
               </label>
             </div>
@@ -146,7 +134,6 @@
                   <option value="RIGHT">RIGHT</option>
                   <option value="LEFT">LEFT</option>
                 </select>
-                <!-- Printed badge -->
                 <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
             </div>
@@ -178,9 +165,13 @@
           <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">
             Save as New Model
           </button>
+
+          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">
+            Reset form
+          </button>
         </div>
 
-        <!-- Hidden CORS-safe POST -->
+        <!-- Hidden CORS-safe POST (shared for model + PDF) -->
         <form id="gasForm" method="POST" target="gasFrame" class="hidden">
           <input type="hidden" name="payload" id="gasPayload" />
         </form>
@@ -194,20 +185,16 @@
 
   <script>
     /* ================= CONFIG ================= */
-    // 👉 Replace this with your *current* /exec Web App URL
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbznpZElOOtp1dYbwTN-cbkcGX-Za253jgbl9OfWELhHOWLhtyDsS5i2gUu9CBfbT3V8/exec";
+    // 👉 Set to your current /exec URL
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyrPBsaCUAujnptaa417pdubcbe6ookNWTqOFQZWeoX3_NR_Nr8QwLyPJDCCPmSryPL/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
-    // 👉 Your Drive folder to store PDFs
-    const DRIVE_FOLDER_ID = "1UOonyd6qrxJ5l9eoyW6KPxy7Y44uI8pM";
-
     /* ================= State ================= */
-    let FACTORY_MODELS = {};  // MODELS sheet
-    let CUSTOM_MODELS  = {};  // CUSTOM MODELS sheet
-    let GUITAR_SPECS   = {};  // OPTIONS sheet
-
-    let baseline = {};        // current model baseline
-    let currentSpecs = {};    // working specs
+    let MODEL_PRESETS = {};      // factory
+    let CUSTOM_MODELS = {};      // custom
+    let GUITAR_SPECS = {};
+    let baseline = {};
+    let currentSpecs = {};
     let dirtyFields = new Set();
     let dataLoaded = false;
 
@@ -215,15 +202,20 @@
     window.addEventListener('DOMContentLoaded', () => {
       bindUI();
       loadAllData();
-      window.addEventListener('message', onGASMessage);
+      window.addEventListener('message', evt => {
+        const msg = evt?.data || {};
+        if (msg.type === 'saveModel') console.log('↩️ saveModel reply', msg);
+        if (msg.type === 'uploadPdf') console.log('↩️ uploadPdf reply', msg);
+      });
       window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
     });
 
     function bindUI(){
-      document.getElementById('btnPrint')     .addEventListener('click', printPdf);
-      document.getElementById('btnSaveModel') .addEventListener('click', saveAsNewModel);
-      document.getElementById('model')        .addEventListener('change', handleModelChange);
-      document.getElementById('rightLeft')    .addEventListener('change', handleRightLeftChange);
+      document.getElementById('btnPrint').addEventListener('click', printPdf);
+      document.getElementById('btnSaveModel').addEventListener('click', saveAsNewModel);
+      document.getElementById('hardResetBtn').addEventListener('click', hardReset);
+      document.getElementById('model').addEventListener('change', handleModelChange);
+      document.getElementById('rightLeft').addEventListener('change', handleRightLeftChange);
       document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
     }
 
@@ -233,7 +225,7 @@
       const tone = {
         success: 'bg-green-50 border-green-200 text-green-800',
         warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        info:    'bg-amber-50 border-amber-200 text-amber-800', // info uses amber by design
+        info:    'bg-amber-50 border-amber-200 text-amber-800',
         error:   'bg-red-50 border-red-200 text-red-700'
       }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
 
@@ -246,22 +238,22 @@
     /* ================= Data load ================= */
     async function loadAllData(){
       try{
-        showStatus('Loading data…', 'info');
-        await Promise.all([loadFactoryModels(), loadCustomModels(), loadOptionsData()]);
+        showStatus('Loading data…','info');
+        await Promise.all([loadModelsData(), loadCustomModels(), loadOptionsData()]);
         dataLoaded = true;
+        showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`,'success');
         populateModelDropdown();
-        showStatus(`✅ Loaded ${Object.keys(FACTORY_MODELS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`, 'success');
       }catch(err){
         console.error(err);
-        showStatus(`❌ Failed to load: ${err.message}`, 'error');
+        showStatus(`❌ Failed to load: ${err.message}`,'error');
       }
     }
 
-    async function loadFactoryModels(){
+    async function loadModelsData(){
       const res = await fetch(`${GAS_BASE}?kind=models&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'models error');
-      FACTORY_MODELS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
+      MODEL_PRESETS = Object.fromEntries(Object.entries(json.data || {}).filter(([n]) => n && n.trim() && n !== 'NA'));
     }
 
     async function loadCustomModels(){
@@ -280,23 +272,18 @@
 
     function populateModelDropdown(){
       const select = document.getElementById('model');
-      const customOnly = document.getElementById('showCustomOnly').checked;
+      const onlyCustom = document.getElementById('showCustomOnly')?.checked === true;
+      const source = onlyCustom ? CUSTOM_MODELS : MODEL_PRESETS;
+      const placeholder = onlyCustom ? 'Custom Model' : 'Factory Model';
 
       select.innerHTML = '';
-      select.appendChild(new Option(customOnly ? 'Choose a custom model' : 'Choose a factory model',''));
-
-      const source = customOnly ? CUSTOM_MODELS : FACTORY_MODELS;
+      select.appendChild(new Option(placeholder,''));
       const names = Object.keys(source).sort();
+      for (const n of names) select.appendChild(new Option(n,n));
 
-      // Group label (visual hint)
-      const groupLabel = customOnly ? 'Custom Models' : 'Factory Models';
-      const optGroup = document.createElement('optgroup');
-      optGroup.label = groupLabel;
-      for (const n of names) {
-        const opt = new Option(n, n);
-        optGroup.appendChild(opt);
-      }
-      select.appendChild(optGroup);
+      // clear selection + hide specs (to avoid stale)
+      select.value = '';
+      hideSpecs();
     }
 
     /* ================= UI ================= */
@@ -318,33 +305,27 @@
     }
 
     function handleModelChange(e){
+      const onlyCustom = document.getElementById('showCustomOnly')?.checked === true;
+      const source = onlyCustom ? CUSTOM_MODELS : MODEL_PRESETS;
+
       const name = e.target.value;
       if (!name){ hideSpecs(); return; }
 
-      const customOnly = document.getElementById('showCustomOnly').checked;
-      const data = (customOnly ? CUSTOM_MODELS : FACTORY_MODELS)[name];
-
+      const data = source[name];
       if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
 
-      // For custom models, try to restore a saved BASELINE (JSON)
-      baseline = {};
-      if (customOnly && data.BASELINE) {
-        try { baseline = JSON.parse(data.BASELINE); } catch(e){ baseline = {}; }
-      } else {
-        baseline = { ...data };
-      }
-
-      currentSpecs = { ...data };
+      baseline = {...data};
+      currentSpecs = {...data};
       dirtyFields.clear();
 
       showSpecs();
-      buildSpecsUI(data, baseline);
+      buildSpecsUI(data);
     }
 
     function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
     function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
 
-    function buildSpecsUI(modelData, base){
+    function buildSpecsUI(modelData){
       const grid = document.getElementById('specsGrid');
       grid.innerHTML = '';
 
@@ -364,12 +345,11 @@
           if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
           sel.value = value || '';
 
-          // highlight if diverged from baseline
-          const baseVal = base?.[field] ?? '';
-          if (value && baseVal && value !== baseVal) sel.classList.add('highlight-changed');
-
           wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
           wrapper.appendChild(sel);
+
+          // restore highlight if differs from baseline
+          if (value !== (baseline[field] ?? '')) sel.classList.add('highlight-changed');
         }else{
           const inp = document.createElement('input');
           inp.type='text'; inp.readOnly = true; inp.value = value || '';
@@ -412,188 +392,191 @@
       }, 80);
     }
 
-    /* ================= GAS messaging (iframe) ================= */
-    function postToGAS(payload){
-      return new Promise((resolve) => {
-        const listener = (evt) => {
-          const msg = evt?.data || {};
-          if (msg && (msg.type === 'saveModel' || msg.type === 'savePdf')) {
-            window.removeEventListener('message', listener);
-            resolve(msg);
-          }
-        };
-        window.addEventListener('message', listener);
-
-        document.getElementById('gasPayload').value = JSON.stringify(payload);
-        document.getElementById('gasForm').submit();
-
-        // Fallback timeout resolve (we still try to refresh models)
-        setTimeout(()=>{ window.removeEventListener('message', listener); resolve({ ok:false, timeout:true }); }, 8000);
-      });
+    /* ================= Reset ================= */
+    function hardReset(){
+      const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
+      for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
+      const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
+      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
+      MODEL_PRESETS={}; CUSTOM_MODELS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
+      setTimeout(async ()=>{
+        await loadAllData(); btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success');
+      }, 600);
     }
 
-    function onGASMessage(evt){
-      // console logs only; UI handled in the awaiting functions
-      if (evt?.data?.type === 'saveModel' || evt?.data?.type === 'savePdf') {
-        console.log('↩️ GAS reply:', evt.data);
-      }
-    }
+    /* ================= Save Model + (optional) PDF to Drive ================= */
 
-    /* ================= Duplicate checks ================= */
-    async function modelExistsInCustom(name){
-      const res = await fetch(`${GAS_BASE}?kind=exists&sheet=custom&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
+    // existence checks (server endpoints)
+    async function checkFactoryExists(name){
+      const res = await fetch(`${GAS_BASE}?kind=exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'exists check failed');
       return !!json.exists;
     }
-    async function driveFileExists(filename){
-      const res = await fetch(`${GAS_BASE}?kind=drive_exists&folderId=${encodeURIComponent(DRIVE_FOLDER_ID)}&filename=${encodeURIComponent(filename)}&_cb=${Date.now()}`);
+    async function checkCustomExists(name){
+      const res = await fetch(`${GAS_BASE}?kind=custom_exists&name=${encodeURIComponent(name)}&_cb=${Date.now()}`);
       const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'drive exists check failed');
+      if (!json.ok) throw new Error(json.error || 'custom exists check failed');
       return !!json.exists;
     }
 
-    /* ================= Save Model (+ optional save PDF to Drive) ================= */
+    // render the current sheet to a single-page A4 PDF, return Blob
+    async function generatePdfBlob(){
+      const el = document.querySelector('.sheet.a4') || document.querySelector('.sheet');
+      const opt = {
+        margin:       [8,8,8,8],              // mm
+        filename:     'temp.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all','css','legacy'] }
+      };
+      return await html2pdf().set(opt).from(el).outputPdf('blob');
+    }
+
+    // upload PDF to Drive via iframe form (no CORS)
+    function uploadPdfToDrive({fileName, base64, overwrite}){
+      return new Promise((resolve) => {
+        const payload = { action: 'uploadPdf', fileName, pdfBase64: base64, overwrite: !!overwrite };
+        let done = false;
+        const onMsg = (evt)=>{
+          const msg = evt?.data || {};
+          if (msg.type === 'uploadPdf'){
+            window.removeEventListener('message', onMsg);
+            done = true;
+            resolve(msg);
+          }
+        };
+        window.addEventListener('message', onMsg);
+
+        document.getElementById('gasPayload').value = JSON.stringify(payload);
+        document.getElementById('gasForm').submit();
+
+        // safety timeout (resolve anyway)
+        setTimeout(()=>{ if (!done){ window.removeEventListener('message', onMsg); resolve({ok:false,error:'Timeout'});} }, 15000);
+      });
+    }
+
     async function saveAsNewModel(){
       try{
         if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
         if (!currentSpecs || !Object.keys(currentSpecs).length) return showStatus('Pick a model first, then tweak specs.','warning');
 
-        // Name prompt
-        let name = prompt('Enter a name for the new custom model:');
+        // ask for name
+        let name = prompt('Enter a name for the new model:');
         if (!name || !name.trim()) return showStatus('Model name is required.','error');
         name = name.trim();
 
-        // Check duplicate in CUSTOM MODELS
+        // we always save customs into the CUSTOM MODELS sheet
+        const exists = await checkCustomExists(name);
         let overwrite = false;
-        if (await modelExistsInCustom(name)) {
+
+        if (exists) {
           const doOverwrite = confirm(
             `A custom model named "${name}" already exists.\n\n` +
-            `OK = Overwrite existing\nCancel = Save as duplicate under a new name`
+            `OK = Overwrite existing\nCancel = Save under a different name`
           );
-          if (doOverwrite) {
+          if (doOverwrite){
             overwrite = true;
           } else {
-            // loop until unique or cancel
             let newName = null;
             while (true) {
-              newName = prompt('Enter a different name (or Cancel):', name + ' (copy)');
+              newName = prompt('Enter a different name for the duplicate (or Cancel):', name + ' (copy)');
               if (newName === null) return showStatus('Save cancelled.','warning');
               newName = newName.trim();
               if (!newName) { alert('Name cannot be empty.'); continue; }
-              if (await modelExistsInCustom(newName)) { alert(`"${newName}" already exists. Choose another name.`); continue; }
-              name = newName; break;
+              const exists2 = await checkCustomExists(newName);
+              if (exists2) { alert(`"${newName}" already exists. Choose another name.`); continue; }
+              name = newName;
+              break;
             }
           }
         }
 
-        // Build payload (save to CUSTOM MODELS with BASELINE)
+        // payload to GAS (save model)
         const payload = {
-          action: 'saveModel',
-          targetSheet: 'custom',
           modelName: name,
           overwrite,
+          saveTo: 'custom', // always custom sheet
           specs: {
             ...currentSpecs,
             Serial: (document.getElementById('serial')||{}).value || '',
             Customer: (document.getElementById('customer')||{}).value || '',
             Email: (document.getElementById('email')||{}).value || '',
             'RIGHT / LEFT': (document.getElementById('rightLeft')||{}).value || '',
-            Notes: (document.getElementById('notes')||{}).value || '',
-            BASELINE: JSON.stringify(baseline || {})
+            Notes: (document.getElementById('notes')||{}).value || ''
           }
         };
 
-        showStatus(overwrite ? '📡 Updating custom model…' : '📡 Saving custom model…','info');
-        const res1 = await postToGAS(payload);
+        showStatus(overwrite ? '📡 Updating custom model…' : '📡 Saving new custom model…','info');
 
-        // Refresh models regardless
+        // iframe round-trip for model save
+        const modelSaved = await new Promise((resolve)=>{
+          let done=false;
+          const onMsg=(evt)=>{
+            const msg = evt?.data || {};
+            if (msg.type === 'saveModel'){
+              window.removeEventListener('message', onMsg);
+              done=true; resolve(msg);
+            }
+          };
+          window.addEventListener('message', onMsg);
+          document.getElementById('gasPayload').value = JSON.stringify({ action:'saveModel', ...payload });
+          document.getElementById('gasForm').submit();
+          setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); resolve({ok:false,error:'Timeout'});} },15000);
+        });
+
+        if (!modelSaved.ok) {
+          showStatus(`❌ Save failed: ${modelSaved.error || 'Unknown error'}`,'error');
+          return;
+        }
+
+        showStatus(`✅ Model “${modelSaved.name}” ${modelSaved.action==='updated'?'updated':'saved'}`,'success');
+
+        // refresh custom list, switch filter to custom + select saved model
         await loadCustomModels();
-        populateModelDropdown();
         document.getElementById('showCustomOnly').checked = true;
         populateModelDropdown();
-        const sel = document.getElementById('model'); sel.value = name; sel.dispatchEvent(new Event('change'));
+        const sel = document.getElementById('model');
+        sel.value = modelSaved.name; sel.dispatchEvent(new Event('change'));
 
-        if (res1.ok) {
-          showStatus(`✅ Custom model “${name}” ${overwrite ? 'updated' : 'saved'}`,'success');
-        } else {
-          // still succeeded in fallback? we already refreshed list
-          showStatus(`ℹ️ Model saved (no reply)`, 'info');
-        }
+        // ask about Drive PDF
+        const doPdf = confirm('Save a 1-page A4 PDF to Drive now?');
+        if (!doPdf) return;
 
-        // Ask to save PDF to Drive
-        const doDrive = confirm('Save a 1-page PDF of this spec to Google Drive?');
-        if (!doDrive) return;
+        // generate A4 single-page PDF
+        showStatus('📄 Rendering PDF…','info');
+        const blob = await generatePdfBlob();
 
-        // Prepare one-page capture
-        const serial = (document.getElementById('serial').value || '').trim();
-        const filename = (serial ? serial : name) + '.pdf';
+        // to base64
+        const b64 = await new Promise((resolve)=>{
+          const fr = new FileReader();
+          fr.onload = ()=> resolve(fr.result.split(',')[1]);
+          fr.readAsDataURL(blob);
+        });
 
-        // Drive duplicate handling
-        let driveOverwrite = false;
-        if (await driveFileExists(filename)) {
-          const doOverwriteDrive = confirm(
-            `A PDF named “${filename}” already exists in Drive.\n\n` +
-            `OK = Overwrite existing\nCancel = Save with a different name`
-          );
-          if (doOverwriteDrive) {
-            driveOverwrite = true;
-          } else {
-            let newFile = null;
-            while (true) {
-              newFile = prompt('Enter a different filename (with .pdf) or Cancel:', filename.replace(/\.pdf$/i,' (copy).pdf'));
-              if (newFile === null) return showStatus('Drive save cancelled.','warning');
-              newFile = newFile.trim();
-              if (!/\.pdf$/i.test(newFile)) { alert('Filename must end with .pdf'); continue; }
-              if (await driveFileExists(newFile)) { alert(`“${newFile}” already exists. Choose another.`); continue; }
-              filename = newFile; break;
-            }
+        const serial = (document.getElementById('serial')?.value || '').trim();
+        const fileName = (serial ? serial : modelSaved.name) + '.pdf';
+
+        // check drive duplicate? handled server-side with prompt (overwrite param); here we ask once client-side:
+        let overwritePdf = false;
+
+        // attempt create without overwrite; server will reply exists if so
+        showStatus('☁️ Uploading PDF to Drive…','info');
+        let res = await uploadPdfToDrive({fileName, base64: b64, overwrite: false});
+        if (res && res.exists === true && !res.ok){
+          const doOw = confirm(`A PDF named “${fileName}” already exists in the Drive folder.\n\nOK = Overwrite\nCancel = Skip upload`);
+          if (doOw){
+            overwritePdf = true;
+            res = await uploadPdfToDrive({fileName, base64: b64, overwrite: true});
           }
         }
 
-        // Render to canvas at fixed width
-        const wrap = document.querySelector('.a4');
-        wrap.classList.add('for-pdf'); // force 794px width
-        await new Promise(r => setTimeout(r, 60));    // allow reflow
-
-        const node = document.querySelector('.a4.sheet');
-        const canvas = await html2canvas(node, {
-          backgroundColor: '#fff',
-          scale: Math.min(2, window.devicePixelRatio || 1.5) // crisp, not insane
-        });
-
-        wrap.classList.remove('for-pdf');
-
-        // Create single-page A4 PDF
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p','mm','a4');
-        const a4 = { w:210, h:297 };
-        const margin = 8;           // mm
-        const maxW = a4.w - margin*2;
-        const imgW = maxW;
-        const imgH = (canvas.height / canvas.width) * imgW;
-        const img = canvas.toDataURL('image/png');
-        pdf.addImage(img, 'PNG', margin, margin, imgW, Math.min(imgH, a4.h - margin*2));
-
-        const dataUrl = pdf.output('datauristring'); // base64 data URL
-
-        showStatus('📤 Uploading PDF to Drive…','info');
-        const res2 = await postToGAS({
-          action: 'savePdf',
-          folderId: DRIVE_FOLDER_ID,
-          filename,
-          overwrite: driveOverwrite,
-          dataUrl
-        });
-
-        if (res2.ok) {
-          const link = res2.link || res2.webViewLink;
-          showStatus('✅ PDF saved to Drive. Link copied to clipboard.','success');
-          if (link && navigator.clipboard) {
-            try { await navigator.clipboard.writeText(link); } catch(e){}
-          }
+        if (res && res.ok){
+          showStatus(`✅ PDF saved. Link copied to clipboard.`, 'success');
+          try { await navigator.clipboard.writeText(res.link); } catch {}
         } else {
-          showStatus(`❌ PDF save failed${res2.error?': '+res2.error:''}`,'error');
+          showStatus(`❌ PDF save failed: ${res?.error || 'Unknown error'}`, 'error');
         }
 
       }catch(err){
