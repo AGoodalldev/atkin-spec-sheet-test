@@ -4,10 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Atkin Custom Spec Sheet</title>
-
-  <!-- Tailwind (dev) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
     .guitar-bg{background-image:url('https://raw.githubusercontent.com/AGoodalldev/atkin-spec-sheet-test/main/aged-finish-2.jpg');background-size:cover;background-position:center;background-attachment:fixed;}
     .highlight-changed{border:2px solid #f97316!important;background:#fef3c7!important;box-shadow:0 0 0 3px rgba(249,115,22,.1)!important;}
@@ -20,12 +17,11 @@
       @page{size:A4 portrait;margin:8mm}
       html,body,.guitar-bg{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important;background-image:none!important;overflow:visible!important}
       .a4{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-      .sheet.a4{width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:5mm!important;box-sizing:border-box!important;background:#fff!important;border:1px solid #000!important;border-radius:0!important;box-shadow:none!important;zoom:.88}
+      .sheet.a4{width:194mm!important;min-height:calc(297mm - 16mm)!important;padding:5mm!important;background:#fff!important;border:1px solid #000!important;border-radius:0!important;box-shadow:none!important;zoom:.88}
       .print-hidden{display:none!important}
       body,input,select,textarea,label{font-size:10px!important;line-height:1.25!important}
       h1{font-size:16px!important;margin:0 0 4mm 0!important;border-bottom:2px solid #000!important;padding-bottom:2mm!important;text-align:center}
       h2{font-size:12px!important;margin:3mm 0 2mm!important}
-      input,select,textarea{min-height:20px!important;padding:2px 6px!important;border:1px solid #bdbdbd!important;box-shadow:none!important}
       .bg-gray-50{padding:3mm!important}
       #specsGrid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;column-gap:4mm!important;row-gap:3mm!important}
       #specsGrid>div,.grid,.space-y-4>*{break-inside:avoid!important;page-break-inside:avoid!important}
@@ -36,7 +32,6 @@
     }
   </style>
 </head>
-
 <body class="guitar-bg">
   <div class="p-6">
     <div class="a4 sheet rounded-2xl shadow-xl border border-gray-200">
@@ -44,30 +39,16 @@
         <h1 class="text-2xl font-bold">Atkin Custom Spec Sheet</h1>
         <div id="statusMessage" class="hidden"></div>
 
-        <!-- Header -->
         <div class="bg-gray-50 p-4 rounded-xl shadow-inner space-y-4">
           <div class="grid md:grid-cols-4 gap-4">
+            <div><label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label><input id="serial" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
+            <div><label for="customer" class="block text-sm text-gray-700 mb-1">Customer Name</label><input id="customer" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
+            <div><label for="email" class="block text-sm text-gray-700 mb-1">Contact Email</label><input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm"></div>
             <div>
-              <label for="serial" class="block text-sm text-gray-700 mb-1">Serial Number</label>
-              <input id="serial" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-            <div>
-              <label for="customer" class="block text-sm text-gray-700 mb-1">Customer Name</label>
-              <input id="customer" type="text" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-            <div>
-              <label for="email" class="block text-sm text-gray-700 mb-1">Contact Email</label>
-              <input id="email" type="email" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-            </div>
-
-            <div>
-              <label class="block text-sm text-gray-700 mb-1" for="model">Model</label>
-              <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20">
-                <option value="">Loading…</option>
-              </select>
-              <label for="showCustomOnly" class="mt-2 flex items-center gap-2 cursor-pointer select-none text-[12px] text-gray-600 print-hidden">
-                <input id="showCustomOnly" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
-                <span class="leading-none">Show only custom models</span>
+              <label for="model" class="block text-sm text-gray-700 mb-1">Model</label>
+              <select id="model" class="w-full appearance-none rounded-2xl border px-4 py-3 shadow-sm"><option value="">Loading…</option></select>
+              <label for="showCustomOnly" class="mt-2 flex items-center gap-2 text-[12px] text-gray-600 print-hidden">
+                <input id="showCustomOnly" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-emerald-600"><span>Show only custom models</span>
               </label>
             </div>
           </div>
@@ -76,10 +57,8 @@
             <div>
               <label for="rightLeft" class="block text-sm text-gray-700 mb-1">RIGHT / LEFT</label>
               <div class="flex items-center gap-3">
-                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none">
-                  <option value="">Select…</option>
-                  <option value="RIGHT">RIGHT</option>
-                  <option value="LEFT">LEFT</option>
+                <select id="rightLeft" class="w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none">
+                  <option value="">Select…</option><option value="RIGHT">RIGHT</option><option value="LEFT">LEFT</option>
                 </select>
                 <span id="handedBadge" class="print-only text-xs font-semibold px-2 py-1 rounded border border-transparent"></span>
               </div>
@@ -87,31 +66,25 @@
           </div>
         </div>
 
-        <!-- Specs -->
         <div id="specsSection" class="space-y-4 hidden">
           <h2 class="text-lg font-semibold text-gray-800">Specifications</h2>
           <div id="specsGrid" class="grid md:grid-cols-2 gap-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
         </div>
 
-        <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm text-gray-700 mb-1">Additional Notes</label>
-          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20" placeholder="Anything extra to capture…"></textarea>
+          <textarea id="notes" class="w-full min-h-[140px] border rounded-2xl px-4 py-3 shadow-sm" placeholder="Anything extra to capture…"></textarea>
         </div>
 
-        <!-- Actions -->
         <div class="flex flex-wrap items-center gap-3 pt-2 print-hidden">
-          <button id="btnPrint" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50">Print PDF</button>
-          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 no-underline">Edit spec sheet (Google Sheets)</a>
-          <button id="btnSaveModel" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-green-100 hover:bg-green-200">Save as New Model</button>
-          <button id="hardResetBtn" class="inline-flex items-center rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
+          <button id="btnPrint" class="rounded-2xl border px-4 py-2 text-sm shadow-sm hover:bg-gray-50">Print PDF</button>
+          <a href="https://docs.google.com/spreadsheets/d/1pIU3AycF8uHF8pAtncp8hbvo9xY295iucBs8OtcQgrc/edit#gid=1234273116" target="_blank" class="rounded-2xl border px-4 py-2 text-sm shadow-sm hover:bg-gray-50">Edit spec sheet (Google Sheets)</a>
+          <button id="btnSaveModel" class="rounded-2xl border px-4 py-2 text-sm shadow-sm bg-green-100 hover:bg-green-200">Save as New Model</button>
+          <button id="hardResetBtn" class="rounded-2xl border px-4 py-2 text-sm shadow-sm bg-orange-100 hover:bg-orange-200">Reset form</button>
         </div>
 
-        <!-- Hidden POST (no CORS) -->
-        <form id="gasForm" method="POST" target="gasFrame" class="hidden">
-          <input type="hidden" name="payload" id="gasPayload" />
-        </form>
-
+        <!-- Hidden POST -->
+        <form id="gasForm" method="POST" target="gasFrame" class="hidden"><input type="hidden" name="payload" id="gasPayload" /></form>
         <iframe id="gasFrame" name="gasFrame" class="hidden" style="display:none;"
                 sandbox="allow-forms allow-scripts allow-same-origin"
                 referrerpolicy="no-referrer"
@@ -121,39 +94,26 @@
   </div>
 
   <script>
-    /* ================= CONFIG ================= */
-    // Use your /exec Web App URL (NOT the usercontent echo link).
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbzhmYaB2RQFd2OcNw4Xrtg8IWfn7KchuqFwuRnrvBvKN0YTVUdMpw-pHTIOOx_-6oAf/exec";
+    /* ===== CONFIG ===== */
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbw0Ogwczo6pxGR9HyBCJyr3g-SuFIu31gGM-RmiYUAzPuBriTL7DTwXSz3dChXD41WS/exec";
     document.getElementById('gasForm').action = GAS_BASE;
 
-    /* ================= State ================= */
-    let MODEL_PRESETS = {};
-    let CUSTOM_MODELS = {};
-    let GUITAR_SPECS = {};
-    let baseline = {};
-    let currentSpecs = {};
-    let dirtyFields = new Set();
-    let dataLoaded = false;
+    /* ===== State ===== */
+    let MODEL_PRESETS = {}, CUSTOM_MODELS = {}, GUITAR_SPECS = {};
+    let baseline = {}, currentSpecs = {}, dirtyFields = new Set(), dataLoaded = false;
 
-    /* ================= Boot ================= */
+    /* ===== Boot ===== */
     window.addEventListener('DOMContentLoaded', () => {
       bindUI();
-      // All initial loads via iframe POST (no fetch → no CORS)
       Promise.all([
         gasCall({action:'listModels'},  ['listModels']),
         gasCall({action:'listCustom'},  ['listCustom']),
         gasCall({action:'listOptions'}, ['listOptions'])
-      ]).then(([m, c, o])=>{
-        MODEL_PRESETS = m.data || {};
-        CUSTOM_MODELS = c.data || {};
-        GUITAR_SPECS  = o.data || {};
-        dataLoaded = true;
-        populateModelDropdown();
+      ]).then(([m,c,o])=>{
+        MODEL_PRESETS = m.data || {}; CUSTOM_MODELS = c.data || {}; GUITAR_SPECS = o.data || {};
+        dataLoaded = true; populateModelDropdown();
         showStatus(`✅ Loaded ${Object.keys(MODEL_PRESETS).length} factory, ${Object.keys(CUSTOM_MODELS).length} custom, ${Object.keys(GUITAR_SPECS).length} fields`, 'success');
-      }).catch(err=>{
-        console.error(err);
-        showStatus(`❌ Failed to load: ${err.message}`, 'error');
-      });
+      }).catch(err=> showStatus(`❌ Failed to load: ${err.message}`,'error'));
 
       window.addEventListener('beforeprint', () => updateHandedBadge(document.getElementById('rightLeft')?.value || ''));
     });
@@ -167,7 +127,7 @@
       document.getElementById('showCustomOnly').addEventListener('change', populateModelDropdown);
     }
 
-    /* ================= GAS iframe helper ================= */
+    /* ===== iframe POST helper ===== */
     function gasCall(payload, expectTypes = ['*'], timeoutMs = 15000){
       return new Promise((resolve, reject)=>{
         let done = false;
@@ -176,164 +136,101 @@
           if (expectTypes.includes('*') || expectTypes.includes(msg.type)){
             window.removeEventListener('message', onMsg);
             done = true;
-            if (msg.ok) resolve(msg);
-            else reject(new Error(msg.error || 'Unknown error'));
+            if (msg.ok) resolve(msg); else reject(new Error(msg.error || 'Unknown error'));
           }
         };
         window.addEventListener('message', onMsg, false);
-
-        const form  = document.getElementById('gasForm');
-        const input = document.getElementById('gasPayload');
-        input.value = JSON.stringify(payload);
-        form.action = GAS_BASE;
+        const form = document.getElementById('gasForm');
+        document.getElementById('gasPayload').value = JSON.stringify(payload);
         form.submit();
-
-        setTimeout(()=>{
-          if (!done){
-            window.removeEventListener('message', onMsg);
-            reject(new Error('Timeout (check deployment + auth)'));
-          }
-        }, timeoutMs);
+        setTimeout(()=>{ if(!done){ window.removeEventListener('message', onMsg); reject(new Error('Timeout (check deployment + auth)')); }}, timeoutMs);
       });
     }
 
-    /* ================= Status ================= */
+    /* ===== Status ===== */
     function showStatus(message, type = 'info') {
       const div = document.getElementById('statusMessage');
-      const tone = {
-        success: 'bg-green-50 border-green-200 text-green-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        info:    'bg-amber-50 border-amber-200 text-amber-800',
-        error:   'bg-red-50 border-red-200 text-red-700'
-      }[type] || 'bg-amber-50 border-amber-200 text-amber-800';
-      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`;
-      div.textContent = message;
-      div.classList.remove('hidden');
+      const tone = { success:'bg-green-50 border-green-200 text-green-800', warning:'bg-amber-50 border-amber-200 text-amber-800', info:'bg-amber-50 border-amber-200 text-amber-800', error:'bg-red-50 border-red-200 text-red-700' }[type];
+      div.className = `flex items-center gap-2 p-3 border rounded-xl ${tone}`; div.textContent = message; div.classList.remove('hidden');
       if (type === 'info' || type === 'success') setTimeout(() => div.classList.add('hidden'), 3000);
     }
 
-    /* ================= Data/UI ================= */
+    /* ===== Data/UI ===== */
     function populateModelDropdown(){
       const select = document.getElementById('model');
       const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
       const source = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
       const placeholder = showCustomOnly ? 'Custom Model' : 'Factory Model';
-      select.innerHTML = '';
-      select.appendChild(new Option(placeholder, ''));
+      select.innerHTML = ''; select.appendChild(new Option(placeholder, ''));
       for (const n of Object.keys(source).sort()) select.appendChild(new Option(n, n));
-      select.value = '';
-      hideSpecs();
+      select.value = ''; hideSpecs();
     }
-
     function handleRightLeftChange(e){
-      const val = e.target.value;
-      e.target.classList.remove('right-selected','left-selected');
-      if (val==='RIGHT') e.target.classList.add('right-selected');
-      if (val==='LEFT')  e.target.classList.add('left-selected');
-      updateHandedBadge(val);
+      const val=e.target.value; e.target.classList.remove('right-selected','left-selected');
+      if (val==='RIGHT') e.target.classList.add('right-selected'); if (val==='LEFT') e.target.classList.add('left-selected'); updateHandedBadge(val);
     }
     function updateHandedBadge(val){
-      const badge = document.getElementById('handedBadge');
-      if (!badge) return;
-      badge.className = 'print-only text-xs font-semibold px-2 py-1 rounded border';
+      const badge=document.getElementById('handedBadge'); if(!badge) return;
+      badge.className='print-only text-xs font-semibold px-2 py-1 rounded border';
       if (val==='RIGHT'){ badge.textContent='RIGHT'; badge.classList.add('badge-right'); }
       else if (val==='LEFT'){ badge.textContent='LEFT'; badge.classList.add('badge-left'); }
       else { badge.textContent=''; }
     }
-
     function handleModelChange(e){
-      const name = e.target.value;
-      if (!name){ hideSpecs(); return; }
-      const showCustomOnly = document.getElementById('showCustomOnly')?.checked === true;
-      const src = showCustomOnly ? CUSTOM_MODELS : MODEL_PRESETS;
-      const data = src[name];
-      if (!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
-      baseline = { ...data };
-      currentSpecs = { ...data };
-      dirtyFields.clear();
-      showSpecs();
-      buildSpecsUI(data);
+      const name=e.target.value; if(!name){ hideSpecs(); return; }
+      const src = document.getElementById('showCustomOnly')?.checked ? CUSTOM_MODELS : MODEL_PRESETS;
+      const data = src[name]; if(!data){ showStatus(`No data for ${name}`,'error'); hideSpecs(); return; }
+      baseline = {...data}; currentSpecs = {...data}; dirtyFields.clear(); showSpecs(); buildSpecsUI(data);
     }
     function showSpecs(){ document.getElementById('specsSection').classList.remove('hidden'); }
     function hideSpecs(){ document.getElementById('specsSection').classList.add('hidden'); }
 
     function buildSpecsUI(modelData){
-      const grid = document.getElementById('specsGrid');
-      grid.innerHTML = '';
-      const fields = new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
+      const grid=document.getElementById('specsGrid'); grid.innerHTML='';
+      const fields=new Set([...Object.keys(GUITAR_SPECS), ...Object.keys(modelData)]);
       for (const field of fields){
-        const wrapper = document.createElement('div');
-        const value = modelData[field] ?? '';
-        const options = GUITAR_SPECS[field];
-
+        const wrap=document.createElement('div'); const value=modelData[field] ?? ''; const options=GUITAR_SPECS[field];
         if (Array.isArray(options) && options.length){
-          const sel = document.createElement('select');
-          sel.id = `spec-${field}`;
-          sel.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-black/20 appearance-none';
-          sel.addEventListener('change', ()=>handleSpecChange(field, sel.value));
-          sel.appendChild(new Option('Select…',''));
-          for (const opt of options) sel.appendChild(new Option(opt,opt));
-          if (value && !options.includes(value)) sel.appendChild(new Option(value,value)); // keep legacy values
-          sel.value = value || '';
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`;
-          wrapper.appendChild(sel);
+          const sel=document.createElement('select'); sel.id=`spec-${field}`; sel.className='w-full border rounded-2xl px-4 py-3 shadow-sm appearance-none';
+          sel.addEventListener('change',()=>handleSpecChange(field, sel.value));
+          sel.appendChild(new Option('Select…','')); for (const opt of options) sel.appendChild(new Option(opt,opt));
+          if (value && !options.includes(value)) sel.appendChild(new Option(value,value));
+          sel.value=value||''; wrap.innerHTML=`<label class="block text-sm text-gray-700 mb-1" for="${sel.id}">${field}</label>`; wrap.appendChild(sel);
         } else {
-          const inp = document.createElement('input');
-          inp.type='text'; inp.readOnly = true; inp.value = value || '';
-          inp.className = 'w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
-          wrapper.innerHTML = `<label class="block text-sm text-gray-700 mb-1">${field}</label>`;
-          wrapper.appendChild(inp);
+          const inp=document.createElement('input'); inp.type='text'; inp.readOnly=true; inp.value=value||''; inp.className='w-full border rounded-2xl px-4 py-3 shadow-sm bg-white';
+          wrap.innerHTML=`<label class="block text-sm text-gray-700 mb-1">${field}</label>`; wrap.appendChild(inp);
         }
-        grid.appendChild(wrapper);
-        currentSpecs[field] = value || '';
+        grid.appendChild(wrap); currentSpecs[field]=value||'';
       }
     }
-
     function handleSpecChange(field, value){
-      currentSpecs[field] = value;
-      const base = baseline[field] ?? '';
-      const sel = document.getElementById(`spec-${field}`);
-      if (!sel) return;
-      if (value && value !== base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); }
-      else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
-      const n = dirtyFields.size;
-      if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
+      currentSpecs[field]=value; const base=baseline[field] ?? ''; const sel=document.getElementById(`spec-${field}`);
+      if (!sel) return; if (value && value!==base){ dirtyFields.add(field); sel.classList.add('highlight-changed'); } else { dirtyFields.delete(field); sel.classList.remove('highlight-changed'); }
+      const n=dirtyFields.size; if (n>0) showStatus(`${n} spec${n===1?'':'s'} modified`,'info');
     }
 
-    /* ================= Print ================= */
+    /* ===== Print ===== */
     function printPdf(){
-      const selectedModel = document.getElementById('model')?.value;
-      if (selectedModel) showSpecs();
+      const selectedModel=document.getElementById('model')?.value; if (selectedModel) showSpecs();
       updateHandedBadge(document.getElementById('rightLeft')?.value || '');
-      setTimeout(()=>{
-        const h1 = document.querySelector('h1');
-        const original = h1.textContent;
-        const serial = (document.getElementById('serial').value || '').trim();
-        h1.textContent = serial ? `Atkin Custom Spec Sheet - Serial: ${serial}` : 'Atkin Custom Spec Sheet';
-        window.print();
-        setTimeout(()=>{ h1.textContent = original; }, 250);
-      }, 80);
+      setTimeout(()=>{ const h1=document.querySelector('h1'); const original=h1.textContent; const serial=(document.getElementById('serial').value||'').trim();
+        h1.textContent=serial?`Atkin Custom Spec Sheet - Serial: ${serial}`:'Atkin Custom Spec Sheet'; window.print(); setTimeout(()=>{ h1.textContent=original; },250);
+      },80);
     }
 
-    /* ================= Reset ================= */
+    /* ===== Reset ===== */
     function hardReset(){
-      const btn = document.getElementById('hardResetBtn'); btn.disabled = true; btn.textContent = 'Reloading…';
-      for (const id of ['serial','customer','email','notes']){ const el = document.getElementById(id); if (el) el.value=''; }
-      const modelSel = document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
-      const handed = document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
+      const btn=document.getElementById('hardResetBtn'); btn.disabled=true; btn.textContent='Reloading…';
+      for (const id of ['serial','customer','email','notes']){ const el=document.getElementById(id); if(el) el.value=''; }
+      const modelSel=document.getElementById('model'); modelSel.value=''; modelSel.dispatchEvent(new Event('change'));
+      const handed=document.getElementById('rightLeft'); handed.value=''; handed.classList.remove('right-selected','left-selected'); updateHandedBadge('');
       MODEL_PRESETS={}; CUSTOM_MODELS={}; GUITAR_SPECS={}; baseline={}; currentSpecs={}; dirtyFields.clear(); hideSpecs();
-      Promise.all([
-        gasCall({action:'listModels'},  ['listModels']),
-        gasCall({action:'listCustom'},  ['listCustom']),
-        gasCall({action:'listOptions'}, ['listOptions'])
-      ]).then(([m,c,o])=>{
-        MODEL_PRESETS = m.data || {}; CUSTOM_MODELS = c.data || {}; GUITAR_SPECS = o.data || {};
-        btn.disabled=false; btn.textContent='Reset form'; showStatus('✅ Form reset completed','success');
-        populateModelDropdown();
-      }).catch(err=>{ btn.disabled=false; btn.textContent='Reset form'; showStatus(`❌ Reset failed: ${err.message}`,'error'); });
+      Promise.all([gasCall({action:'listModels'},['listModels']), gasCall({action:'listCustom'},['listCustom']), gasCall({action:'listOptions'},['listOptions'])])
+        .then(([m,c,o])=>{ MODEL_PRESETS=m.data||{}; CUSTOM_MODELS=c.data||{}; GUITAR_SPECS=o.data||{}; btn.disabled=false; btn.textContent='Reset form'; populateModelDropdown(); showStatus('✅ Form reset completed','success'); })
+        .catch(err=>{ btn.disabled=false; btn.textContent='Reset form'; showStatus(`❌ Reset failed: ${err.message}`,'error'); });
     }
 
-    /* ================= Save Model + PDF ================= */
+    /* ===== Save Model + PDF ===== */
     async function saveAsNewModel(){
       try{
         if (!dataLoaded) return showStatus('⚠️ Data not loaded yet','warning');
@@ -343,9 +240,7 @@
         if (!name || !name.trim()) return showStatus('Model name is required.','error');
         name = name.trim();
 
-        // Existence check in CUSTOM
         const exists = await gasCall({action:'exists', where:'custom', name}, ['exists']).then(r => !!r.exists);
-
         let overwrite = false;
         if (exists){
           const doOverwrite = confirm(`A custom model named "${name}" already exists.\n\nOK = Overwrite existing\nCancel = Pick a different name`);
@@ -358,7 +253,7 @@
               if (exists2) { alert(`"${alt}" already exists.`); continue; }
               name = alt.trim(); break;
             }
-          }else{ overwrite = true; }
+          } else overwrite = true;
         }
 
         const specsPayload = {
@@ -376,21 +271,16 @@
         const verb = (saved.action === 'updated') ? 'updated' : 'saved';
         showStatus(`✅ Model “${saved.name}” ${verb} to Custom Models`,'success');
 
-        // refresh custom list and reselect
         const custom = await gasCall({action:'listCustom'}, ['listCustom']);
         CUSTOM_MODELS = custom.data || {}; populateModelDropdown();
         const sel = document.getElementById('model'); if (sel){ sel.value = saved.name; sel.dispatchEvent(new Event('change', {bubbles:true})); }
 
-        // Ask for PDF save
         const wantPdf = confirm('Save PDF to Google Drive now?');
         if (wantPdf){
           const pdf = await gasCall({
-            action:'savePdf',
-            fileName: ensurePdfExt(name),
+            action:'savePdf', fileName: ensurePdfExt(name),
             serial:(document.getElementById('serial')||{}).value || '',
-            modelName:saved.name,
-            specs: specsPayload,
-            overwriteDrive:false
+            modelName:saved.name, specs:specsPayload, overwriteDrive:false
           }, ['pdfSaved','savePdf']).catch(err => ({ ok:false, error:err.message }));
 
           if (pdf && pdf.ok){
@@ -400,7 +290,7 @@
             const ow = confirm(`A PDF named "${ensurePdfExt(name)}" already exists.\n\nOK = Overwrite\nCancel = Skip`);
             if (ow){
               const pdf2 = await gasCall({
-                action:'savePdf', fileName:ensurePdfExt(name),
+                action:'savePdf', fileName: ensurePdfExt(name),
                 serial:(document.getElementById('serial')||{}).value || '',
                 modelName:saved.name, specs:specsPayload, overwriteDrive:true
               }, ['pdfSaved','savePdf']);
@@ -411,11 +301,7 @@
             showStatus(`❌ PDF error: ${pdf.error}`,'error');
           }
         }
-
-      }catch(err){
-        console.error(err);
-        showStatus(`❌ Error: ${err.message}`,'error');
-      }
+      }catch(err){ showStatus(`❌ Error: ${err.message}`,'error'); }
     }
 
     function ensurePdfExt(name){ return (name && name.toLowerCase().endsWith('.pdf')) ? name : (name + '.pdf'); }
